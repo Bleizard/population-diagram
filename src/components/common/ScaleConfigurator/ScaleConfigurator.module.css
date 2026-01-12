@@ -1,0 +1,142 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--color-bg-hover);
+  border-radius: 10px;
+  border: 1px solid var(--color-border-light);
+  transition: 
+    background-color var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+}
+
+.header svg {
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.options {
+  display: flex;
+  gap: 6px;
+}
+
+.option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.option:hover:not(.active) {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.option.active {
+  color: var(--color-primary);
+  background: var(--color-selection-bg);
+  border-color: var(--color-primary);
+}
+
+.optionHint {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.customInput {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inputLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  transition: 
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.info {
+  display: flex;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.infoValue {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .options {
+    flex-direction: column;
+  }
+  
+  .info {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+

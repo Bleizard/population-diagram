@@ -16,6 +16,8 @@ interface PopulationPyramidProps {
   theme?: Theme;
   /** Режим отображения: split (по полу) или combined (суммарно) */
   viewMode?: ViewMode;
+  /** Кастомный максимум для оси X (если не задан, вычисляется автоматически) */
+  maxScale?: number;
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -66,11 +68,15 @@ export function PopulationPyramid({
   data, 
   theme = 'light', 
   viewMode = 'split',
+  maxScale,
   className 
 }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
   const metadata = useMemo(() => extractChartMetadata(data), [data]);
   const colors = THEME_COLORS[theme];
+  
+  // Используем кастомный масштаб или из метаданных
+  const effectiveMaxScale = maxScale ?? metadata.maxValue;
 
   // Высота диаграммы зависит от количества возрастных групп
   const chartHeight = Math.max(
@@ -182,8 +188,8 @@ export function PopulationPyramid({
       },
       xAxis: {
         type: 'value',
-        min: -metadata.maxValue,
-        max: metadata.maxValue,
+        min: -effectiveMaxScale,
+        max: effectiveMaxScale,
         axisLabel: {
           formatter: (value: number) => formatPopulation(Math.abs(value)),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
@@ -277,13 +283,15 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
     const ageLabels = data.ageGroups.map((group) => group.age);
     const totalData = data.ageGroups.map((group) => group.male + group.female);
     const maxTotal = Math.max(...totalData);
+    // Для combined режима используем двойной масштаб (male + female)
+    const combinedMaxScale = maxScale ? maxScale * 2 : Math.ceil(maxTotal * 1.1 / 100000) * 100000;
 
     return {
       backgroundColor: colors.background,
@@ -363,7 +371,7 @@ export function PopulationPyramid({
       xAxis: {
         type: 'value',
         min: 0,
-        max: Math.ceil(maxTotal * 1.1 / 100000) * 100000, // Округляем вверх
+        max: combinedMaxScale,
         axisLabel: {
           formatter: (value: number) => formatPopulation(value),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
@@ -430,7 +438,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors]);
+  }, [data, metadata, colors, maxScale]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;

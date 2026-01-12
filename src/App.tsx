@@ -1,9 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { usePopulationData, useTheme } from './hooks';
 import { FileUpload } from './components/common/FileUpload';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { ViewModeToggle } from './components/common/ViewModeToggle';
 import type { ViewMode } from './components/common/ViewModeToggle';
+import { ScaleConfigurator, calculateScale } from './components/common/ScaleConfigurator';
+import type { ScaleConfig } from './components/common/ScaleConfigurator';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { aggregateByAgeGroups } from './services/dataAggregator';
@@ -17,8 +19,26 @@ function App() {
   // Режим отображения (с делением по полу или суммарно)
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   
+  // Настройка масштаба оси X
+  const [scaleConfig, setScaleConfig] = useState<ScaleConfig>({ mode: 'auto' });
+  
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
+
+  // Вычисляем реальный максимум из данных
+  const dataMaxValue = useMemo(() => {
+    if (!data) return 0;
+    let max = 0;
+    for (const group of data.ageGroups) {
+      max = Math.max(max, group.male, group.female);
+    }
+    return max;
+  }, [data]);
+
+  // Вычисляем эффективный масштаб
+  const effectiveScale = useMemo(() => {
+    return calculateScale(scaleConfig, dataMaxValue);
+  }, [scaleConfig, dataMaxValue]);
 
   // Создание нового агрегированного графика
   const handleCreateGroupedChart = useCallback((groups: AgeRangeConfig[]) => {
@@ -45,6 +65,7 @@ function App() {
     clearData();
     setAdditionalCharts([]);
     setViewMode('split');
+    setScaleConfig({ mode: 'auto' });
   }, [clearData]);
 
   // Вычисляем максимальный возраст для конфигуратора
@@ -118,6 +139,15 @@ function App() {
               </div>
             </div>
 
+            {/* Настройки отображения */}
+            <div className={styles.settingsRow}>
+              <ScaleConfigurator
+                config={scaleConfig}
+                onChange={setScaleConfig}
+                dataMaxValue={dataMaxValue}
+              />
+            </div>
+
             {/* Конфигуратор групп */}
             <AgeGroupConfigurator
               onCreateChart={handleCreateGroupedChart}
@@ -129,7 +159,12 @@ function App() {
               <div className={styles.chartHeader}>
                 <h2 className={styles.chartTitle}>Исходные данные</h2>
               </div>
-              <PopulationPyramid data={data} theme={theme} viewMode={viewMode} />
+              <PopulationPyramid 
+                data={data} 
+                theme={theme} 
+                viewMode={viewMode}
+                maxScale={effectiveScale}
+              />
             </div>
 
             {/* Агрегированные графики */}
@@ -160,7 +195,12 @@ function App() {
                     </svg>
                   </button>
                 </div>
-                <PopulationPyramid data={chart.data} theme={theme} viewMode={viewMode} />
+                <PopulationPyramid 
+                  data={chart.data} 
+                  theme={theme} 
+                  viewMode={viewMode}
+                  maxScale={effectiveScale}
+                />
               </div>
             ))}
           </section>

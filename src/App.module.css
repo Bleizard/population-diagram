@@ -191,6 +191,12 @@
     color var(--transition-normal);
 }
 
+.settingsRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .chartWrapper {
   display: flex;
   flex-direction: column;
