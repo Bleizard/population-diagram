@@ -149,15 +149,6 @@ function App() {
               <SettingsButton onClick={() => setIsSettingsOpen(true)} />
             </div>
 
-            {/* Настройки отображения */}
-            <div className={styles.settingsRow}>
-              <ScaleConfigurator
-                config={scaleConfig}
-                onChange={setScaleConfig}
-                dataMaxValue={dataMaxValue}
-              />
-            </div>
-
             {/* Конфигуратор групп */}
             <AgeGroupConfigurator
               onCreateChart={handleCreateGroupedChart}
@@ -219,10 +210,12 @@ function App() {
               isOpen={isSettingsOpen}
               onClose={() => setIsSettingsOpen(false)}
             >
-              <SettingsSection title="Настройки графика">
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-                  Настройки будут добавлены в следующих обновлениях.
-                </p>
+              <SettingsSection title="Масштаб оси X">
+                <ScaleConfigurator
+                  config={scaleConfig}
+                  onChange={setScaleConfig}
+                  dataMaxValue={dataMaxValue}
+                />
               </SettingsSection>
             </ChartSettingsPanel>
           </section>
