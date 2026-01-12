@@ -8,6 +8,11 @@ import { ScaleConfigurator, calculateScale } from './components/common/ScaleConf
 import type { ScaleConfig } from './components/common/ScaleConfigurator';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
+import { 
+  ChartSettingsPanel, 
+  SettingsSection, 
+  SettingsButton 
+} from './components/features/ChartSettingsPanel';
 import { aggregateByAgeGroups } from './services/dataAggregator';
 import type { AgeRangeConfig, ChartInstance } from './types';
 import styles from './App.module.css';
@@ -24,6 +29,9 @@ function App() {
   
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
+  
+  // Состояние панели настроек
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Вычисляем реальный максимум из данных
   const dataMaxValue = useMemo(() => {
@@ -137,6 +145,8 @@ function App() {
                   </span>
                 )}
               </div>
+              
+              <SettingsButton onClick={() => setIsSettingsOpen(true)} />
             </div>
 
             {/* Настройки отображения */}
@@ -203,6 +213,18 @@ function App() {
                 />
               </div>
             ))}
+            
+            {/* Панель настроек */}
+            <ChartSettingsPanel
+              isOpen={isSettingsOpen}
+              onClose={() => setIsSettingsOpen(false)}
+            >
+              <SettingsSection title="Настройки графика">
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
+                  Настройки будут добавлены в следующих обновлениях.
+                </p>
+              </SettingsSection>
+            </ChartSettingsPanel>
           </section>
         )}
       </main>

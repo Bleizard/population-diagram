@@ -119,7 +119,7 @@
     box-shadow var(--transition-normal);
 }
 
-.toolbar > *:last-child {
+.dataInfo {
   margin-left: auto;
 }
 
