@@ -20,6 +20,8 @@ interface PopulationPyramidProps {
   maxScale?: number;
   /** Интервал отображения меток оси Y */
   yAxisInterval?: number | 'auto' | ((index: number, value: string) => boolean);
+  /** Кастомное название графика */
+  customTitle?: string;
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -72,11 +74,15 @@ export function PopulationPyramid({
   viewMode = 'split',
   maxScale,
   yAxisInterval = 0,
+  customTitle,
   className 
 }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
   const metadata = useMemo(() => extractChartMetadata(data), [data]);
   const colors = THEME_COLORS[theme];
+  
+  // Используем кастомное название если оно задано
+  const effectiveTitle = customTitle?.trim() || metadata.title;
   
   // Используем кастомный масштаб или из метаданных
   const effectiveMaxScale = maxScale ?? metadata.maxValue;
@@ -101,7 +107,7 @@ export function PopulationPyramid({
     return {
       backgroundColor: colors.background,
       title: {
-        text: metadata.title,
+        text: effectiveTitle,
         subtext: metadata.subtitle || '',
         left: 'center',
         top: 10,
@@ -301,7 +307,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -314,7 +320,7 @@ export function PopulationPyramid({
     return {
       backgroundColor: colors.background,
       title: {
-        text: metadata.title,
+        text: effectiveTitle,
         subtext: metadata.subtitle || '',
         left: 'center',
         top: 10,
@@ -471,7 +477,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;

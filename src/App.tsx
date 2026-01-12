@@ -8,6 +8,7 @@ import { ScaleConfigurator, calculateScale } from './components/common/ScaleConf
 import type { ScaleConfig } from './components/common/ScaleConfigurator';
 import { YAxisLabelConfig, getYAxisInterval } from './components/common/YAxisLabelConfig';
 import type { YAxisLabelMode } from './components/common/YAxisLabelConfig';
+import { ChartTitleInput } from './components/common/ChartTitleInput';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { 
@@ -31,6 +32,9 @@ function App() {
   
   // Настройка отображения оси Y
   const [yAxisLabelMode, setYAxisLabelMode] = useState<YAxisLabelMode>('all');
+  
+  // Кастомное название графика
+  const [customTitle, setCustomTitle] = useState('');
   
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
@@ -85,6 +89,7 @@ function App() {
     setViewMode('split');
     setScaleConfig({ mode: 'auto' });
     setYAxisLabelMode('all');
+    setCustomTitle('');
   }, [clearData]);
 
   // Вычисляем максимальный возраст для конфигуратора
@@ -175,6 +180,7 @@ function App() {
                 viewMode={viewMode}
                 maxScale={effectiveScale}
                 yAxisInterval={yAxisInterval}
+                customTitle={customTitle}
               />
             </div>
 
@@ -221,6 +227,14 @@ function App() {
               isOpen={isSettingsOpen}
               onClose={() => setIsSettingsOpen(false)}
             >
+              <SettingsSection title="Название графика">
+                <ChartTitleInput
+                  value={customTitle}
+                  originalTitle={data.title}
+                  onChange={setCustomTitle}
+                />
+              </SettingsSection>
+              
               <SettingsSection title="Формат отображения">
                 <ViewModeToggle mode={viewMode} onChange={setViewMode} />
               </SettingsSection>

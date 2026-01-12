@@ -1,0 +1,2 @@
+export { ChartTitleInput } from './ChartTitleInput';
+
