@@ -18,6 +18,8 @@ interface PopulationPyramidProps {
   viewMode?: ViewMode;
   /** Кастомный максимум для оси X (если не задан, вычисляется автоматически) */
   maxScale?: number;
+  /** Интервал отображения меток оси Y */
+  yAxisInterval?: number | 'auto' | ((index: number, value: string) => boolean);
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -69,6 +71,7 @@ export function PopulationPyramid({
   theme = 'light', 
   viewMode = 'split',
   maxScale,
+  yAxisInterval = 0,
   className 
 }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
@@ -223,6 +226,7 @@ export function PopulationPyramid({
           fontSize: 10,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           color: colors.textSecondary,
+          interval: yAxisInterval,
         },
         splitLine: { 
           show: true, 
@@ -297,7 +301,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -419,6 +423,7 @@ export function PopulationPyramid({
           fontSize: 10,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           color: colors.textSecondary,
+          interval: yAxisInterval,
         },
         splitLine: { 
           show: true, 
@@ -466,7 +471,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors, maxScale]);
+  }, [data, metadata, colors, maxScale, yAxisInterval]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;

@@ -6,6 +6,8 @@ import { ViewModeToggle } from './components/common/ViewModeToggle';
 import type { ViewMode } from './components/common/ViewModeToggle';
 import { ScaleConfigurator, calculateScale } from './components/common/ScaleConfigurator';
 import type { ScaleConfig } from './components/common/ScaleConfigurator';
+import { YAxisLabelConfig, getYAxisInterval } from './components/common/YAxisLabelConfig';
+import type { YAxisLabelMode } from './components/common/YAxisLabelConfig';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { 
@@ -27,6 +29,9 @@ function App() {
   // Настройка масштаба оси X
   const [scaleConfig, setScaleConfig] = useState<ScaleConfig>({ mode: 'auto' });
   
+  // Настройка отображения оси Y
+  const [yAxisLabelMode, setYAxisLabelMode] = useState<YAxisLabelMode>('all');
+  
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
   
@@ -47,6 +52,11 @@ function App() {
   const effectiveScale = useMemo(() => {
     return calculateScale(scaleConfig, dataMaxValue);
   }, [scaleConfig, dataMaxValue]);
+  
+  // Вычисляем интервал для оси Y
+  const yAxisInterval = useMemo(() => {
+    return getYAxisInterval(yAxisLabelMode);
+  }, [yAxisLabelMode]);
 
   // Создание нового агрегированного графика
   const handleCreateGroupedChart = useCallback((groups: AgeRangeConfig[]) => {
@@ -74,6 +84,7 @@ function App() {
     setAdditionalCharts([]);
     setViewMode('split');
     setScaleConfig({ mode: 'auto' });
+    setYAxisLabelMode('all');
   }, [clearData]);
 
   // Вычисляем максимальный возраст для конфигуратора
@@ -163,6 +174,7 @@ function App() {
                 theme={theme} 
                 viewMode={viewMode}
                 maxScale={effectiveScale}
+                yAxisInterval={yAxisInterval}
               />
             </div>
 
@@ -199,6 +211,7 @@ function App() {
                   theme={theme} 
                   viewMode={viewMode}
                   maxScale={effectiveScale}
+                  yAxisInterval={yAxisInterval}
                 />
               </div>
             ))}
@@ -217,6 +230,13 @@ function App() {
                   config={scaleConfig}
                   onChange={setScaleConfig}
                   dataMaxValue={dataMaxValue}
+                />
+              </SettingsSection>
+              
+              <SettingsSection title="Метки оси Y (возраст)">
+                <YAxisLabelConfig
+                  mode={yAxisLabelMode}
+                  onChange={setYAxisLabelMode}
                 />
               </SettingsSection>
             </ChartSettingsPanel>
