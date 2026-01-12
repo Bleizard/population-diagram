@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.toggle {
+  display: flex;
+  background: var(--color-bg-hover);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.option:hover:not(.active) {
+  color: var(--color-text);
+  background: var(--color-bg-card);
+}
+
+.option.active {
+  color: var(--color-text);
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.option svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.option.active svg {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  
+  .label {
+    text-align: center;
+  }
+  
+  .toggle {
+    justify-content: center;
+  }
+}
+

@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { usePopulationData, useTheme } from './hooks';
 import { FileUpload } from './components/common/FileUpload';
 import { ThemeToggle } from './components/common/ThemeToggle';
+import { ViewModeToggle } from './components/common/ViewModeToggle';
+import type { ViewMode } from './components/common/ViewModeToggle';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { aggregateByAgeGroups } from './services/dataAggregator';
@@ -11,6 +13,9 @@ import styles from './App.module.css';
 function App() {
   const { data, isLoading, error, loadFile, clearData } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
+  
+  // Режим отображения (с делением по полу или суммарно)
+  const [viewMode, setViewMode] = useState<ViewMode>('split');
   
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
@@ -39,6 +44,7 @@ function App() {
   const handleClearAll = useCallback(() => {
     clearData();
     setAdditionalCharts([]);
+    setViewMode('split');
   }, [clearData]);
 
   // Вычисляем максимальный возраст для конфигуратора
@@ -97,6 +103,8 @@ function App() {
                 Загрузить другой файл
               </button>
               
+              <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+              
               <div className={styles.dataInfo}>
                 <span className={styles.dataInfoLabel}>Загружено:</span>
                 <span className={styles.dataInfoValue}>
@@ -121,7 +129,7 @@ function App() {
               <div className={styles.chartHeader}>
                 <h2 className={styles.chartTitle}>Исходные данные</h2>
               </div>
-              <PopulationPyramid data={data} theme={theme} />
+              <PopulationPyramid data={data} theme={theme} viewMode={viewMode} />
             </div>
 
             {/* Агрегированные графики */}
@@ -152,7 +160,7 @@ function App() {
                     </svg>
                   </button>
                 </div>
-                <PopulationPyramid data={chart.data} theme={theme} />
+                <PopulationPyramid data={chart.data} theme={theme} viewMode={viewMode} />
               </div>
             ))}
           </section>
