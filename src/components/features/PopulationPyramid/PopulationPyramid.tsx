@@ -116,7 +116,13 @@ export function PopulationPyramid({
       },
       tooltip: {
         trigger: 'axis',
-        axisPointer: { type: 'shadow' },
+        axisPointer: { 
+          type: 'line',
+          lineStyle: {
+            color: colors.centerLine,
+            type: 'dashed',
+          },
+        },
         backgroundColor: colors.tooltipBg,
         borderColor: colors.tooltipBorder,
         textStyle: { color: colors.text },
@@ -322,7 +328,13 @@ export function PopulationPyramid({
       },
       tooltip: {
         trigger: 'axis',
-        axisPointer: { type: 'shadow' },
+        axisPointer: { 
+          type: 'line',
+          lineStyle: {
+            color: colors.centerLine,
+            type: 'dashed',
+          },
+        },
         backgroundColor: colors.tooltipBg,
         borderColor: colors.tooltipBorder,
         textStyle: { color: colors.text },
