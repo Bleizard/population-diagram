@@ -5,35 +5,38 @@
 }
 
 .dropzone {
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed var(--color-border);
   border-radius: 16px;
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  transition: 
+    border-color var(--transition-normal),
+    background-color var(--transition-normal),
+    transform var(--transition-fast);
+  background: var(--color-bg-card);
 }
 
 .dropzone:hover {
-  border-color: #94a3b8;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-color: var(--color-text-muted);
+  background: var(--color-bg-hover);
 }
 
 .dropzone:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .dragOver {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: var(--color-primary);
+  background: var(--color-selection-bg);
   transform: scale(1.01);
 }
 
 .hasError {
-  border-color: #ef4444;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-color: var(--color-error);
+  background: var(--color-error-bg);
 }
 
 .loading {
@@ -53,25 +56,28 @@
 }
 
 .icon {
-  color: #64748b;
+  color: var(--color-text-muted);
   margin-bottom: 8px;
+  transition: color var(--transition-normal);
 }
 
 .dragOver .icon {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .mainText {
   font-size: 1.125rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--color-text);
   margin: 0;
+  transition: color var(--transition-normal);
 }
 
 .subText {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
   margin: 0;
+  transition: color var(--transition-normal);
 }
 
 .loadingContent {
@@ -84,8 +90,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #3b82f6;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -98,47 +104,60 @@
 
 .loadingText {
   font-size: 1rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
   margin: 0;
+  transition: color var(--transition-normal);
 }
 
 .error {
-  color: #dc2626;
+  color: var(--color-error);
   font-size: 0.875rem;
   margin-top: 12px;
   padding: 12px 16px;
-  background: #fef2f2;
+  background: var(--color-error-bg);
   border-radius: 8px;
-  border: 1px solid #fecaca;
+  border: 1px solid currentColor;
+  transition: 
+    background-color var(--transition-normal),
+    color var(--transition-normal);
 }
 
 .formatInfo {
   margin-top: 24px;
   padding: 20px;
-  background: #f8fafc;
+  background: var(--color-bg-hover);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border-light);
+  transition: 
+    background-color var(--transition-normal),
+    border-color var(--transition-normal);
 }
 
 .formatInfo h4 {
   margin: 0 0 8px 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--color-text);
+  transition: color var(--transition-normal);
 }
 
 .formatInfo p {
   margin: 0 0 8px 0;
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
+  transition: color var(--transition-normal);
 }
 
 .formatInfo code {
-  background: #e2e8f0;
+  background: var(--color-border);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.8125rem;
+  color: var(--color-text);
+  transition: 
+    background-color var(--transition-normal),
+    color var(--transition-normal);
 }
 
 .example {
@@ -152,4 +171,3 @@
   overflow-x: auto;
   margin-top: 12px;
 }
-

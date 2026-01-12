@@ -1,10 +1,12 @@
-import { usePopulationData } from './hooks';
+import { usePopulationData, useTheme } from './hooks';
 import { FileUpload } from './components/common/FileUpload';
+import { ThemeToggle } from './components/common/ThemeToggle';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import styles from './App.module.css';
 
 function App() {
   const { data, isLoading, error, loadFile, clearData } = usePopulationData();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className={styles.app}>
@@ -12,10 +14,16 @@ function App() {
       <div className={styles.backgroundPattern} aria-hidden="true" />
       
       <header className={styles.header}>
-        <h1 className={styles.title}>Population Pyramid</h1>
-        <p className={styles.subtitle}>
-          Визуализация половозрастной структуры населения
-        </p>
+        <div className={styles.headerContent}>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>Population Pyramid</h1>
+            <p className={styles.subtitle}>
+              Визуализация половозрастной структуры населения
+            </p>
+          </div>
+          
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        </div>
       </header>
 
       <main className={styles.main}>
@@ -59,7 +67,7 @@ function App() {
               </div>
             </div>
 
-            <PopulationPyramid data={data} />
+            <PopulationPyramid data={data} theme={theme} />
           </section>
         )}
       </main>

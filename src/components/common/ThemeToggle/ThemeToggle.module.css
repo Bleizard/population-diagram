@@ -1,0 +1,110 @@
+.toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: 
+    background-color var(--transition-normal),
+    color var(--transition-normal),
+    transform var(--transition-fast);
+}
+
+.toggle:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.toggle:active {
+  transform: scale(0.95);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.iconWrapper {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+  transition: 
+    opacity var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+.icon.active {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* Анимация для солнца */
+.sun.active {
+  animation: sunRise 0.5s ease-out;
+}
+
+@keyframes sunRise {
+  0% {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+  50% {
+    transform: rotate(15deg) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* Анимация для луны */
+.moon.active {
+  animation: moonRise 0.5s ease-out;
+}
+
+@keyframes moonRise {
+  0% {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+  }
+  50% {
+    transform: rotate(-15deg) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* Цвета иконок */
+.sun {
+  color: #f59e0b;
+}
+
+.moon {
+  color: #8b5cf6;
+}
+
+[data-theme="dark"] .toggle {
+  background: var(--color-bg-hover);
+}
+
+[data-theme="dark"] .toggle:hover {
+  background: var(--color-border);
+}
+

@@ -2,25 +2,61 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { useMemo } from 'react';
 import type { PopulationData } from '../../../types';
+import type { Theme } from '../../../hooks';
 import { transformToChartData, extractChartMetadata } from '../../../services/dataTransformer';
-import { CHART_COLORS, LEGEND_LABELS, AXIS_LABELS, CHART_CONFIG } from '../../../constants';
+import { LEGEND_LABELS, AXIS_LABELS, CHART_CONFIG } from '../../../constants';
 import { formatPopulation } from '../../../utils';
 import styles from './PopulationPyramid.module.css';
 
 interface PopulationPyramidProps {
   /** Данные о населении */
   data: PopulationData;
+  /** Текущая тема */
+  theme?: Theme;
   /** Дополнительный CSS класс */
   className?: string;
 }
 
 /**
+ * Цвета диаграммы для разных тем
+ */
+const THEME_COLORS = {
+  light: {
+    male: '#93c5fd',
+    maleSurplus: '#3b82f6',
+    female: '#fda4af',
+    femaleSurplus: '#f43f5e',
+    text: '#374151',
+    textSecondary: '#6b7280',
+    grid: '#e5e7eb',
+    centerLine: '#9ca3af',
+    background: '#ffffff',
+    tooltipBg: '#ffffff',
+    tooltipBorder: '#e5e7eb',
+  },
+  dark: {
+    male: '#7dd3fc',
+    maleSurplus: '#38bdf8',
+    female: '#fda4af',
+    femaleSurplus: '#fb7185',
+    text: '#e2e8f0',
+    textSecondary: '#94a3b8',
+    grid: '#334155',
+    centerLine: '#64748b',
+    background: '#1e293b',
+    tooltipBg: '#1e293b',
+    tooltipBorder: '#475569',
+  },
+};
+
+/**
  * Компонент половозрастной пирамиды населения
  * Использует ECharts для отображения горизонтальной гистограммы
  */
-export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
+export function PopulationPyramid({ data, theme = 'light', className }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
   const metadata = useMemo(() => extractChartMetadata(data), [data]);
+  const colors = THEME_COLORS[theme];
 
   // Высота диаграммы зависит от количества возрастных групп
   const chartHeight = Math.max(
@@ -40,6 +76,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
     const femaleSurplusData = chartData.map((item) => item.femaleSurplus);
 
     return {
+      backgroundColor: colors.background,
       title: {
         text: metadata.title,
         subtext: metadata.subtitle || '',
@@ -49,11 +86,11 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           fontSize: 28,
           fontWeight: 600,
           fontFamily: "'Playfair Display', Georgia, serif",
-          color: CHART_COLORS.text,
+          color: colors.text,
         },
         subtextStyle: {
           fontSize: 14,
-          color: CHART_COLORS.textSecondary,
+          color: colors.textSecondary,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
         },
       },
@@ -61,6 +98,11 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
         trigger: 'axis',
         axisPointer: {
           type: 'shadow',
+        },
+        backgroundColor: colors.tooltipBg,
+        borderColor: colors.tooltipBorder,
+        textStyle: {
+          color: colors.text,
         },
         formatter: (params: unknown) => {
           const items = params as Array<{
@@ -86,14 +128,14 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           });
           
           return `
-            <div style="font-family: 'DM Sans', sans-serif; padding: 4px 0;">
+            <div style="font-family: 'DM Sans', sans-serif; padding: 4px 0; color: ${colors.text};">
               <div style="font-weight: 600; margin-bottom: 8px;">Age: ${age}</div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: ${CHART_COLORS.male}; border-radius: 2px;"></span>
+                <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.male}; border-radius: 2px;"></span>
                 <span>Males: ${formatPopulation(maleTotal)}</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: ${CHART_COLORS.female}; border-radius: 2px;"></span>
+                <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.female}; border-radius: 2px;"></span>
                 <span>Females: ${formatPopulation(femaleTotal)}</span>
               </div>
             </div>
@@ -116,7 +158,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
         textStyle: {
           fontSize: 12,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
-          color: CHART_COLORS.text,
+          color: colors.text,
         },
       },
       grid: {
@@ -134,18 +176,18 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           formatter: (value: number) => formatPopulation(Math.abs(value)),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           fontSize: 11,
-          color: CHART_COLORS.textSecondary,
+          color: colors.textSecondary,
         },
         axisLine: {
           show: true,
           lineStyle: {
-            color: CHART_COLORS.grid,
+            color: colors.grid,
           },
         },
         splitLine: {
           show: true,
           lineStyle: {
-            color: CHART_COLORS.grid,
+            color: colors.grid,
             type: 'dashed',
           },
         },
@@ -156,7 +198,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           fontSize: 13,
           fontWeight: 500,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
-          color: CHART_COLORS.text,
+          color: colors.text,
         },
       },
       yAxis: {
@@ -168,13 +210,13 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
         axisLine: {
           show: true,
           lineStyle: {
-            color: CHART_COLORS.centerLine,
+            color: colors.centerLine,
           },
         },
         axisLabel: {
           fontSize: 10,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
-          color: CHART_COLORS.textSecondary,
+          color: colors.textSecondary,
         },
         name: AXIS_LABELS.age,
         nameLocation: 'end',
@@ -183,7 +225,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           fontSize: 13,
           fontWeight: 500,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
-          color: CHART_COLORS.text,
+          color: colors.text,
         },
       },
       series: [
@@ -194,7 +236,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           stack: 'male',
           data: maleBaseData,
           itemStyle: {
-            color: CHART_COLORS.male,
+            color: colors.male,
           },
           barWidth: CHART_CONFIG.barHeight,
           emphasis: {
@@ -210,7 +252,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           stack: 'male',
           data: maleSurplusData,
           itemStyle: {
-            color: CHART_COLORS.maleSurplus,
+            color: colors.maleSurplus,
           },
           barWidth: CHART_CONFIG.barHeight,
           emphasis: {
@@ -226,7 +268,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           stack: 'female',
           data: femaleBaseData,
           itemStyle: {
-            color: CHART_COLORS.female,
+            color: colors.female,
           },
           barWidth: CHART_CONFIG.barHeight,
           emphasis: {
@@ -242,7 +284,7 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
           stack: 'female',
           data: femaleSurplusData,
           itemStyle: {
-            color: CHART_COLORS.femaleSurplus,
+            color: colors.femaleSurplus,
           },
           barWidth: CHART_CONFIG.barHeight,
           emphasis: {
@@ -264,13 +306,13 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
             y2: chartHeight - CHART_CONFIG.padding.bottom,
           },
           style: {
-            stroke: CHART_COLORS.centerLine,
+            stroke: colors.centerLine,
             lineWidth: 1,
           },
         },
       ],
     };
-  }, [chartData, metadata, chartHeight]);
+  }, [chartData, metadata, chartHeight, colors]);
 
   // Информация об источнике
   const sourceInfo = metadata.source || data.source;
@@ -291,4 +333,3 @@ export function PopulationPyramid({ data, className }: PopulationPyramidProps) {
     </div>
   );
 }
-
