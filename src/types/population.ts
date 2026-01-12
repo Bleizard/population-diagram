@@ -83,3 +83,30 @@ export interface RawPopulationRow {
   female: string | number;
 }
 
+/**
+ * Конфигурация одной возрастной группы для агрегации
+ */
+export interface AgeRangeConfig {
+  /** Уникальный идентификатор */
+  id: string;
+  /** Начало диапазона (включительно) */
+  from: number;
+  /** Конец диапазона (включительно), null означает "и старше" */
+  to: number | null;
+  /** Метка для отображения (например "0-19", "65+") */
+  label: string;
+}
+
+/**
+ * Данные графика (исходный или агрегированный)
+ */
+export interface ChartInstance {
+  /** Уникальный идентификатор */
+  id: string;
+  /** Данные о населении */
+  data: PopulationData;
+  /** Является ли это исходными данными */
+  isOriginal: boolean;
+  /** Конфигурация групп (для агрегированных) */
+  groupConfig?: AgeRangeConfig[];
+}

@@ -1,0 +1,2 @@
+export { AgeGroupConfigurator } from './AgeGroupConfigurator';
+

@@ -6,4 +6,6 @@ export type {
   FileFormat,
   ParseResult,
   RawPopulationRow,
+  AgeRangeConfig,
+  ChartInstance,
 } from './population';

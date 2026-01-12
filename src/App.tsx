@@ -1,12 +1,50 @@
+import { useState, useCallback } from 'react';
 import { usePopulationData, useTheme } from './hooks';
 import { FileUpload } from './components/common/FileUpload';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
+import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
+import { aggregateByAgeGroups } from './services/dataAggregator';
+import type { AgeRangeConfig, ChartInstance } from './types';
 import styles from './App.module.css';
 
 function App() {
   const { data, isLoading, error, loadFile, clearData } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
+  
+  // Список дополнительных (агрегированных) графиков
+  const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
+
+  // Создание нового агрегированного графика
+  const handleCreateGroupedChart = useCallback((groups: AgeRangeConfig[]) => {
+    if (!data) return;
+
+    const aggregatedData = aggregateByAgeGroups(data, groups);
+    const newChart: ChartInstance = {
+      id: crypto.randomUUID(),
+      data: aggregatedData,
+      isOriginal: false,
+      groupConfig: groups,
+    };
+
+    setAdditionalCharts((prev) => [...prev, newChart]);
+  }, [data]);
+
+  // Удаление агрегированного графика
+  const handleRemoveChart = useCallback((chartId: string) => {
+    setAdditionalCharts((prev) => prev.filter((c) => c.id !== chartId));
+  }, []);
+
+  // Сброс всех данных
+  const handleClearAll = useCallback(() => {
+    clearData();
+    setAdditionalCharts([]);
+  }, [clearData]);
+
+  // Вычисляем максимальный возраст для конфигуратора
+  const maxAge = data 
+    ? Math.max(...data.ageGroups.map((g) => g.ageNumeric))
+    : 100;
 
   return (
     <div className={styles.app}>
@@ -40,7 +78,7 @@ function App() {
             <div className={styles.toolbar}>
               <button
                 className={styles.backButton}
-                onClick={clearData}
+                onClick={handleClearAll}
                 type="button"
               >
                 <svg
@@ -64,10 +102,59 @@ function App() {
                 <span className={styles.dataInfoValue}>
                   {data.ageGroups.length} возрастных групп
                 </span>
+                {additionalCharts.length > 0 && (
+                  <span className={styles.chartsCount}>
+                    +{additionalCharts.length} график{additionalCharts.length === 1 ? '' : additionalCharts.length < 5 ? 'а' : 'ов'}
+                  </span>
+                )}
               </div>
             </div>
 
-            <PopulationPyramid data={data} theme={theme} />
+            {/* Конфигуратор групп */}
+            <AgeGroupConfigurator
+              onCreateChart={handleCreateGroupedChart}
+              maxAge={maxAge}
+            />
+
+            {/* Оригинальный график */}
+            <div className={styles.chartWrapper}>
+              <div className={styles.chartHeader}>
+                <h2 className={styles.chartTitle}>Исходные данные</h2>
+              </div>
+              <PopulationPyramid data={data} theme={theme} />
+            </div>
+
+            {/* Агрегированные графики */}
+            {additionalCharts.map((chart) => (
+              <div key={chart.id} className={styles.chartWrapper}>
+                <div className={styles.chartHeader}>
+                  <h2 className={styles.chartTitle}>
+                    Группировка: {chart.groupConfig?.map((g) => g.label).join(', ')}
+                  </h2>
+                  <button
+                    className={styles.removeChartButton}
+                    onClick={() => handleRemoveChart(chart.id)}
+                    type="button"
+                    aria-label="Удалить график"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <PopulationPyramid data={chart.data} theme={theme} />
+              </div>
+            ))}
           </section>
         )}
       </main>

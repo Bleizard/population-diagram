@@ -175,6 +175,78 @@
     color var(--transition-normal);
 }
 
+.chartsCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  background: var(--color-selection-bg);
+  border-radius: 20px;
+  color: var(--color-primary);
+  transition: 
+    background-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+.chartWrapper {
+  display: flex;
+  flex-direction: column;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  transition: 
+    background-color var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+.chartTitle {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  transition: color var(--transition-normal);
+}
+
+.removeChartButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.removeChartButton:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
 .footer {
   padding: 24px;
   text-align: center;
