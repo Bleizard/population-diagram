@@ -218,6 +218,14 @@ export function PopulationPyramid({
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           color: colors.textSecondary,
         },
+        splitLine: { 
+          show: true, 
+          lineStyle: { 
+            color: colors.grid, 
+            type: 'dashed',
+            opacity: 0.5,
+          } 
+        },
         name: AXIS_LABELS.age,
         nameLocation: 'end',
         nameGap: 10,
@@ -399,6 +407,14 @@ export function PopulationPyramid({
           fontSize: 10,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           color: colors.textSecondary,
+        },
+        splitLine: { 
+          show: true, 
+          lineStyle: { 
+            color: colors.grid, 
+            type: 'dashed',
+            opacity: 0.5,
+          } 
         },
         name: AXIS_LABELS.age,
         nameLocation: 'end',
