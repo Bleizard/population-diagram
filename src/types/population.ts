@@ -110,3 +110,19 @@ export interface ChartInstance {
   /** Конфигурация групп (для агрегированных) */
   groupConfig?: AgeRangeConfig[];
 }
+
+/**
+ * Индивидуальные настройки графика
+ */
+export interface ChartSettings {
+  /** Кастомное название */
+  customTitle: string;
+  /** Режим отображения */
+  viewMode: 'split' | 'combined';
+  /** Режим масштаба оси X */
+  scaleMode: 'auto' | 'fit' | 'custom';
+  /** Кастомное значение масштаба */
+  scaleCustomValue?: number;
+  /** Режим отображения меток оси Y */
+  yAxisLabelMode: 'all' | 'every2' | 'every5' | 'every10';
+}

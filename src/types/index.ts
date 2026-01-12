@@ -8,4 +8,5 @@ export type {
   RawPopulationRow,
   AgeRangeConfig,
   ChartInstance,
+  ChartSettings,
 } from './population';

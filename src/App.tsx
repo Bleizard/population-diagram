@@ -3,11 +3,9 @@ import { usePopulationData, useTheme } from './hooks';
 import { FileUpload } from './components/common/FileUpload';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { ViewModeToggle } from './components/common/ViewModeToggle';
-import type { ViewMode } from './components/common/ViewModeToggle';
 import { ScaleConfigurator, calculateScale } from './components/common/ScaleConfigurator';
 import type { ScaleConfig } from './components/common/ScaleConfigurator';
 import { YAxisLabelConfig, getYAxisInterval } from './components/common/YAxisLabelConfig';
-import type { YAxisLabelMode } from './components/common/YAxisLabelConfig';
 import { ChartTitleInput } from './components/common/ChartTitleInput';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
@@ -17,85 +15,127 @@ import {
   SettingsButton 
 } from './components/features/ChartSettingsPanel';
 import { aggregateByAgeGroups } from './services/dataAggregator';
-import type { AgeRangeConfig, ChartInstance } from './types';
+import type { AgeRangeConfig, ChartInstance, ChartSettings } from './types';
 import styles from './App.module.css';
+
+// ID для оригинального графика
+const ORIGINAL_CHART_ID = 'original';
+
+// Настройки по умолчанию
+const DEFAULT_SETTINGS: ChartSettings = {
+  customTitle: '',
+  viewMode: 'split',
+  scaleMode: 'auto',
+  yAxisLabelMode: 'all',
+};
 
 function App() {
   const { data, isLoading, error, loadFile, clearData } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
   
-  // Режим отображения (с делением по полу или суммарно)
-  const [viewMode, setViewMode] = useState<ViewMode>('split');
-  
-  // Настройка масштаба оси X
-  const [scaleConfig, setScaleConfig] = useState<ScaleConfig>({ mode: 'auto' });
-  
-  // Настройка отображения оси Y
-  const [yAxisLabelMode, setYAxisLabelMode] = useState<YAxisLabelMode>('all');
-  
-  // Кастомное название графика
-  const [customTitle, setCustomTitle] = useState('');
-  
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
   
-  // Состояние панели настроек
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Настройки для каждого графика (ключ — ID графика)
+  const [chartSettings, setChartSettings] = useState<Record<string, ChartSettings>>({
+    [ORIGINAL_CHART_ID]: { ...DEFAULT_SETTINGS },
+  });
+  
+  // ID графика, для которого открыты настройки (null если закрыто)
+  const [settingsOpenFor, setSettingsOpenFor] = useState<string | null>(null);
 
-  // Вычисляем реальный максимум из данных
-  const dataMaxValue = useMemo(() => {
-    if (!data) return 0;
+  // Получение настроек графика (с дефолтными значениями)
+  const getSettings = useCallback((chartId: string): ChartSettings => {
+    return chartSettings[chartId] ?? { ...DEFAULT_SETTINGS };
+  }, [chartSettings]);
+
+  // Обновление настроек конкретного графика
+  const updateSettings = useCallback((chartId: string, updates: Partial<ChartSettings>) => {
+    setChartSettings((prev) => ({
+      ...prev,
+      [chartId]: {
+        ...(prev[chartId] ?? DEFAULT_SETTINGS),
+        ...updates,
+      },
+    }));
+  }, []);
+
+  // Вычисляем реальный максимум из данных для графика
+  const getDataMaxValue = useCallback((chartData: { ageGroups: { male: number; female: number }[] }) => {
     let max = 0;
-    for (const group of data.ageGroups) {
+    for (const group of chartData.ageGroups) {
       max = Math.max(max, group.male, group.female);
     }
     return max;
-  }, [data]);
-
-  // Вычисляем эффективный масштаб
-  const effectiveScale = useMemo(() => {
-    return calculateScale(scaleConfig, dataMaxValue);
-  }, [scaleConfig, dataMaxValue]);
-  
-  // Вычисляем интервал для оси Y
-  const yAxisInterval = useMemo(() => {
-    return getYAxisInterval(yAxisLabelMode);
-  }, [yAxisLabelMode]);
+  }, []);
 
   // Создание нового агрегированного графика
   const handleCreateGroupedChart = useCallback((groups: AgeRangeConfig[]) => {
     if (!data) return;
 
     const aggregatedData = aggregateByAgeGroups(data, groups);
+    const newChartId = crypto.randomUUID();
     const newChart: ChartInstance = {
-      id: crypto.randomUUID(),
+      id: newChartId,
       data: aggregatedData,
       isOriginal: false,
       groupConfig: groups,
     };
 
     setAdditionalCharts((prev) => [...prev, newChart]);
+    // Добавляем настройки по умолчанию для нового графика
+    setChartSettings((prev) => ({
+      ...prev,
+      [newChartId]: { ...DEFAULT_SETTINGS },
+    }));
   }, [data]);
 
   // Удаление агрегированного графика
   const handleRemoveChart = useCallback((chartId: string) => {
     setAdditionalCharts((prev) => prev.filter((c) => c.id !== chartId));
-  }, []);
+    // Удаляем настройки графика
+    setChartSettings((prev) => {
+      const { [chartId]: _, ...rest } = prev;
+      return rest;
+    });
+    // Закрываем панель настроек если она была открыта для этого графика
+    if (settingsOpenFor === chartId) {
+      setSettingsOpenFor(null);
+    }
+  }, [settingsOpenFor]);
 
   // Сброс всех данных
   const handleClearAll = useCallback(() => {
     clearData();
     setAdditionalCharts([]);
-    setViewMode('split');
-    setScaleConfig({ mode: 'auto' });
-    setYAxisLabelMode('all');
-    setCustomTitle('');
+    setChartSettings({ [ORIGINAL_CHART_ID]: { ...DEFAULT_SETTINGS } });
+    setSettingsOpenFor(null);
   }, [clearData]);
 
   // Вычисляем максимальный возраст для конфигуратора
   const maxAge = data 
     ? Math.max(...data.ageGroups.map((g) => g.ageNumeric))
     : 100;
+
+  // Данные и настройки для открытой панели
+  const settingsChartData = useMemo(() => {
+    if (!settingsOpenFor || !data) return null;
+    
+    if (settingsOpenFor === ORIGINAL_CHART_ID) {
+      return data;
+    }
+    
+    const chart = additionalCharts.find((c) => c.id === settingsOpenFor);
+    return chart?.data ?? null;
+  }, [settingsOpenFor, data, additionalCharts]);
+
+  const currentSettings = settingsOpenFor ? getSettings(settingsOpenFor) : null;
+
+  // Хелпер для конвертации настроек в ScaleConfig
+  const toScaleConfig = (settings: ChartSettings): ScaleConfig => ({
+    mode: settings.scaleMode,
+    customValue: settings.scaleCustomValue,
+  });
 
   return (
     <div className={styles.app}>
@@ -159,8 +199,6 @@ function App() {
                   </span>
                 )}
               </div>
-              
-              <SettingsButton onClick={() => setIsSettingsOpen(true)} />
             </div>
 
             {/* Конфигуратор групп */}
@@ -170,90 +208,119 @@ function App() {
             />
 
             {/* Оригинальный график */}
-            <div className={styles.chartWrapper}>
-              <div className={styles.chartHeader}>
-                <h2 className={styles.chartTitle}>Исходные данные</h2>
-              </div>
-              <PopulationPyramid 
-                data={data} 
-                theme={theme} 
-                viewMode={viewMode}
-                maxScale={effectiveScale}
-                yAxisInterval={yAxisInterval}
-                customTitle={customTitle}
-              />
-            </div>
+            {(() => {
+              const settings = getSettings(ORIGINAL_CHART_ID);
+              const dataMaxValue = getDataMaxValue(data);
+              const effectiveScale = calculateScale(toScaleConfig(settings), dataMaxValue);
+              const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
+              
+              return (
+                <div className={styles.chartWrapper}>
+                  <div className={styles.chartHeader}>
+                    <h2 className={styles.chartTitle}>Исходные данные</h2>
+                    <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
+                  </div>
+                  <PopulationPyramid 
+                    data={data} 
+                    theme={theme} 
+                    viewMode={settings.viewMode}
+                    maxScale={effectiveScale}
+                    yAxisInterval={yAxisInterval}
+                    customTitle={settings.customTitle}
+                  />
+                </div>
+              );
+            })()}
 
             {/* Агрегированные графики */}
-            {additionalCharts.map((chart) => (
-              <div key={chart.id} className={styles.chartWrapper}>
-                <div className={styles.chartHeader}>
-                  <h2 className={styles.chartTitle}>
-                    Группировка: {chart.groupConfig?.map((g) => g.label).join(', ')}
-                  </h2>
-                  <button
-                    className={styles.removeChartButton}
-                    onClick={() => handleRemoveChart(chart.id)}
-                    type="button"
-                    aria-label="Удалить график"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M18 6 6 18M6 6l12 12" />
-                    </svg>
-                  </button>
+            {additionalCharts.map((chart) => {
+              const settings = getSettings(chart.id);
+              const dataMaxValue = getDataMaxValue(chart.data);
+              const effectiveScale = calculateScale(toScaleConfig(settings), dataMaxValue);
+              const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
+              
+              return (
+                <div key={chart.id} className={styles.chartWrapper}>
+                  <div className={styles.chartHeader}>
+                    <h2 className={styles.chartTitle}>
+                      Группировка: {chart.groupConfig?.map((g) => g.label).join(', ')}
+                    </h2>
+                    <div className={styles.chartActions}>
+                      <SettingsButton onClick={() => setSettingsOpenFor(chart.id)} />
+                      <button
+                        className={styles.removeChartButton}
+                        onClick={() => handleRemoveChart(chart.id)}
+                        type="button"
+                        aria-label="Удалить график"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 6 6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <PopulationPyramid 
+                    data={chart.data} 
+                    theme={theme} 
+                    viewMode={settings.viewMode}
+                    maxScale={effectiveScale}
+                    yAxisInterval={yAxisInterval}
+                    customTitle={settings.customTitle}
+                  />
                 </div>
-                <PopulationPyramid 
-                  data={chart.data} 
-                  theme={theme} 
-                  viewMode={viewMode}
-                  maxScale={effectiveScale}
-                  yAxisInterval={yAxisInterval}
-                />
-              </div>
-            ))}
+              );
+            })}
             
             {/* Панель настроек */}
-            <ChartSettingsPanel
-              isOpen={isSettingsOpen}
-              onClose={() => setIsSettingsOpen(false)}
-            >
-              <SettingsSection title="Название графика">
-                <ChartTitleInput
-                  value={customTitle}
-                  originalTitle={data.title}
-                  onChange={setCustomTitle}
-                />
-              </SettingsSection>
-              
-              <SettingsSection title="Формат отображения">
-                <ViewModeToggle mode={viewMode} onChange={setViewMode} />
-              </SettingsSection>
-              
-              <SettingsSection title="Масштаб оси X">
-                <ScaleConfigurator
-                  config={scaleConfig}
-                  onChange={setScaleConfig}
-                  dataMaxValue={dataMaxValue}
-                />
-              </SettingsSection>
-              
-              <SettingsSection title="Метки оси Y (возраст)">
-                <YAxisLabelConfig
-                  mode={yAxisLabelMode}
-                  onChange={setYAxisLabelMode}
-                />
-              </SettingsSection>
-            </ChartSettingsPanel>
+            {settingsOpenFor && settingsChartData && currentSettings && (
+              <ChartSettingsPanel
+                isOpen={true}
+                onClose={() => setSettingsOpenFor(null)}
+              >
+                <SettingsSection title="Название графика">
+                  <ChartTitleInput
+                    value={currentSettings.customTitle}
+                    originalTitle={settingsChartData.title}
+                    onChange={(value) => updateSettings(settingsOpenFor, { customTitle: value })}
+                  />
+                </SettingsSection>
+                
+                <SettingsSection title="Формат отображения">
+                  <ViewModeToggle 
+                    mode={currentSettings.viewMode} 
+                    onChange={(value) => updateSettings(settingsOpenFor, { viewMode: value })} 
+                  />
+                </SettingsSection>
+                
+                <SettingsSection title="Масштаб оси X">
+                  <ScaleConfigurator
+                    config={toScaleConfig(currentSettings)}
+                    onChange={(config) => updateSettings(settingsOpenFor, { 
+                      scaleMode: config.mode, 
+                      scaleCustomValue: config.customValue 
+                    })}
+                    dataMaxValue={getDataMaxValue(settingsChartData)}
+                  />
+                </SettingsSection>
+                
+                <SettingsSection title="Метки оси Y (возраст)">
+                  <YAxisLabelConfig
+                    mode={currentSettings.yAxisLabelMode}
+                    onChange={(value) => updateSettings(settingsOpenFor, { yAxisLabelMode: value })}
+                  />
+                </SettingsSection>
+              </ChartSettingsPanel>
+            )}
           </section>
         )}
       </main>

@@ -232,6 +232,12 @@
   transition: color var(--transition-normal);
 }
 
+.chartActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .removeChartButton {
   display: flex;
   align-items: center;
