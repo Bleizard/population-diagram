@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#93c5fd"/>
+      <stop offset="100%" style="stop-color:#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="pinkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fda4af"/>
+      <stop offset="100%" style="stop-color:#f43f5e"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Мужская часть пирамиды (слева) -->
+  <polygon points="50,10 50,90 15,90 25,50 15,10" fill="url(#blueGrad)"/>
+  
+  <!-- Женская часть пирамиды (справа) -->
+  <polygon points="50,10 50,90 85,90 75,50 85,10" fill="url(#pinkGrad)"/>
+  
+  <!-- Центральная линия -->
+  <line x1="50" y1="5" x2="50" y2="95" stroke="#374151" stroke-width="1.5"/>
+</svg>
+

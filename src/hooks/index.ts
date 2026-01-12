@@ -1,0 +1,2 @@
+export { usePopulationData } from './usePopulationData';
+
