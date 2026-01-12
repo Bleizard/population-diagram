@@ -132,8 +132,6 @@ function App() {
                 Загрузить другой файл
               </button>
               
-              <ViewModeToggle mode={viewMode} onChange={setViewMode} />
-              
               <div className={styles.dataInfo}>
                 <span className={styles.dataInfoLabel}>Загружено:</span>
                 <span className={styles.dataInfoValue}>
@@ -210,6 +208,10 @@ function App() {
               isOpen={isSettingsOpen}
               onClose={() => setIsSettingsOpen(false)}
             >
+              <SettingsSection title="Формат отображения">
+                <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+              </SettingsSection>
+              
               <SettingsSection title="Масштаб оси X">
                 <ScaleConfigurator
                   config={scaleConfig}

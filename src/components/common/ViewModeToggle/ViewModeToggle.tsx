@@ -15,7 +15,6 @@ interface ViewModeToggleProps {
 export function ViewModeToggle({ mode, onChange }: ViewModeToggleProps) {
   return (
     <div className={styles.container}>
-      <span className={styles.label}>Отображение:</span>
       <div className={styles.toggle}>
         <button
           className={`${styles.option} ${mode === 'split' ? styles.active : ''}`}
