@@ -530,6 +530,35 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
           itemStyle: { color: colors.femaleSurplus },
           barWidth: dynamicBarHeight,
           emphasis: { itemStyle: { opacity: 0.8 } },
+          // Добавляем медианную линию к последней серии
+          ...(showMedianLine && medianAgeIndex >= 0 ? {
+            markLine: {
+              silent: true,
+              symbol: 'none',
+              lineStyle: {
+                color: colors.medianLine,
+                width: 2,
+                type: 'dashed',
+              },
+              label: {
+                show: true,
+                formatter: `${t.common.median}: ${medianAge}`,
+                position: 'insideStartTop',
+                fontSize: 11,
+                fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+                color: colors.medianLine,
+                backgroundColor: colors.background,
+                padding: [2, 6],
+                borderRadius: 3,
+              },
+              data: [
+                {
+                  yAxis: chartData[medianAgeIndex]?.age,
+                },
+              ],
+            },
+          } : {}),
         },
       ],
       graphic: [
@@ -548,43 +577,6 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
             lineWidth: 1,
           },
         },
-        // Медианная линия (если включена)
-        ...(showMedianLine && medianAgeIndex >= 0 ? [{
-          type: 'group' as const,
-          top: CHART_CONFIG.padding.top + 80,
-          left: CHART_CONFIG.padding.left,
-          right: CHART_CONFIG.padding.right,
-          children: [
-            {
-              type: 'line' as const,
-              z: 200,
-              shape: {
-                x1: 0,
-                y1: ((groupCount - 1 - medianAgeIndex) / groupCount) * (chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80) + dynamicBarHeight / 2,
-                x2: '100%',
-                y2: ((groupCount - 1 - medianAgeIndex) / groupCount) * (chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80) + dynamicBarHeight / 2,
-              },
-              style: {
-                stroke: colors.medianLine,
-                lineWidth: 2,
-                lineDash: [6, 4],
-              },
-            },
-            {
-              type: 'text' as const,
-              z: 201,
-              style: {
-                text: `${t.common.median}: ${medianAge}`,
-                x: 10,
-                y: ((groupCount - 1 - medianAgeIndex) / groupCount) * (chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80) + dynamicBarHeight / 2 - 14,
-                fill: colors.medianLine,
-                fontSize: 11,
-                fontWeight: 600,
-                fontFamily: "'DM Sans', sans-serif",
-              },
-            },
-          ],
-        }] : []),
       ],
     };
   }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, showAsPercentage, toPercent, showMedianLine, medianAgeIndex, medianAge, groupCount, LEGEND_LABELS, AXIS_LABELS, t]);
@@ -770,10 +762,39 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
             textShadowColor: 'rgba(0,0,0,0.3)',
             textShadowBlur: 2,
           },
+          // Добавляем медианную линию
+          ...(showMedianLine && medianAgeIndex >= 0 ? {
+            markLine: {
+              silent: true,
+              symbol: 'none',
+              lineStyle: {
+                color: colors.medianLine,
+                width: 2,
+                type: 'dashed',
+              },
+              label: {
+                show: true,
+                formatter: `${t.common.median}: ${medianAge}`,
+                position: 'insideStartTop',
+                fontSize: 11,
+                fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+                color: colors.medianLine,
+                backgroundColor: colors.background,
+                padding: [2, 6],
+                borderRadius: 3,
+              },
+              data: [
+                {
+                  yAxis: data.ageGroups[medianAgeIndex]?.age,
+                },
+              ],
+            },
+          } : {}),
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, AXIS_LABELS, LEGEND_LABELS, t]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, showMedianLine, medianAgeIndex, medianAge, AXIS_LABELS, LEGEND_LABELS, t]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;
