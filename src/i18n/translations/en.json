@@ -14,7 +14,10 @@
     "timeseriesFormat": "Time Series format",
     "timeseriesFormatDesc": "Multiple years with columns:",
     "eurostatFormat": "Eurostat format",
-    "eurostatFormatDesc": "SDMX format from Eurostat with columns:"
+    "eurostatFormatDesc": "SDMX format from Eurostat with columns:",
+    "or": "or",
+    "tryDemo": "Try Demo",
+    "demoHint": "Spain population data 1975–2024 from Eurostat"
   },
   "toolbar": {
     "loadAnother": "Load another file",

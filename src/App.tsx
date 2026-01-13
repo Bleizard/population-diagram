@@ -76,6 +76,18 @@ function App() {
   // Refs для доступа к методам графиков
   const chartRefs = useRef<Record<string, PopulationPyramidRef | null>>({});
 
+  // Загрузка демо-файла
+  const loadDemo = useCallback(async () => {
+    try {
+      const response = await fetch('/examples/spain-1975-2024.csv');
+      const blob = await response.blob();
+      const file = new File([blob], 'spain-1975-2024.csv', { type: 'text/csv' });
+      loadFile(file);
+    } catch (err) {
+      console.error('Failed to load demo file:', err);
+    }
+  }, [loadFile]);
+
   // Получение настроек графика (с дефолтными значениями)
   const getSettings = useCallback((chartId: string): ChartSettings => {
     return chartSettings[chartId] ?? { ...DEFAULT_SETTINGS };
@@ -299,6 +311,7 @@ function App() {
           <section className={styles.uploadSection}>
             <FileUpload
               onFileSelect={loadFile}
+              onLoadDemo={loadDemo}
               isLoading={isLoading}
               error={error}
               processingState={processingState}

@@ -9,6 +9,8 @@ type FormatTab = 'simple' | 'timeseries' | 'eurostat';
 interface FileUploadProps {
   /** Callback при выборе файла */
   onFileSelect: (file: File) => void;
+  /** Callback для загрузки демо */
+  onLoadDemo?: () => void;
   /** Принимаемые форматы файлов */
   acceptedFormats?: string[];
   /** Состояние загрузки */
@@ -66,6 +68,7 @@ const STEP_ICONS: Record<string, ReactElement> = {
 
 export function FileUpload({
   onFileSelect,
+  onLoadDemo,
   acceptedFormats = DEFAULT_FORMATS,
   isLoading = false,
   error = null,
@@ -251,6 +254,33 @@ export function FileUpload({
       </div>
 
       {error && <p className={styles.error}>{error}</p>}
+
+      {!isLoading && onLoadDemo && (
+        <div className={styles.demoSection}>
+          <span className={styles.demoOr}>{t.upload.or}</span>
+          <button
+            type="button"
+            className={styles.demoButton}
+            onClick={onLoadDemo}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon points="5,3 19,12 5,21 5,3" />
+            </svg>
+            {t.upload.tryDemo}
+          </button>
+          <span className={styles.demoHint}>{t.upload.demoHint}</span>
+        </div>
+      )}
 
       {!isLoading && (
         <div className={styles.formatsContainer}>

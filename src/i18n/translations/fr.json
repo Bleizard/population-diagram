@@ -14,7 +14,10 @@
     "timeseriesFormat": "Séries temporelles",
     "timeseriesFormatDesc": "Données par années avec colonnes :",
     "eurostatFormat": "Format Eurostat",
-    "eurostatFormatDesc": "Format SDMX d'Eurostat avec colonnes :"
+    "eurostatFormatDesc": "Format SDMX d'Eurostat avec colonnes :",
+    "or": "ou",
+    "tryDemo": "Voir la démo",
+    "demoHint": "Données de population d'Espagne 1975–2024 d'Eurostat"
   },
   "toolbar": {
     "loadAnother": "Charger un autre fichier",

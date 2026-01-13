@@ -14,7 +14,10 @@
     "timeseriesFormat": "Временной ряд",
     "timeseriesFormatDesc": "Данные по годам с колонками:",
     "eurostatFormat": "Формат Eurostat",
-    "eurostatFormatDesc": "SDMX формат из Eurostat с колонками:"
+    "eurostatFormatDesc": "SDMX формат из Eurostat с колонками:",
+    "or": "или",
+    "tryDemo": "Демо",
+    "demoHint": "Данные о населении Испании 1975–2024 из Eurostat"
   },
   "toolbar": {
     "loadAnother": "Загрузить другой файл",

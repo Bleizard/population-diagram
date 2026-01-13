@@ -14,7 +14,10 @@
     "timeseriesFormat": "Zeitreihe",
     "timeseriesFormatDesc": "Daten nach Jahren mit Spalten:",
     "eurostatFormat": "Eurostat-Format",
-    "eurostatFormatDesc": "SDMX-Format von Eurostat mit Spalten:"
+    "eurostatFormatDesc": "SDMX-Format von Eurostat mit Spalten:",
+    "or": "oder",
+    "tryDemo": "Demo ansehen",
+    "demoHint": "Bevölkerungsdaten Spaniens 1975–2024 von Eurostat"
   },
   "toolbar": {
     "loadAnother": "Andere Datei laden",
