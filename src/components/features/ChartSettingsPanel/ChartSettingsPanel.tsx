@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { useI18n } from '../../../i18n';
 import styles from './ChartSettingsPanel.module.css';
 
 interface ChartSettingsPanelProps {
@@ -19,6 +20,7 @@ export function ChartSettingsPanel({
   onClose, 
   children 
 }: ChartSettingsPanelProps) {
+  const { t } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Закрытие по Escape
@@ -81,13 +83,13 @@ export function ChartSettingsPanel({
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-            Chart settings
+            {t.settings.title}
           </h3>
           <button
             className={styles.closeButton}
             onClick={onClose}
             type="button"
-            aria-label="Close"
+            aria-label={t.common.close}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -140,13 +142,14 @@ interface SettingsButtonProps {
 }
 
 export function SettingsButton({ onClick }: SettingsButtonProps) {
+  const { t } = useI18n();
   return (
     <button
       className={styles.settingsButton}
       onClick={onClick}
       type="button"
-      aria-label="Chart settings"
-      title="Chart settings"
+      aria-label={t.settings.title}
+      title={t.settings.title}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

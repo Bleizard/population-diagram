@@ -94,7 +94,11 @@
     "remove": "Удалить",
     "total": "Всего",
     "males": "Мужчины",
-    "females": "Женщины"
+    "females": "Женщины",
+    "maleSurplus": "Избыток мужчин",
+    "femaleSurplus": "Избыток женщин",
+    "age": "Возраст",
+    "population": "Население"
   }
 }
 

@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { usePopulationData, useTheme, useLanguage } from './hooks';
-// i18n context will be used when components are translated
-// import { I18nContext } from './i18n';
+import { I18nContext } from './i18n';
 import { FileUpload } from './components/common/FileUpload';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { LanguageSelector } from './components/common/LanguageSelector';
@@ -40,7 +39,7 @@ const DEFAULT_SETTINGS: ChartSettings = {
 function App() {
   const { data, isLoading, error, loadFile, clearData } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage } = useLanguage();
+  const { language, t, setLanguage } = useLanguage();
   
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
@@ -147,6 +146,7 @@ function App() {
   });
 
   return (
+    <I18nContext.Provider value={{ language, t, setLanguage }}>
     <div className={styles.app}>
       {/* Фоновый паттерн */}
       <div className={styles.backgroundPattern} aria-hidden="true" />
@@ -154,9 +154,9 @@ function App() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.titleBlock}>
-            <h1 className={styles.title}>Population Pyramid</h1>
+            <h1 className={styles.title}>{t.app.title}</h1>
             <p className={styles.subtitle}>
-              Population age-sex structure visualization
+              {t.app.subtitle}
             </p>
           </div>
           
@@ -197,17 +197,17 @@ function App() {
                 >
                   <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
-                Load another file
+                {t.toolbar.loadAnother}
               </button>
               
               <div className={styles.dataInfo}>
-                <span className={styles.dataInfoLabel}>Loaded:</span>
+                <span className={styles.dataInfoLabel}>{t.toolbar.loaded}</span>
                 <span className={styles.dataInfoValue}>
-                  {data.ageGroups.length} age groups
+                  {data.ageGroups.length} {t.toolbar.ageGroups}
                 </span>
                 {additionalCharts.length > 0 && (
                   <span className={styles.chartsCount}>
-                    +{additionalCharts.length} chart{additionalCharts.length === 1 ? '' : 's'}
+                    +{additionalCharts.length} {additionalCharts.length === 1 ? t.toolbar.chart : t.toolbar.charts}
                   </span>
                 )}
               </div>
@@ -229,7 +229,7 @@ function App() {
               return (
                 <div className={styles.chartWrapper}>
                   <div className={styles.chartHeader}>
-                    <h2 className={styles.chartTitle}>Original data</h2>
+                    <h2 className={styles.chartTitle}>{t.chart.originalData}</h2>
                     <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
                   </div>
                   <PopulationPyramid 
@@ -258,7 +258,7 @@ function App() {
                 <div key={chart.id} className={styles.chartWrapper}>
                   <div className={styles.chartHeader}>
                     <h2 className={styles.chartTitle}>
-                      Grouping: {chart.groupConfig?.map((g) => g.label).join(', ')}
+                      {t.chart.grouping} {chart.groupConfig?.map((g) => g.label).join(', ')}
                     </h2>
                     <div className={styles.chartActions}>
                       <SettingsButton onClick={() => setSettingsOpenFor(chart.id)} />
@@ -266,7 +266,7 @@ function App() {
                         className={styles.removeChartButton}
                         onClick={() => handleRemoveChart(chart.id)}
                         type="button"
-                        aria-label="Remove chart"
+                        aria-label={t.common.remove}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -305,7 +305,7 @@ function App() {
                 isOpen={true}
                 onClose={() => setSettingsOpenFor(null)}
               >
-                <SettingsSection title="Chart title">
+                <SettingsSection title={t.settings.chartTitle}>
                   <ChartTitleInput
                     value={currentSettings.customTitle}
                     originalTitle={settingsChartData.title}
@@ -313,14 +313,14 @@ function App() {
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Display format">
+                <SettingsSection title={t.settings.displayFormat}>
                   <ViewModeToggle 
                     mode={currentSettings.viewMode} 
                     onChange={(value) => updateSettings(settingsOpenFor, { viewMode: value })} 
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="X-axis scale">
+                <SettingsSection title={t.settings.xAxisScale}>
                   <ScaleConfigurator
                     config={toScaleConfig(currentSettings)}
                     onChange={(config) => updateSettings(settingsOpenFor, { 
@@ -331,30 +331,30 @@ function App() {
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="X-axis divisions">
+                <SettingsSection title={t.settings.xAxisDivisions}>
                   <XAxisSplitConfig
                     value={currentSettings.xAxisSplitCount}
                     onChange={(value) => updateSettings(settingsOpenFor, { xAxisSplitCount: value })}
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Y-axis labels (age)">
+                <SettingsSection title={t.settings.yAxisLabels}>
                   <YAxisLabelConfig
                     mode={currentSettings.yAxisLabelMode}
                     onChange={(value) => updateSettings(settingsOpenFor, { yAxisLabelMode: value })}
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Additional">
+                <SettingsSection title={t.settings.additional}>
                   <ToggleSetting
-                    label="Show Total"
-                    description="Total population across all age groups"
+                    label={t.settings.showTotal}
+                    description={t.settings.showTotalDesc}
                     checked={currentSettings.showTotal}
                     onChange={(value) => updateSettings(settingsOpenFor, { showTotal: value })}
                   />
                   <ToggleSetting
-                    label="Bar labels"
-                    description="Display numeric values inside bars"
+                    label={t.settings.barLabels}
+                    description={t.settings.barLabelsDesc}
                     checked={currentSettings.showBarLabels}
                     onChange={(value) => updateSettings(settingsOpenFor, { showBarLabels: value })}
                   />
@@ -367,7 +367,7 @@ function App() {
 
       <footer className={styles.footer}>
         <p>
-          Population Pyramid Builder • 
+          {t.app.footer} • 
           <a 
             href="https://github.com/bleizard" 
             target="_blank" 
@@ -378,6 +378,7 @@ function App() {
         </p>
       </footer>
       </div>
+    </I18nContext.Provider>
   );
 }
 

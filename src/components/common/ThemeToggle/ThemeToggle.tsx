@@ -1,4 +1,5 @@
 import type { Theme } from '../../../hooks';
+import { useI18n } from '../../../i18n';
 import styles from './ThemeToggle.module.css';
 
 interface ThemeToggleProps {
@@ -12,6 +13,7 @@ interface ThemeToggleProps {
  * Компонент переключателя темы с анимированной иконкой солнца/луны
  */
 export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
+  const { t } = useI18n();
   const isDark = theme === 'dark';
 
   return (
@@ -19,8 +21,8 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
       className={styles.toggle}
       onClick={onToggle}
       type="button"
-      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      title={isDark ? 'Light theme' : 'Dark theme'}
+      aria-label={isDark ? t.theme.switchToLight : t.theme.switchToDark}
+      title={isDark ? t.theme.lightTheme : t.theme.darkTheme}
     >
       <span className={styles.iconWrapper}>
         {/* Солнце */}

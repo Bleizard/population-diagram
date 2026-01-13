@@ -1,3 +1,4 @@
+import { useI18n } from '../../../i18n';
 import styles from './XAxisSplitConfig.module.css';
 
 interface XAxisSplitConfigProps {
@@ -13,6 +14,8 @@ const OPTIONS = [2, 3, 4, 5, 6, 8, 10];
  * Компонент настройки количества делений оси X
  */
 export function XAxisSplitConfig({ value, onChange }: XAxisSplitConfigProps) {
+  const { t } = useI18n();
+  
   return (
     <div className={styles.container}>
       <div className={styles.options}>
@@ -28,7 +31,7 @@ export function XAxisSplitConfig({ value, onChange }: XAxisSplitConfigProps) {
         ))}
       </div>
       <div className={styles.hint}>
-        Number of grid lines on each side of center
+        {t.settings.gridLinesHint}
       </div>
     </div>
   );

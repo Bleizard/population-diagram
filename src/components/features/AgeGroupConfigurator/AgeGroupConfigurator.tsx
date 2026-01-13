@@ -5,6 +5,7 @@ import {
   validateAgeGroups,
   getPresetOptions,
 } from '../../../services/dataAggregator';
+import { useI18n } from '../../../i18n';
 import styles from './AgeGroupConfigurator.module.css';
 
 interface AgeGroupConfiguratorProps {
@@ -21,6 +22,7 @@ export function AgeGroupConfigurator({
   onCreateChart,
   maxAge = 100,
 }: AgeGroupConfiguratorProps) {
+  const { t } = useI18n();
   const [groups, setGroups] = useState<AgeRangeConfig[]>([
     createAgeRangeConfig(0, 19),
     createAgeRangeConfig(20, 64),
@@ -128,7 +130,7 @@ export function AgeGroupConfigurator({
         >
           <path d="M12 5v14M5 12h14" />
         </svg>
-        Create grouped chart
+        {t.groupConfig.createGrouped}
         <svg
           className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}
           xmlns="http://www.w3.org/2000/svg"
@@ -148,7 +150,7 @@ export function AgeGroupConfigurator({
       {isExpanded && (
         <div className={styles.panel}>
           <div className={styles.presets}>
-            <span className={styles.presetsLabel}>Presets:</span>
+            <span className={styles.presetsLabel}>{t.groupConfig.presets}</span>
             {presets.map((preset) => (
               <button
                 key={preset.id}
@@ -163,7 +165,7 @@ export function AgeGroupConfigurator({
 
           <div className={styles.groupsList}>
             <div className={styles.groupsHeader}>
-              <span>Age groups</span>
+              <span>{t.groupConfig.ageGroups}</span>
               <button
                 className={styles.addButton}
                 onClick={handleAddGroup}
@@ -182,7 +184,7 @@ export function AgeGroupConfigurator({
                 >
                   <path d="M12 5v14M5 12h14" />
                 </svg>
-                Add
+                {t.groupConfig.add}
               </button>
             </div>
 
@@ -191,7 +193,7 @@ export function AgeGroupConfigurator({
                 <span className={styles.groupIndex}>{index + 1}.</span>
                 
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>From</label>
+                  <label className={styles.inputLabel}>{t.groupConfig.from}</label>
                   <input
                     type="number"
                     min="0"
@@ -203,7 +205,7 @@ export function AgeGroupConfigurator({
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>To</label>
+                  <label className={styles.inputLabel}>{t.groupConfig.to}</label>
                   <input
                     type="number"
                     min="0"
@@ -221,7 +223,7 @@ export function AgeGroupConfigurator({
                   className={styles.removeButton}
                   onClick={() => handleRemoveGroup(group.id)}
                   type="button"
-                  aria-label="Remove group"
+                  aria-label={t.groupConfig.removeGroup}
                   disabled={groups.length <= 1}
                 >
                   <svg
@@ -271,7 +273,7 @@ export function AgeGroupConfigurator({
               <path d="M3 3v18h18" />
               <path d="m19 9-5 5-4-4-3 3" />
             </svg>
-            Create chart
+            {t.groupConfig.createChart}
           </button>
         </div>
       )}

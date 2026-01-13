@@ -94,7 +94,11 @@
     "remove": "Remove",
     "total": "Total",
     "males": "Males",
-    "females": "Females"
+    "females": "Females",
+    "maleSurplus": "Male surplus",
+    "femaleSurplus": "Female surplus",
+    "age": "Age",
+    "population": "Population"
   }
 }
 

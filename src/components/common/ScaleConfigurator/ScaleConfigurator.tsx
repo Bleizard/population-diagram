@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useI18n } from '../../../i18n';
 import styles from './ScaleConfigurator.module.css';
 
 export type ScaleMode = 'auto' | 'fit' | 'custom';
@@ -25,6 +26,7 @@ export function ScaleConfigurator({
   onChange,
   dataMaxValue,
 }: ScaleConfiguratorProps) {
+  const { t } = useI18n();
   const [customInput, setCustomInput] = useState(
     config.customValue?.toString() || ''
   );
@@ -72,8 +74,8 @@ export function ScaleConfigurator({
           onClick={() => handleModeChange('auto')}
           type="button"
         >
-          Auto
-          <span className={styles.optionHint}>rounded</span>
+          {t.scale.auto}
+          <span className={styles.optionHint}>{t.scale.autoHint}</span>
         </button>
 
         <button
@@ -81,8 +83,8 @@ export function ScaleConfigurator({
           onClick={() => handleModeChange('fit')}
           type="button"
         >
-          Fit data
-          <span className={styles.optionHint}>+10%</span>
+          {t.scale.fit}
+          <span className={styles.optionHint}>{t.scale.fitHint}</span>
         </button>
 
         <button
@@ -90,13 +92,13 @@ export function ScaleConfigurator({
           onClick={() => handleModeChange('custom')}
           type="button"
         >
-          Manual
+          {t.scale.manual}
         </button>
       </div>
 
       {config.mode === 'custom' && (
         <div className={styles.customInput}>
-          <label className={styles.inputLabel}>Maximum:</label>
+          <label className={styles.inputLabel}>{t.scale.maximum}</label>
           <input
             type="text"
             value={customInput}
@@ -109,11 +111,11 @@ export function ScaleConfigurator({
 
       <div className={styles.info}>
         <div className={styles.infoRow}>
-          <span className={styles.infoLabel}>Data max:</span>
+          <span className={styles.infoLabel}>{t.scale.dataMax}</span>
           <span className={styles.infoValue}>{formatNumber(dataMaxValue)}</span>
         </div>
         <div className={styles.infoRow}>
-          <span className={styles.infoLabel}>Scale to:</span>
+          <span className={styles.infoLabel}>{t.scale.scaleTo}</span>
           <span className={styles.infoValue}>{formatNumber(currentScale)}</span>
         </div>
       </div>

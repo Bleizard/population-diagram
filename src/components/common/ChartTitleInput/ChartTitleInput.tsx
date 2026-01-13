@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useI18n } from '../../../i18n';
 import styles from './ChartTitleInput.module.css';
 
 interface ChartTitleInputProps {
@@ -18,6 +19,7 @@ export function ChartTitleInput({
   originalTitle, 
   onChange 
 }: ChartTitleInputProps) {
+  const { t } = useI18n();
   const [localValue, setLocalValue] = useState(value);
   
   // Синхронизация с внешним значением
@@ -42,7 +44,7 @@ export function ChartTitleInput({
   }, [onChange]);
   
   const isCustom = localValue.trim() !== '';
-  const displayPlaceholder = originalTitle || 'Enter chart title';
+  const displayPlaceholder = originalTitle || t.settings.enterTitle;
 
   return (
     <div className={styles.container}>
@@ -61,8 +63,8 @@ export function ChartTitleInput({
             type="button"
             className={styles.clearButton}
             onClick={handleReset}
-            aria-label="Reset title"
-            title="Reset to original"
+            aria-label={t.settings.resetTitle}
+            title={t.settings.resetTitle}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +85,7 @@ export function ChartTitleInput({
       
       {originalTitle && (
         <div className={styles.hint}>
-          <span className={styles.hintLabel}>From file:</span>
+          <span className={styles.hintLabel}>{t.settings.fromFile}</span>
           <span className={styles.hintValue}>{originalTitle}</span>
         </div>
       )}

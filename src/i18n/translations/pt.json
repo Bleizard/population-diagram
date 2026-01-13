@@ -94,7 +94,11 @@
     "remove": "Remover",
     "total": "Total",
     "males": "Homens",
-    "females": "Mulheres"
+    "females": "Mulheres",
+    "maleSurplus": "Excesso de homens",
+    "femaleSurplus": "Excesso de mulheres",
+    "age": "Idade",
+    "population": "População"
   }
 }
 

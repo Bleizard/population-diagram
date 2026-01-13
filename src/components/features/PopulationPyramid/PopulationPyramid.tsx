@@ -5,7 +5,8 @@ import type { PopulationData } from '../../../types';
 import type { Theme } from '../../../hooks';
 import type { ViewMode } from '../../common/ViewModeToggle';
 import { transformToChartData, extractChartMetadata } from '../../../services/dataTransformer';
-import { LEGEND_LABELS, AXIS_LABELS, CHART_CONFIG } from '../../../constants';
+import { CHART_CONFIG } from '../../../constants';
+import { useI18n } from '../../../i18n';
 import { formatPopulation } from '../../../utils';
 import styles from './PopulationPyramid.module.css';
 
@@ -86,9 +87,23 @@ export function PopulationPyramid({
   showBarLabels = false,
   className 
 }: PopulationPyramidProps) {
+  const { t } = useI18n();
   const chartData = useMemo(() => transformToChartData(data), [data]);
   const metadata = useMemo(() => extractChartMetadata(data), [data]);
   const colors = THEME_COLORS[theme];
+  
+  // Локализованные метки
+  const LEGEND_LABELS = useMemo(() => ({
+    male: t.common.males,
+    maleSurplus: t.common.maleSurplus,
+    female: t.common.females,
+    femaleSurplus: t.common.femaleSurplus,
+  }), [t]);
+  
+  const AXIS_LABELS = useMemo(() => ({
+    age: t.common.age,
+    population: t.common.population,
+  }), [t]);
   
   // Используем кастомное название если оно задано
   const effectiveTitle = customTitle?.trim() || metadata.title;
@@ -374,7 +389,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, LEGEND_LABELS, AXIS_LABELS]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -560,7 +575,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, AXIS_LABELS]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;
@@ -577,19 +592,19 @@ export function PopulationPyramid({
         {showTotal && (
           <div className={styles.totals}>
             <div className={styles.totalItem}>
-              <span className={styles.totalLabel}>Total:</span>
+              <span className={styles.totalLabel}>{t.common.total}:</span>
               <span className={styles.totalValue}>{formatPopulation(totals.total)}</span>
             </div>
             {viewMode === 'split' && (
               <>
                 <div className={styles.totalItem}>
                   <span className={styles.totalDot} style={{ background: colors.male }} />
-                  <span className={styles.totalLabel}>Males:</span>
+                  <span className={styles.totalLabel}>{t.common.males}:</span>
                   <span className={styles.totalValue}>{formatPopulation(totals.male)}</span>
                 </div>
                 <div className={styles.totalItem}>
                   <span className={styles.totalDot} style={{ background: colors.female }} />
-                  <span className={styles.totalLabel}>Females:</span>
+                  <span className={styles.totalLabel}>{t.common.females}:</span>
                   <span className={styles.totalValue}>{formatPopulation(totals.female)}</span>
                 </div>
               </>
@@ -598,7 +613,7 @@ export function PopulationPyramid({
         )}
         {sourceInfo && (
           <div className={styles.source}>
-            Source: {sourceInfo}
+            {sourceInfo}
           </div>
         )}
       </div>

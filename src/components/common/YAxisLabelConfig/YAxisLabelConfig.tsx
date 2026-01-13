@@ -1,3 +1,4 @@
+import { useI18n } from '../../../i18n';
 import styles from './YAxisLabelConfig.module.css';
 
 export type YAxisLabelMode = 'all' | 'every2' | 'every5' | 'every10';
@@ -9,17 +10,19 @@ interface YAxisLabelConfigProps {
   onChange: (mode: YAxisLabelMode) => void;
 }
 
-const OPTIONS: Array<{ value: YAxisLabelMode; label: string; hint: string }> = [
-  { value: 'all', label: 'All', hint: 'every age' },
-  { value: 'every2', label: 'Every 2nd', hint: '0, 2, 4...' },
-  { value: 'every5', label: 'Multiple of 5', hint: '0, 5, 10...' },
-  { value: 'every10', label: 'Multiple of 10', hint: '0, 10, 20...' },
-];
-
 /**
  * Компонент настройки отображения меток оси Y
  */
 export function YAxisLabelConfig({ mode, onChange }: YAxisLabelConfigProps) {
+  const { t } = useI18n();
+  
+  const OPTIONS: Array<{ value: YAxisLabelMode; label: string; hint: string }> = [
+    { value: 'all', label: t.yAxis.all, hint: t.yAxis.allHint },
+    { value: 'every2', label: t.yAxis.every2, hint: t.yAxis.every2Hint },
+    { value: 'every5', label: t.yAxis.every5, hint: t.yAxis.every5Hint },
+    { value: 'every10', label: t.yAxis.every10, hint: t.yAxis.every10Hint },
+  ];
+
   return (
     <div className={styles.container}>
       <div className={styles.options}>

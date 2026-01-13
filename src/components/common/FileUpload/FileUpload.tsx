@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
+import { useI18n } from '../../../i18n';
 import styles from './FileUpload.module.css';
 
 interface FileUploadProps {
@@ -21,6 +22,7 @@ export function FileUpload({
   isLoading = false,
   error = null,
 }: FileUploadProps) {
+  const { t } = useI18n();
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -105,7 +107,7 @@ export function FileUpload({
         {isLoading ? (
           <div className={styles.loadingContent}>
             <div className={styles.spinner} />
-            <p className={styles.loadingText}>Loading file...</p>
+            <p className={styles.loadingText}>{t.upload.loading}</p>
           </div>
         ) : (
           <div className={styles.content}>
@@ -127,10 +129,10 @@ export function FileUpload({
               </svg>
             </div>
             <p className={styles.mainText}>
-              Drop file here or click to browse
+              {t.upload.dropzone}
             </p>
             <p className={styles.subText}>
-              Supported formats: CSV, XLSX, XLS
+              {t.upload.formats}
             </p>
           </div>
         )}
@@ -139,13 +141,13 @@ export function FileUpload({
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.formatInfo}>
-        <h4>File format:</h4>
+        <h4>{t.upload.formatTitle}</h4>
         <p>
-          File must contain three columns: <code>age</code>, <code>male</code>,{' '}
+          {t.upload.formatDescription} <code>age</code>, <code>male</code>,{' '}
           <code>female</code>
         </p>
         <p className={styles.example}>
-          Example: age | male | female<br />
+          {t.upload.example} age | male | female<br />
           0 | 893000 | 847000<br />
           1 | 889000 | 845000<br />
           ...
