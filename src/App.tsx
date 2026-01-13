@@ -17,7 +17,8 @@ import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator
 import { 
   ChartSettingsPanel, 
   SettingsSection, 
-  SettingsButton 
+  SettingsButton,
+  ExportButton 
 } from './components/features/ChartSettingsPanel';
 import { aggregateByAgeGroups } from './services/dataAggregator';
 import type { AgeRangeConfig, ChartInstance, ChartSettings, PopulationData } from './types';
@@ -189,6 +190,13 @@ function App() {
     setChartSettings({ [ORIGINAL_CHART_ID]: { ...DEFAULT_SETTINGS } });
     setSettingsOpenFor(null);
   }, [clearData]);
+  
+  // Экспорт графика в SVG (заглушка)
+  const handleExportSvg = useCallback((chartId: string) => {
+    // TODO: Реализовать экспорт в SVG
+    console.log('Export SVG for chart:', chartId);
+    alert('Export to SVG - Coming soon!');
+  }, []);
 
   // Вычисляем максимальный возраст для конфигуратора
   const currentOriginalData = getChartData(ORIGINAL_CHART_ID, initialData);
@@ -312,7 +320,10 @@ function App() {
                 <div className={styles.chartWrapper}>
                   <div className={styles.chartHeader}>
                     <h2 className={styles.chartTitle}>{t.chart.originalData}</h2>
-                    <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
+                    <div className={styles.chartActions}>
+                      <ExportButton onClick={() => handleExportSvg(ORIGINAL_CHART_ID)} />
+                      <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
+                    </div>
                   </div>
                   <PopulationPyramid 
                     data={chartData} 
@@ -353,6 +364,7 @@ function App() {
                       {t.chart.grouping} {chart.groupConfig?.map((g) => g.label).join(', ')}
                     </h2>
                     <div className={styles.chartActions}>
+                      <ExportButton onClick={() => handleExportSvg(chart.id)} />
                       <SettingsButton onClick={() => setSettingsOpenFor(chart.id)} />
                       <button
                         className={styles.removeChartButton}
@@ -373,7 +385,7 @@ function App() {
                         >
                           <path d="M18 6 6 18M6 6l12 12" />
                         </svg>
-        </button>
+                      </button>
                     </div>
                   </div>
                   <PopulationPyramid 

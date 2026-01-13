@@ -121,8 +121,9 @@
   gap: 12px;
 }
 
-/* Кнопка настроек */
-.settingsButton {
+/* Кнопки действий (настройки, экспорт) */
+.settingsButton,
+.exportButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,13 +138,15 @@
   transition: all var(--transition-fast);
 }
 
-.settingsButton:hover {
+.settingsButton:hover,
+.exportButton:hover {
   color: var(--color-text);
   background: var(--color-bg-card);
   border-color: var(--color-text-muted);
 }
 
-.settingsButton:active {
+.settingsButton:active,
+.exportButton:active {
   transform: scale(0.95);
 }
 

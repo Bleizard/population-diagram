@@ -151,6 +151,9 @@
     "dataFrom": "Daten von",
     "dataTo": "bis",
     "years": "Jahre"
+  },
+  "actions": {
+    "exportSvg": "Als SVG exportieren"
   }
 }
 

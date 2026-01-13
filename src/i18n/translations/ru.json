@@ -151,6 +151,9 @@
     "dataFrom": "Данные с",
     "dataTo": "по",
     "years": "лет"
+  },
+  "actions": {
+    "exportSvg": "Экспорт в SVG"
   }
 }
 
