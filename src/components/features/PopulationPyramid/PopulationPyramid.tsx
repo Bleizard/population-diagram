@@ -23,6 +23,8 @@ import type { ColorProfile } from '../../../types';
 interface PopulationPyramidProps {
   /** Данные о населении */
   data: PopulationData;
+  /** Исходные данные для расчёта медианы (для агрегированных графиков) */
+  sourceDataForMedian?: PopulationData;
   /** Текущая тема */
   theme?: Theme;
   /** Режим отображения: split (по полу) или combined (суммарно) */
@@ -127,7 +129,8 @@ const THEME_COLORS = {
  */
 export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyramidProps>(
   function PopulationPyramid({ 
-    data, 
+    data,
+    sourceDataForMedian,
     theme = 'light', 
     viewMode = 'split',
     maxScale,
@@ -289,20 +292,28 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     return { male, female, total: male + female };
   }, [data.ageGroups]);
   
-  // Вычисляем медианный возраст
+  // Вычисляем медианный возраст (используем исходные данные если есть)
   const medianAge = useMemo(() => {
-    const totalPopulation = totals.total;
+    // Для агрегированных графиков используем исходные данные
+    const ageGroups = sourceDataForMedian?.ageGroups ?? data.ageGroups;
+    
+    // Считаем общую популяцию из тех же данных
+    let totalPopulation = 0;
+    for (const group of ageGroups) {
+      totalPopulation += group.male + group.female;
+    }
+    
     const halfPopulation = totalPopulation / 2;
     
     let cumulative = 0;
-    for (const group of data.ageGroups) {
+    for (const group of ageGroups) {
       cumulative += group.male + group.female;
       if (cumulative >= halfPopulation) {
         return group.ageNumeric;
       }
     }
     return 0;
-  }, [data.ageGroups, totals.total]);
+  }, [data.ageGroups, sourceDataForMedian]);
   
   // Используем кастомный масштаб или из метаданных
   const effectiveMaxScale = maxScale ?? metadata.maxValue;

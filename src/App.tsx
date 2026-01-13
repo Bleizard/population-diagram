@@ -414,7 +414,7 @@ function App() {
               const currentYear = settings.selectedYear ?? initialSelectedYear;
               
               return (
-                <div key={chart.id} className={styles.chartWrapper}>
+                <div key={`${chart.id}-${currentYear}`} className={styles.chartWrapper}>
                   <div className={styles.chartHeader}>
                     <h2 className={styles.chartTitle}>
                       {t.chart.grouping} {chart.groupConfig?.map((g) => g.label).join(', ')}
