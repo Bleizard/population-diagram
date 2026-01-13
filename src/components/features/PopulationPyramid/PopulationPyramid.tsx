@@ -190,6 +190,7 @@ export function PopulationPyramid({
           const items = params as Array<{
             axisValue: string;
             seriesName: string;
+            seriesIndex: number;
             value: number;
           }>;
           
@@ -199,9 +200,10 @@ export function PopulationPyramid({
           let maleTotal = 0;
           let femaleTotal = 0;
           
+          // seriesIndex 0,1 = male (base + surplus), seriesIndex 2,3 = female (base + surplus)
           items.forEach((item) => {
             const value = Math.abs(item.value);
-            if (item.seriesName.includes('Male')) {
+            if (item.seriesIndex < 2) {
               maleTotal += value;
             } else {
               femaleTotal += value;
