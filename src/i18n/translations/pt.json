@@ -109,6 +109,33 @@
     "unknownFileFormat": "Formato de arquivo desconhecido",
     "unknownError": "Erro desconhecido",
     "fileLoadError": "Erro ao carregar o arquivo"
+  },
+  "dataFormats": {
+    "simple": {
+      "name": "Simples",
+      "description": "Formato básico com idade e população por sexo"
+    },
+    "timeseries": {
+      "name": "Série temporal",
+      "description": "Dados populacionais ao longo de vários anos"
+    },
+    "eurostat": {
+      "name": "Eurostat",
+      "description": "Formato SDMX do banco de dados Eurostat"
+    }
+  },
+  "processing": {
+    "idle": "Pronto para carregar",
+    "reading": "Lendo arquivo...",
+    "detecting": "Detectando formato...",
+    "validating": "Validando dados...",
+    "building": "Construindo modelo de dados...",
+    "done": "Processamento concluído",
+    "error": "Ocorreu um erro",
+    "formatDetected": "Formato detectado:",
+    "rowsFound": "linhas encontradas",
+    "yearsFound": "anos encontrados",
+    "preview": "Visualização (primeiras 5 linhas)"
   }
 }
 

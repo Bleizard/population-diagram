@@ -109,6 +109,33 @@
     "unknownFileFormat": "Unbekanntes Dateiformat",
     "unknownError": "Unbekannter Fehler",
     "fileLoadError": "Fehler beim Laden der Datei"
+  },
+  "dataFormats": {
+    "simple": {
+      "name": "Einfach",
+      "description": "Grundformat mit Alter und Bevölkerung nach Geschlecht"
+    },
+    "timeseries": {
+      "name": "Zeitreihe",
+      "description": "Bevölkerungsdaten über mehrere Jahre"
+    },
+    "eurostat": {
+      "name": "Eurostat",
+      "description": "SDMX-Format aus der Eurostat-Datenbank"
+    }
+  },
+  "processing": {
+    "idle": "Bereit zum Laden",
+    "reading": "Datei wird gelesen...",
+    "detecting": "Format wird erkannt...",
+    "validating": "Daten werden validiert...",
+    "building": "Datenmodell wird erstellt...",
+    "done": "Verarbeitung abgeschlossen",
+    "error": "Fehler aufgetreten",
+    "formatDetected": "Format erkannt:",
+    "rowsFound": "Zeilen gefunden",
+    "yearsFound": "Jahre gefunden",
+    "preview": "Vorschau (erste 5 Zeilen)"
   }
 }
 

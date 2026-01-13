@@ -109,6 +109,33 @@
     "unknownFileFormat": "Неизвестный формат файла",
     "unknownError": "Неизвестная ошибка",
     "fileLoadError": "Ошибка при загрузке файла"
+  },
+  "dataFormats": {
+    "simple": {
+      "name": "Простой",
+      "description": "Базовый формат с возрастом и населением по полу"
+    },
+    "timeseries": {
+      "name": "Временной ряд",
+      "description": "Данные о населении за несколько лет"
+    },
+    "eurostat": {
+      "name": "Eurostat",
+      "description": "Формат SDMX из базы данных Eurostat"
+    }
+  },
+  "processing": {
+    "idle": "Готов к загрузке",
+    "reading": "Чтение файла...",
+    "detecting": "Определение формата...",
+    "validating": "Валидация данных...",
+    "building": "Построение модели данных...",
+    "done": "Обработка завершена",
+    "error": "Произошла ошибка",
+    "formatDetected": "Формат определён:",
+    "rowsFound": "строк найдено",
+    "yearsFound": "лет найдено",
+    "preview": "Превью (первые 5 строк)"
   }
 }
 

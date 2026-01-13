@@ -61,9 +61,35 @@ export interface ChartMetadata {
 }
 
 /**
- * Формат входного файла
+ * Формат входного файла (расширение)
  */
-export type FileFormat = 'csv' | 'xlsx' | 'xls';
+export type FileExtension = 'csv' | 'xlsx' | 'xls';
+
+/**
+ * @deprecated Используйте FileExtension
+ */
+export type FileFormat = FileExtension;
+
+/**
+ * Формат данных (структура)
+ */
+export type DataFormat = 'simple' | 'timeseries' | 'eurostat' | 'unknown';
+
+/**
+ * Описание формата данных
+ */
+export interface DataFormatInfo {
+  /** Идентификатор формата */
+  format: DataFormat;
+  /** Название формата */
+  name: string;
+  /** Описание */
+  description: string;
+  /** Обязательные колонки */
+  requiredColumns: string[];
+  /** Пример данных (массив строк) */
+  exampleRows: string[][];
+}
 
 /**
  * Результат парсинга файла
@@ -71,16 +97,88 @@ export type FileFormat = 'csv' | 'xlsx' | 'xls';
 export interface ParseResult {
   success: boolean;
   data?: PopulationData;
+  /** Данные временного ряда (если формат timeseries или eurostat) */
+  timeSeriesData?: TimeSeriesPopulationData;
+  /** Определённый формат данных */
+  detectedFormat?: DataFormat;
   error?: string;
 }
 
 /**
- * Сырые данные из файла (до преобразования)
+ * Сырые данные из файла (до преобразования) - простой формат
  */
 export interface RawPopulationRow {
   age: string | number;
   male: string | number;
   female: string | number;
+}
+
+/**
+ * Сырые данные с годом (формат timeseries)
+ */
+export interface RawTimeSeriesRow extends RawPopulationRow {
+  year: number;
+}
+
+/**
+ * Сырые данные Eurostat
+ */
+export interface RawEurostatRow {
+  age: string;
+  sex: 'M' | 'F' | 'T';
+  geo: string;
+  TIME_PERIOD: number;
+  OBS_VALUE: number;
+}
+
+/**
+ * Данные о населении за несколько лет
+ */
+export interface TimeSeriesPopulationData {
+  /** Название страны или региона */
+  title: string;
+  /** Источник данных */
+  source?: string;
+  /** Код страны (для Eurostat) */
+  geoCode?: string;
+  /** Доступные годы */
+  years: number[];
+  /** Данные по годам */
+  dataByYear: Record<number, PopulationAgeGroup[]>;
+}
+
+/**
+ * Этап обработки файла
+ */
+export type ProcessingStep = 
+  | 'idle'
+  | 'reading'
+  | 'detecting'
+  | 'validating'
+  | 'building'
+  | 'done'
+  | 'error';
+
+/**
+ * Состояние обработки файла
+ */
+export interface ProcessingState {
+  /** Текущий этап */
+  step: ProcessingStep;
+  /** Прогресс (0-100) */
+  progress: number;
+  /** Определённый формат */
+  detectedFormat?: DataFormat;
+  /** Превью данных (первые N строк как массив массивов) */
+  preview?: string[][];
+  /** Заголовки колонок */
+  headers?: string[];
+  /** Предупреждения валидации */
+  warnings?: string[];
+  /** Ошибка */
+  error?: string;
+  /** Сообщение текущего этапа */
+  message?: string;
 }
 
 /**
