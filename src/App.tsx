@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { usePopulationData, useTheme, useLanguage } from './hooks';
 import { I18nContext } from './i18n';
 import { FileUpload } from './components/common/FileUpload';
@@ -13,6 +13,7 @@ import { ToggleSetting } from './components/common/ToggleSetting';
 import { XAxisSplitConfig } from './components/common/XAxisSplitConfig';
 import { YearSelector } from './components/common/YearSelector';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
+import type { PopulationPyramidRef } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { 
   ChartSettingsPanel, 
@@ -63,6 +64,9 @@ function App() {
   
   // ID графика, для которого открыты настройки (null если закрыто)
   const [settingsOpenFor, setSettingsOpenFor] = useState<string | null>(null);
+  
+  // Refs для доступа к методам графиков
+  const chartRefs = useRef<Record<string, PopulationPyramidRef | null>>({});
 
   // Получение настроек графика (с дефолтными значениями)
   const getSettings = useCallback((chartId: string): ChartSettings => {
@@ -191,12 +195,21 @@ function App() {
     setSettingsOpenFor(null);
   }, [clearData]);
   
-  // Экспорт графика в SVG (заглушка)
+  // Экспорт графика в SVG
   const handleExportSvg = useCallback((chartId: string) => {
-    // TODO: Реализовать экспорт в SVG
-    console.log('Export SVG for chart:', chartId);
-    alert('Export to SVG - Coming soon!');
-  }, []);
+    const chartRef = chartRefs.current[chartId];
+    if (chartRef) {
+      // Формируем имя файла из названия данных и года
+      const settings = chartSettings[chartId];
+      const year = settings?.selectedYear;
+      const baseName = initialData?.title?.replace(/[^a-zA-Z0-9]/g, '-') || 'population-pyramid';
+      const filename = year 
+        ? `${baseName}-${year}.svg`
+        : `${baseName}.svg`;
+      
+      chartRef.exportToSvg(filename);
+    }
+  }, [chartSettings, initialData?.title]);
 
   // Вычисляем максимальный возраст для конфигуратора
   const currentOriginalData = getChartData(ORIGINAL_CHART_ID, initialData);
@@ -325,7 +338,8 @@ function App() {
                       <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
                     </div>
                   </div>
-                  <PopulationPyramid 
+                  <PopulationPyramid
+                    ref={(el) => { chartRefs.current[ORIGINAL_CHART_ID] = el; }}
                     data={chartData} 
                     theme={theme} 
                     viewMode={settings.viewMode}
@@ -388,7 +402,8 @@ function App() {
                       </button>
                     </div>
                   </div>
-                  <PopulationPyramid 
+                  <PopulationPyramid
+                    ref={(el) => { chartRefs.current[chart.id] = el; }}
                     data={chartData} 
                     theme={theme} 
                     viewMode={settings.viewMode}

@@ -1,6 +1,6 @@
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { useMemo } from 'react';
+import { useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
 import type { PopulationData } from '../../../types';
 import type { Theme } from '../../../hooks';
 import type { ViewMode } from '../../common/ViewModeToggle';
@@ -9,6 +9,12 @@ import { CHART_CONFIG } from '../../../constants';
 import { useI18n } from '../../../i18n';
 import { formatPopulation } from '../../../utils';
 import styles from './PopulationPyramid.module.css';
+
+/** Методы, доступные через ref */
+export interface PopulationPyramidRef {
+  /** Экспортировать график в SVG и скачать файл */
+  exportToSvg: (filename?: string) => void;
+}
 
 interface PopulationPyramidProps {
   /** Данные о населении */
@@ -75,19 +81,44 @@ const THEME_COLORS = {
  * Компонент половозрастной пирамиды населения
  * Использует ECharts для отображения горизонтальной гистограммы
  */
-export function PopulationPyramid({ 
-  data, 
-  theme = 'light', 
-  viewMode = 'split',
-  maxScale,
-  yAxisInterval = 0,
-  customTitle,
-  showTotal = false,
-  xAxisSplitCount = 5,
-  showBarLabels = false,
-  className 
-}: PopulationPyramidProps) {
+export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyramidProps>(
+  function PopulationPyramid({ 
+    data, 
+    theme = 'light', 
+    viewMode = 'split',
+    maxScale,
+    yAxisInterval = 0,
+    customTitle,
+    showTotal = false,
+    xAxisSplitCount = 5,
+    showBarLabels = false,
+    className 
+  }, ref) {
   const { t } = useI18n();
+  const chartRef = useRef<ReactECharts>(null);
+  
+  // Экспортируем методы через ref
+  useImperativeHandle(ref, () => ({
+    exportToSvg: (filename?: string) => {
+      const echartsInstance = chartRef.current?.getEchartsInstance();
+      if (!echartsInstance) return;
+      
+      // Получаем SVG как data URL
+      const svgDataUrl = echartsInstance.getDataURL({
+        type: 'svg',
+        pixelRatio: 2,
+        backgroundColor: THEME_COLORS[theme].background,
+      });
+      
+      // Создаём ссылку для скачивания
+      const link = document.createElement('a');
+      link.download = filename || `population-pyramid-${Date.now()}.svg`;
+      link.href = svgDataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+  }), [theme]);
   const chartData = useMemo(() => transformToChartData(data), [data]);
   const metadata = useMemo(() => extractChartMetadata(data), [data]);
   const colors = THEME_COLORS[theme];
@@ -585,6 +616,7 @@ export function PopulationPyramid({
   return (
     <div className={`${styles.container} ${className || ''}`}>
       <ReactECharts
+        ref={chartRef}
         option={option}
         style={{ height: chartHeight, width: '100%' }}
         opts={{ renderer: 'svg' }}
@@ -621,4 +653,4 @@ export function PopulationPyramid({
       </div>
     </div>
   );
-}
+});
