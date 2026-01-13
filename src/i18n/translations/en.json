@@ -99,6 +99,16 @@
     "femaleSurplus": "Female surplus",
     "age": "Age",
     "population": "Population"
+  },
+  "errors": {
+    "ageColumnNotFound": "Age column not found (age)",
+    "maleColumnNotFound": "Male column not found (male)",
+    "femaleColumnNotFound": "Female column not found (female)",
+    "csvParseError": "CSV parsing error",
+    "excelParseError": "Excel parsing error",
+    "unknownFileFormat": "Unknown file format",
+    "unknownError": "Unknown error",
+    "fileLoadError": "Error loading file"
   }
 }
 

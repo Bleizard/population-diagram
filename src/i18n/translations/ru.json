@@ -99,6 +99,16 @@
     "femaleSurplus": "Избыток женщин",
     "age": "Возраст",
     "population": "Население"
+  },
+  "errors": {
+    "ageColumnNotFound": "Колонка возраста не найдена (age)",
+    "maleColumnNotFound": "Колонка мужчин не найдена (male)",
+    "femaleColumnNotFound": "Колонка женщин не найдена (female)",
+    "csvParseError": "Ошибка парсинга CSV",
+    "excelParseError": "Ошибка парсинга Excel",
+    "unknownFileFormat": "Неизвестный формат файла",
+    "unknownError": "Неизвестная ошибка",
+    "fileLoadError": "Ошибка при загрузке файла"
   }
 }
 

@@ -99,6 +99,16 @@
     "femaleSurplus": "Frauenüberschuss",
     "age": "Alter",
     "population": "Bevölkerung"
+  },
+  "errors": {
+    "ageColumnNotFound": "Altersspalte nicht gefunden (age)",
+    "maleColumnNotFound": "Männerspalte nicht gefunden (male)",
+    "femaleColumnNotFound": "Frauenspalte nicht gefunden (female)",
+    "csvParseError": "CSV-Analysefehler",
+    "excelParseError": "Excel-Analysefehler",
+    "unknownFileFormat": "Unbekanntes Dateiformat",
+    "unknownError": "Unbekannter Fehler",
+    "fileLoadError": "Fehler beim Laden der Datei"
   }
 }
 

@@ -99,6 +99,16 @@
     "femaleSurplus": "Excesso de mulheres",
     "age": "Idade",
     "population": "População"
+  },
+  "errors": {
+    "ageColumnNotFound": "Coluna de idade não encontrada (age)",
+    "maleColumnNotFound": "Coluna de homens não encontrada (male)",
+    "femaleColumnNotFound": "Coluna de mulheres não encontrada (female)",
+    "csvParseError": "Erro ao analisar CSV",
+    "excelParseError": "Erro ao analisar Excel",
+    "unknownFileFormat": "Formato de arquivo desconhecido",
+    "unknownError": "Erro desconhecido",
+    "fileLoadError": "Erro ao carregar o arquivo"
   }
 }
 

@@ -1,6 +1,18 @@
 import Papa from 'papaparse';
 import type { RawPopulationRow } from '../../types';
 
+// Коды ошибок для перевода
+export const ERROR_CODES = {
+  AGE_COLUMN_NOT_FOUND: 'AGE_COLUMN_NOT_FOUND',
+  MALE_COLUMN_NOT_FOUND: 'MALE_COLUMN_NOT_FOUND',
+  FEMALE_COLUMN_NOT_FOUND: 'FEMALE_COLUMN_NOT_FOUND',
+  CSV_PARSE_ERROR: 'CSV_PARSE_ERROR',
+  EXCEL_PARSE_ERROR: 'EXCEL_PARSE_ERROR',
+  UNKNOWN_FILE_FORMAT: 'UNKNOWN_FILE_FORMAT',
+} as const;
+
+export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+
 /**
  * Парсит CSV файл и возвращает массив строк с данными
  * @param file - CSV файл для парсинга
@@ -20,8 +32,8 @@ export async function parseCSV(file: File): Promise<RawPopulationRow[]> {
           reject(error);
         }
       },
-      error: (error) => {
-        reject(new Error(`Ошибка парсинга CSV: ${error.message}`));
+      error: () => {
+        reject(new Error(ERROR_CODES.CSV_PARSE_ERROR));
       },
     });
   });
@@ -45,13 +57,13 @@ function normalizeColumnNames(
     const female = findColumnValue(row, femaleAliases);
 
     if (age === undefined) {
-      throw new Error('Age column not found (age)');
+      throw new Error(ERROR_CODES.AGE_COLUMN_NOT_FOUND);
     }
     if (male === undefined) {
-      throw new Error('Male column not found (male)');
+      throw new Error(ERROR_CODES.MALE_COLUMN_NOT_FOUND);
     }
     if (female === undefined) {
-      throw new Error('Female column not found (female)');
+      throw new Error(ERROR_CODES.FEMALE_COLUMN_NOT_FOUND);
     }
 
     return { age, male, female };

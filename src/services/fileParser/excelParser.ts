@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { RawPopulationRow } from '../../types';
+import { ERROR_CODES } from './csvParser';
 
 /**
  * Парсит Excel файл и возвращает массив строк с данными
@@ -14,7 +15,7 @@ export async function parseExcel(file: File): Promise<RawPopulationRow[]> {
       try {
         const data = event.target?.result;
         if (!data) {
-          throw new Error('Failed to read file');
+          throw new Error(ERROR_CODES.EXCEL_PARSE_ERROR);
         }
 
         const workbook = XLSX.read(data, { type: 'array' });
@@ -22,7 +23,7 @@ export async function parseExcel(file: File): Promise<RawPopulationRow[]> {
         // Берём первый лист
         const firstSheetName = workbook.SheetNames[0];
         if (!firstSheetName) {
-          throw new Error('Excel file contains no sheets');
+          throw new Error(ERROR_CODES.EXCEL_PARSE_ERROR);
         }
 
         const worksheet = workbook.Sheets[firstSheetName];
@@ -36,12 +37,12 @@ export async function parseExcel(file: File): Promise<RawPopulationRow[]> {
         const rows = normalizeColumnNames(jsonData);
         resolve(rows);
       } catch (error) {
-        reject(error instanceof Error ? error : new Error('Excel parsing error'));
+        reject(error instanceof Error ? error : new Error(ERROR_CODES.EXCEL_PARSE_ERROR));
       }
     };
 
     reader.onerror = () => {
-      reject(new Error('File reading error'));
+      reject(new Error(ERROR_CODES.EXCEL_PARSE_ERROR));
     };
 
     reader.readAsArrayBuffer(file);
@@ -64,13 +65,13 @@ function normalizeColumnNames(
     const female = findColumnValue(row, femaleAliases);
 
     if (age === undefined) {
-      throw new Error('Age column not found (age)');
+      throw new Error(ERROR_CODES.AGE_COLUMN_NOT_FOUND);
     }
     if (male === undefined) {
-      throw new Error('Male column not found (male)');
+      throw new Error(ERROR_CODES.MALE_COLUMN_NOT_FOUND);
     }
     if (female === undefined) {
-      throw new Error('Female column not found (female)');
+      throw new Error(ERROR_CODES.FEMALE_COLUMN_NOT_FOUND);
     }
 
     return { age, male, female };

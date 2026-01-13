@@ -1,6 +1,8 @@
-import { parseCSV } from './csvParser';
+import { parseCSV, ERROR_CODES } from './csvParser';
 import { parseExcel } from './excelParser';
 import type { FileFormat, ParseResult, RawPopulationRow, PopulationData } from '../../types';
+
+export { ERROR_CODES } from './csvParser';
 
 /**
  * Определяет формат файла по расширению
@@ -31,7 +33,7 @@ export async function parsePopulationFile(file: File): Promise<ParseResult> {
   if (!format) {
     return {
       success: false,
-      error: 'Unsupported file format. Please use CSV, XLS or XLSX.',
+      error: ERROR_CODES.UNKNOWN_FILE_FORMAT,
     };
   }
 
