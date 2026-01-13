@@ -153,16 +153,22 @@ export function YearSelector({ years, selectedYear, onYearChange, compact = fals
           {compact && (
             <span className={styles.compactYear}>{selectedYear}</span>
           )}
-          <input
-            type="range"
-            className={styles.slider}
-            min={0}
-            max={years.length - 1}
-            value={currentIndex}
-            onChange={handleSliderChange}
-            aria-label={t.yearSelector.label}
-            disabled={isPlaying}
-          />
+          <div className={styles.sliderWrapper}>
+            <div 
+              className={styles.sliderProgress}
+              style={{ width: `${(currentIndex / (years.length - 1)) * 100}%` }}
+            />
+            <input
+              type="range"
+              className={styles.slider}
+              min={0}
+              max={years.length - 1}
+              value={currentIndex}
+              onChange={handleSliderChange}
+              aria-label={t.yearSelector.label}
+              disabled={isPlaying}
+            />
+          </div>
           <div className={styles.yearMarks}>
             {visibleYears.map((year) => {
               const index = years.indexOf(year);
