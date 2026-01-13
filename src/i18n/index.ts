@@ -1,5 +1,10 @@
 import { createContext, useContext } from 'react';
 import en from './translations/en.json';
+import ru from './translations/ru.json';
+import es from './translations/es.json';
+import pt from './translations/pt.json';
+import fr from './translations/fr.json';
+import de from './translations/de.json';
 
 export type Language = 'en' | 'ru' | 'es' | 'pt' | 'fr' | 'de';
 
@@ -8,11 +13,11 @@ export type Translations = typeof en;
 // Загрузка переводов
 const translations: Record<Language, Translations> = {
   en,
-  ru: en, // Временно используем английский, заменим позже
-  es: en,
-  pt: en,
-  fr: en,
-  de: en,
+  ru: ru as Translations,
+  es: es as Translations,
+  pt: pt as Translations,
+  fr: fr as Translations,
+  de: de as Translations,
 };
 
 export const LANGUAGES: Array<{ code: Language; name: string; nativeName: string }> = [

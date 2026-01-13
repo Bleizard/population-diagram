@@ -1,0 +1,100 @@
+{
+  "app": {
+    "title": "Bevölkerungspyramide",
+    "subtitle": "Visualisierung der Alters- und Geschlechtsstruktur",
+    "footer": "Bevölkerungspyramiden-Generator"
+  },
+  "upload": {
+    "dropzone": "Datei hierher ziehen oder klicken zum Auswählen",
+    "formats": "Unterstützte Formate: CSV, XLSX, XLS",
+    "loading": "Datei wird geladen...",
+    "formatTitle": "Dateiformat:",
+    "formatDescription": "Die Datei muss drei Spalten enthalten:",
+    "example": "Beispiel:"
+  },
+  "toolbar": {
+    "loadAnother": "Andere Datei laden",
+    "loaded": "Geladen:",
+    "ageGroups": "Altersgruppen",
+    "chart": "Diagramm",
+    "charts": "Diagramme"
+  },
+  "chart": {
+    "originalData": "Originaldaten",
+    "grouping": "Gruppierung:"
+  },
+  "settings": {
+    "title": "Diagrammeinstellungen",
+    "chartTitle": "Diagrammtitel",
+    "displayFormat": "Anzeigeformat",
+    "xAxisScale": "X-Achsen-Skala",
+    "xAxisDivisions": "X-Achsen-Teilungen",
+    "yAxisLabels": "Y-Achsen-Beschriftungen (Alter)",
+    "additional": "Zusätzlich",
+    "showTotal": "Gesamtzahl anzeigen",
+    "showTotalDesc": "Gesamtbevölkerung aller Altersgruppen",
+    "barLabels": "Balkenbeschriftungen",
+    "barLabelsDesc": "Numerische Werte in den Balken anzeigen",
+    "fromFile": "Aus Datei:",
+    "enterTitle": "Diagrammtitel eingeben",
+    "resetTitle": "Auf Original zurücksetzen",
+    "gridLinesHint": "Anzahl der Gitterlinien auf jeder Seite der Mitte"
+  },
+  "viewMode": {
+    "byGender": "Nach Geschlecht",
+    "combined": "Kombiniert"
+  },
+  "scale": {
+    "auto": "Auto",
+    "autoHint": "gerundet",
+    "fit": "An Daten anpassen",
+    "fitHint": "+10%",
+    "manual": "Manuell",
+    "maximum": "Maximum:",
+    "dataMax": "Daten-Max.:",
+    "scaleTo": "Skalieren auf:"
+  },
+  "yAxis": {
+    "all": "Alle",
+    "allHint": "jedes Alter",
+    "every2": "Jedes 2.",
+    "every2Hint": "0, 2, 4...",
+    "every5": "Vielfache von 5",
+    "every5Hint": "0, 5, 10...",
+    "every10": "Vielfache von 10",
+    "every10Hint": "0, 10, 20..."
+  },
+  "groupConfig": {
+    "createGrouped": "Gruppiertes Diagramm erstellen",
+    "presets": "Voreinstellungen:",
+    "preset3": "3 Gruppen (0-19, 20-64, 65+)",
+    "preset5": "5 Gruppen",
+    "presetDecades": "Nach Jahrzehnten",
+    "ageGroups": "Altersgruppen",
+    "add": "Hinzufügen",
+    "from": "Von",
+    "to": "Bis",
+    "createChart": "Diagramm erstellen",
+    "removeGroup": "Gruppe entfernen"
+  },
+  "validation": {
+    "addAtLeastOne": "Fügen Sie mindestens eine Altersgruppe hinzu",
+    "startGreaterEnd": "Gruppe \"{label}\": Anfang größer als Ende",
+    "negativeAge": "Gruppe \"{label}\": Alter kann nicht negativ sein",
+    "overlap": "Gruppen \"{label1}\" und \"{label2}\" überlappen sich"
+  },
+  "theme": {
+    "lightTheme": "Helles Design",
+    "darkTheme": "Dunkles Design",
+    "switchToLight": "Zu hellem Design wechseln",
+    "switchToDark": "Zu dunklem Design wechseln"
+  },
+  "common": {
+    "close": "Schließen",
+    "remove": "Entfernen",
+    "total": "Gesamt",
+    "males": "Männer",
+    "females": "Frauen"
+  }
+}
+

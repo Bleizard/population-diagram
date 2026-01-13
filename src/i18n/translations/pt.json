@@ -1,0 +1,100 @@
+{
+  "app": {
+    "title": "Pirâmide populacional",
+    "subtitle": "Visualização da estrutura etária e por sexo",
+    "footer": "Construtor de pirâmides populacionais"
+  },
+  "upload": {
+    "dropzone": "Arraste o arquivo aqui ou clique para selecionar",
+    "formats": "Formatos suportados: CSV, XLSX, XLS",
+    "loading": "Carregando arquivo...",
+    "formatTitle": "Formato do arquivo:",
+    "formatDescription": "O arquivo deve conter três colunas:",
+    "example": "Exemplo:"
+  },
+  "toolbar": {
+    "loadAnother": "Carregar outro arquivo",
+    "loaded": "Carregado:",
+    "ageGroups": "grupos etários",
+    "chart": "gráfico",
+    "charts": "gráficos"
+  },
+  "chart": {
+    "originalData": "Dados originais",
+    "grouping": "Agrupamento:"
+  },
+  "settings": {
+    "title": "Configurações do gráfico",
+    "chartTitle": "Título do gráfico",
+    "displayFormat": "Formato de exibição",
+    "xAxisScale": "Escala do eixo X",
+    "xAxisDivisions": "Divisões do eixo X",
+    "yAxisLabels": "Rótulos do eixo Y (idade)",
+    "additional": "Adicional",
+    "showTotal": "Mostrar Total",
+    "showTotalDesc": "População total de todos os grupos etários",
+    "barLabels": "Rótulos nas barras",
+    "barLabelsDesc": "Exibir valores numéricos dentro das barras",
+    "fromFile": "Do arquivo:",
+    "enterTitle": "Digite o título do gráfico",
+    "resetTitle": "Restaurar original",
+    "gridLinesHint": "Número de linhas de grade em cada lado do centro"
+  },
+  "viewMode": {
+    "byGender": "Por gênero",
+    "combined": "Combinado"
+  },
+  "scale": {
+    "auto": "Auto",
+    "autoHint": "arredondado",
+    "fit": "Ajustar dados",
+    "fitHint": "+10%",
+    "manual": "Manual",
+    "maximum": "Máximo:",
+    "dataMax": "Máx. dados:",
+    "scaleTo": "Escalar para:"
+  },
+  "yAxis": {
+    "all": "Todos",
+    "allHint": "cada idade",
+    "every2": "A cada 2",
+    "every2Hint": "0, 2, 4...",
+    "every5": "Múltiplos de 5",
+    "every5Hint": "0, 5, 10...",
+    "every10": "Múltiplos de 10",
+    "every10Hint": "0, 10, 20..."
+  },
+  "groupConfig": {
+    "createGrouped": "Criar gráfico agrupado",
+    "presets": "Predefinições:",
+    "preset3": "3 grupos (0-19, 20-64, 65+)",
+    "preset5": "5 grupos",
+    "presetDecades": "Por décadas",
+    "ageGroups": "Grupos etários",
+    "add": "Adicionar",
+    "from": "De",
+    "to": "Até",
+    "createChart": "Criar gráfico",
+    "removeGroup": "Remover grupo"
+  },
+  "validation": {
+    "addAtLeastOne": "Adicione pelo menos um grupo etário",
+    "startGreaterEnd": "Grupo \"{label}\": início maior que fim",
+    "negativeAge": "Grupo \"{label}\": idade não pode ser negativa",
+    "overlap": "Os grupos \"{label1}\" e \"{label2}\" se sobrepõem"
+  },
+  "theme": {
+    "lightTheme": "Tema claro",
+    "darkTheme": "Tema escuro",
+    "switchToLight": "Mudar para tema claro",
+    "switchToDark": "Mudar para tema escuro"
+  },
+  "common": {
+    "close": "Fechar",
+    "remove": "Remover",
+    "total": "Total",
+    "males": "Homens",
+    "females": "Mulheres"
+  }
+}
+

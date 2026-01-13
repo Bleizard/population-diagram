@@ -1,0 +1,100 @@
+{
+  "app": {
+    "title": "Pyramide des âges",
+    "subtitle": "Visualisation de la structure par âge et sexe",
+    "footer": "Constructeur de pyramides des âges"
+  },
+  "upload": {
+    "dropzone": "Déposez le fichier ici ou cliquez pour sélectionner",
+    "formats": "Formats pris en charge : CSV, XLSX, XLS",
+    "loading": "Chargement du fichier...",
+    "formatTitle": "Format du fichier :",
+    "formatDescription": "Le fichier doit contenir trois colonnes :",
+    "example": "Exemple :"
+  },
+  "toolbar": {
+    "loadAnother": "Charger un autre fichier",
+    "loaded": "Chargé :",
+    "ageGroups": "groupes d'âge",
+    "chart": "graphique",
+    "charts": "graphiques"
+  },
+  "chart": {
+    "originalData": "Données originales",
+    "grouping": "Regroupement :"
+  },
+  "settings": {
+    "title": "Paramètres du graphique",
+    "chartTitle": "Titre du graphique",
+    "displayFormat": "Format d'affichage",
+    "xAxisScale": "Échelle de l'axe X",
+    "xAxisDivisions": "Divisions de l'axe X",
+    "yAxisLabels": "Étiquettes de l'axe Y (âge)",
+    "additional": "Supplémentaire",
+    "showTotal": "Afficher le Total",
+    "showTotalDesc": "Population totale de tous les groupes d'âge",
+    "barLabels": "Étiquettes sur les barres",
+    "barLabelsDesc": "Afficher les valeurs numériques dans les barres",
+    "fromFile": "Du fichier :",
+    "enterTitle": "Entrez le titre du graphique",
+    "resetTitle": "Restaurer l'original",
+    "gridLinesHint": "Nombre de lignes de grille de chaque côté du centre"
+  },
+  "viewMode": {
+    "byGender": "Par genre",
+    "combined": "Combiné"
+  },
+  "scale": {
+    "auto": "Auto",
+    "autoHint": "arrondi",
+    "fit": "Ajuster aux données",
+    "fitHint": "+10%",
+    "manual": "Manuel",
+    "maximum": "Maximum :",
+    "dataMax": "Max. données :",
+    "scaleTo": "Échelle à :"
+  },
+  "yAxis": {
+    "all": "Tous",
+    "allHint": "chaque âge",
+    "every2": "Tous les 2",
+    "every2Hint": "0, 2, 4...",
+    "every5": "Multiples de 5",
+    "every5Hint": "0, 5, 10...",
+    "every10": "Multiples de 10",
+    "every10Hint": "0, 10, 20..."
+  },
+  "groupConfig": {
+    "createGrouped": "Créer un graphique groupé",
+    "presets": "Préréglages :",
+    "preset3": "3 groupes (0-19, 20-64, 65+)",
+    "preset5": "5 groupes",
+    "presetDecades": "Par décennies",
+    "ageGroups": "Groupes d'âge",
+    "add": "Ajouter",
+    "from": "De",
+    "to": "À",
+    "createChart": "Créer le graphique",
+    "removeGroup": "Supprimer le groupe"
+  },
+  "validation": {
+    "addAtLeastOne": "Ajoutez au moins un groupe d'âge",
+    "startGreaterEnd": "Groupe \"{label}\" : début supérieur à fin",
+    "negativeAge": "Groupe \"{label}\" : l'âge ne peut pas être négatif",
+    "overlap": "Les groupes \"{label1}\" et \"{label2}\" se chevauchent"
+  },
+  "theme": {
+    "lightTheme": "Thème clair",
+    "darkTheme": "Thème sombre",
+    "switchToLight": "Passer au thème clair",
+    "switchToDark": "Passer au thème sombre"
+  },
+  "common": {
+    "close": "Fermer",
+    "remove": "Supprimer",
+    "total": "Total",
+    "males": "Hommes",
+    "females": "Femmes"
+  }
+}
+
