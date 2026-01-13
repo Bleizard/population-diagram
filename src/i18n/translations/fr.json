@@ -8,9 +8,13 @@
     "dropzone": "Déposez le fichier ici ou cliquez pour sélectionner",
     "formats": "Formats pris en charge : CSV, XLSX, XLS",
     "loading": "Chargement du fichier...",
-    "formatTitle": "Format du fichier :",
-    "formatDescription": "Le fichier doit contenir trois colonnes :",
-    "example": "Exemple :"
+    "supportedFormats": "Formats de données pris en charge :",
+    "simpleFormat": "Format simple",
+    "simpleFormatDesc": "Format de base avec colonnes :",
+    "timeseriesFormat": "Séries temporelles",
+    "timeseriesFormatDesc": "Données par années avec colonnes :",
+    "eurostatFormat": "Format Eurostat",
+    "eurostatFormatDesc": "Format SDMX d'Eurostat avec colonnes :"
   },
   "toolbar": {
     "loadAnother": "Charger un autre fichier",

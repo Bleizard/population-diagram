@@ -8,9 +8,13 @@
     "dropzone": "Перетащите файл сюда или нажмите для выбора",
     "formats": "Поддерживаемые форматы: CSV, XLSX, XLS",
     "loading": "Загрузка файла...",
-    "formatTitle": "Формат файла:",
-    "formatDescription": "Файл должен содержать три колонки:",
-    "example": "Пример:"
+    "supportedFormats": "Поддерживаемые форматы данных:",
+    "simpleFormat": "Простой формат",
+    "simpleFormatDesc": "Базовый формат с колонками:",
+    "timeseriesFormat": "Временной ряд",
+    "timeseriesFormatDesc": "Данные по годам с колонками:",
+    "eurostatFormat": "Формат Eurostat",
+    "eurostatFormatDesc": "SDMX формат из Eurostat с колонками:"
   },
   "toolbar": {
     "loadAnother": "Загрузить другой файл",

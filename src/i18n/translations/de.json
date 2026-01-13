@@ -8,9 +8,13 @@
     "dropzone": "Datei hierher ziehen oder klicken zum Auswählen",
     "formats": "Unterstützte Formate: CSV, XLSX, XLS",
     "loading": "Datei wird geladen...",
-    "formatTitle": "Dateiformat:",
-    "formatDescription": "Die Datei muss drei Spalten enthalten:",
-    "example": "Beispiel:"
+    "supportedFormats": "Unterstützte Datenformate:",
+    "simpleFormat": "Einfaches Format",
+    "simpleFormatDesc": "Grundformat mit Spalten:",
+    "timeseriesFormat": "Zeitreihe",
+    "timeseriesFormatDesc": "Daten nach Jahren mit Spalten:",
+    "eurostatFormat": "Eurostat-Format",
+    "eurostatFormatDesc": "SDMX-Format von Eurostat mit Spalten:"
   },
   "toolbar": {
     "loadAnother": "Andere Datei laden",

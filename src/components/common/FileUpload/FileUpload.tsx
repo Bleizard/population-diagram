@@ -250,18 +250,63 @@ export function FileUpload({
       {error && <p className={styles.error}>{error}</p>}
 
       {!isLoading && (
-        <div className={styles.formatInfo}>
-          <h4>{t.upload.formatTitle}</h4>
-          <p>
-            {t.upload.formatDescription} <code>age</code>, <code>male</code>,{' '}
-            <code>female</code>
-          </p>
-          <p className={styles.example}>
-            {t.upload.example} age | male | female<br />
-            0 | 893000 | 847000<br />
-            1 | 889000 | 845000<br />
-            ...
-          </p>
+        <div className={styles.formatsContainer}>
+          <h4 className={styles.formatsTitle}>{t.upload.supportedFormats}</h4>
+          
+          <div className={styles.formatsList}>
+            {/* Simple format */}
+            <div className={styles.formatCard}>
+              <div className={styles.formatHeader}>
+                <span className={styles.formatBadge}>1</span>
+                <h5>{t.upload.simpleFormat}</h5>
+              </div>
+              <p className={styles.formatDesc}>
+                {t.upload.simpleFormatDesc} <code>age</code>, <code>male</code>, <code>female</code>
+              </p>
+              <pre className={styles.example}>
+{`age,male,female
+0,893000,847000
+1,889000,845000
+...`}
+              </pre>
+            </div>
+
+            {/* Time Series format */}
+            <div className={styles.formatCard}>
+              <div className={styles.formatHeader}>
+                <span className={styles.formatBadge}>2</span>
+                <h5>{t.upload.timeseriesFormat}</h5>
+              </div>
+              <p className={styles.formatDesc}>
+                {t.upload.timeseriesFormatDesc} <code>year</code>, <code>age</code>, <code>male</code>, <code>female</code>
+              </p>
+              <pre className={styles.example}>
+{`year,age,male,female
+2020,0,410000,390000
+2020,1,415000,395000
+2021,0,405000,385000
+...`}
+              </pre>
+            </div>
+
+            {/* Eurostat format */}
+            <div className={styles.formatCard}>
+              <div className={styles.formatHeader}>
+                <span className={styles.formatBadge}>3</span>
+                <h5>{t.upload.eurostatFormat}</h5>
+              </div>
+              <p className={styles.formatDesc}>
+                {t.upload.eurostatFormatDesc} <code>age</code>, <code>sex</code>, <code>geo</code>, <code>TIME_PERIOD</code>, <code>OBS_VALUE</code>
+              </p>
+              <pre className={styles.example}>
+{`age,sex,geo,TIME_PERIOD,OBS_VALUE
+Y0,M,FR,2020,367500
+Y0,F,FR,2020,351200
+Y1,M,FR,2020,372800
+...`}
+              </pre>
+            </div>
+          </div>
         </div>
       )}
     </div>

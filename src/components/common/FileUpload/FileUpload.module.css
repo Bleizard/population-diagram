@@ -122,38 +122,88 @@
     color var(--transition-normal);
 }
 
-.formatInfo {
+.formatsContainer {
   margin-top: 24px;
-  padding: 20px;
+}
+
+.formatsTitle {
+  margin: 0 0 16px 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color var(--transition-normal);
+}
+
+.formatsList {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .formatsList {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.formatCard {
+  padding: 16px;
   background: var(--color-bg-hover);
   border-radius: 12px;
   border: 1px solid var(--color-border-light);
   transition: 
     background-color var(--transition-normal),
-    border-color var(--transition-normal);
+    border-color var(--transition-normal),
+    transform var(--transition-fast);
 }
 
-.formatInfo h4 {
-  margin: 0 0 8px 0;
+.formatCard:hover {
+  border-color: var(--color-border);
+  transform: translateY(-2px);
+}
+
+.formatHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.formatBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.formatHeader h5 {
+  margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text);
   transition: color var(--transition-normal);
 }
 
-.formatInfo p {
-  margin: 0 0 8px 0;
-  font-size: 0.875rem;
+.formatDesc {
+  margin: 0 0 12px 0;
+  font-size: 0.8125rem;
   color: var(--color-text-secondary);
+  line-height: 1.5;
   transition: color var(--transition-normal);
 }
 
-.formatInfo code {
+.formatDesc code {
   background: var(--color-border);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--color-text);
   transition: 
     background-color var(--transition-normal),
@@ -162,14 +212,15 @@
 
 .example {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   background: #1e293b;
   color: #94a3b8;
-  padding: 12px 16px;
+  padding: 10px 12px;
   border-radius: 8px;
   white-space: pre;
   overflow-x: auto;
-  margin-top: 12px;
+  margin: 0;
+  line-height: 1.6;
 }
 
 /* Processing states */
