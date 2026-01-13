@@ -8,6 +8,7 @@ import type { ScaleConfig } from './components/common/ScaleConfigurator';
 import { YAxisLabelConfig, getYAxisInterval } from './components/common/YAxisLabelConfig';
 import { ChartTitleInput } from './components/common/ChartTitleInput';
 import { ToggleSetting } from './components/common/ToggleSetting';
+import { XAxisSplitConfig } from './components/common/XAxisSplitConfig';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { 
@@ -231,6 +232,7 @@ function App() {
                     yAxisInterval={yAxisInterval}
                     customTitle={settings.customTitle}
                     showTotal={settings.showTotal}
+                    xAxisSplitCount={settings.xAxisSplitCount}
                   />
                 </div>
               );
@@ -281,6 +283,7 @@ function App() {
                     yAxisInterval={yAxisInterval}
                     customTitle={settings.customTitle}
                     showTotal={settings.showTotal}
+                    xAxisSplitCount={settings.xAxisSplitCount}
                   />
                 </div>
               );
@@ -315,6 +318,13 @@ function App() {
                       scaleCustomValue: config.customValue 
                     })}
                     dataMaxValue={getDataMaxValue(settingsChartData)}
+                  />
+                </SettingsSection>
+                
+                <SettingsSection title="Деления оси X">
+                  <XAxisSplitConfig
+                    value={currentSettings.xAxisSplitCount}
+                    onChange={(value) => updateSettings(settingsOpenFor, { xAxisSplitCount: value })}
                   />
                 </SettingsSection>
                 

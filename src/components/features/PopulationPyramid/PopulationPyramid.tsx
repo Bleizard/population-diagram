@@ -24,6 +24,8 @@ interface PopulationPyramidProps {
   customTitle?: string;
   /** Показывать общую сумму населения */
   showTotal?: boolean;
+  /** Количество делений оси X (с каждой стороны от 0) */
+  xAxisSplitCount?: number;
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -78,6 +80,7 @@ export function PopulationPyramid({
   yAxisInterval = 0,
   customTitle,
   showTotal = false,
+  xAxisSplitCount = 5,
   className 
 }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
@@ -235,6 +238,7 @@ export function PopulationPyramid({
         type: 'value',
         min: -effectiveMaxScale,
         max: effectiveMaxScale,
+        splitNumber: xAxisSplitCount * 2,
         axisLabel: {
           formatter: (value: number) => formatPopulation(Math.abs(value)),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
@@ -339,7 +343,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -434,6 +438,7 @@ export function PopulationPyramid({
         type: 'value',
         min: 0,
         max: combinedMaxScale,
+        splitNumber: xAxisSplitCount,
         axisLabel: {
           formatter: (value: number) => formatPopulation(value),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
@@ -509,7 +514,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;

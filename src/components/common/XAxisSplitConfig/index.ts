@@ -1,0 +1,2 @@
+export { XAxisSplitConfig } from './XAxisSplitConfig';
+
