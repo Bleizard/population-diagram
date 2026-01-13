@@ -41,6 +41,12 @@
   text-align: left;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;

@@ -1,7 +1,10 @@
 import { useState, useCallback, useMemo } from 'react';
-import { usePopulationData, useTheme } from './hooks';
+import { usePopulationData, useTheme, useLanguage } from './hooks';
+// i18n context will be used when components are translated
+// import { I18nContext } from './i18n';
 import { FileUpload } from './components/common/FileUpload';
 import { ThemeToggle } from './components/common/ThemeToggle';
+import { LanguageSelector } from './components/common/LanguageSelector';
 import { ViewModeToggle } from './components/common/ViewModeToggle';
 import { ScaleConfigurator, calculateScale } from './components/common/ScaleConfigurator';
 import type { ScaleConfig } from './components/common/ScaleConfigurator';
@@ -37,6 +40,7 @@ const DEFAULT_SETTINGS: ChartSettings = {
 function App() {
   const { data, isLoading, error, loadFile, clearData } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
   
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);
@@ -156,7 +160,10 @@ function App() {
             </p>
           </div>
           
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <div className={styles.headerActions}>
+            <LanguageSelector currentLanguage={language} onChange={setLanguage} />
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
         </div>
       </header>
 

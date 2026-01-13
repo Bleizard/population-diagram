@@ -1,0 +1,100 @@
+{
+  "app": {
+    "title": "Population Pyramid",
+    "subtitle": "Population age-sex structure visualization",
+    "footer": "Population Pyramid Builder"
+  },
+  "upload": {
+    "dropzone": "Drop file here or click to browse",
+    "formats": "Supported formats: CSV, XLSX, XLS",
+    "loading": "Loading file...",
+    "formatTitle": "File format:",
+    "formatDescription": "File must contain three columns:",
+    "example": "Example:"
+  },
+  "toolbar": {
+    "loadAnother": "Load another file",
+    "loaded": "Loaded:",
+    "ageGroups": "age groups",
+    "chart": "chart",
+    "charts": "charts"
+  },
+  "chart": {
+    "originalData": "Original data",
+    "grouping": "Grouping:"
+  },
+  "settings": {
+    "title": "Chart settings",
+    "chartTitle": "Chart title",
+    "displayFormat": "Display format",
+    "xAxisScale": "X-axis scale",
+    "xAxisDivisions": "X-axis divisions",
+    "yAxisLabels": "Y-axis labels (age)",
+    "additional": "Additional",
+    "showTotal": "Show Total",
+    "showTotalDesc": "Total population across all age groups",
+    "barLabels": "Bar labels",
+    "barLabelsDesc": "Display numeric values inside bars",
+    "fromFile": "From file:",
+    "enterTitle": "Enter chart title",
+    "resetTitle": "Reset to original",
+    "gridLinesHint": "Number of grid lines on each side of center"
+  },
+  "viewMode": {
+    "byGender": "By gender",
+    "combined": "Combined"
+  },
+  "scale": {
+    "auto": "Auto",
+    "autoHint": "rounded",
+    "fit": "Fit data",
+    "fitHint": "+10%",
+    "manual": "Manual",
+    "maximum": "Maximum:",
+    "dataMax": "Data max:",
+    "scaleTo": "Scale to:"
+  },
+  "yAxis": {
+    "all": "All",
+    "allHint": "every age",
+    "every2": "Every 2nd",
+    "every2Hint": "0, 2, 4...",
+    "every5": "Multiple of 5",
+    "every5Hint": "0, 5, 10...",
+    "every10": "Multiple of 10",
+    "every10Hint": "0, 10, 20..."
+  },
+  "groupConfig": {
+    "createGrouped": "Create grouped chart",
+    "presets": "Presets:",
+    "preset3": "3 groups (0-19, 20-64, 65+)",
+    "preset5": "5 groups",
+    "presetDecades": "By decades",
+    "ageGroups": "Age groups",
+    "add": "Add",
+    "from": "From",
+    "to": "To",
+    "createChart": "Create chart",
+    "removeGroup": "Remove group"
+  },
+  "validation": {
+    "addAtLeastOne": "Add at least one age group",
+    "startGreaterEnd": "Group \"{label}\": start is greater than end",
+    "negativeAge": "Group \"{label}\": age cannot be negative",
+    "overlap": "Groups \"{label1}\" and \"{label2}\" overlap"
+  },
+  "theme": {
+    "lightTheme": "Light theme",
+    "darkTheme": "Dark theme",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme"
+  },
+  "common": {
+    "close": "Close",
+    "remove": "Remove",
+    "total": "Total",
+    "males": "Males",
+    "females": "Females"
+  }
+}
+
