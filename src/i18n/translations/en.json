@@ -145,6 +145,9 @@
     "label": "Year",
     "previous": "Previous year",
     "next": "Next year",
+    "play": "Play animation",
+    "pause": "Pause animation",
+    "speed": "Playback speed",
     "dataFrom": "Data from",
     "dataTo": "to",
     "years": "years"
