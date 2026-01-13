@@ -44,6 +44,9 @@ const DEFAULT_SETTINGS: ChartSettings = {
 };
 
 function App() {
+  const { theme, toggleTheme } = useTheme();
+  const { language, t, setLanguage } = useLanguage();
+  
   const { 
     data: initialData, 
     timeSeriesData, 
@@ -54,9 +57,7 @@ function App() {
     loadFile, 
     clearData,
     processingState,
-  } = usePopulationData();
-  const { theme, toggleTheme } = useTheme();
-  const { language, t, setLanguage } = useLanguage();
+  } = usePopulationData({ t });
   
   // Список дополнительных (агрегированных) графиков
   const [additionalCharts, setAdditionalCharts] = useState<ChartInstance[]>([]);

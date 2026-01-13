@@ -1,8 +1,13 @@
 import { useState, useCallback } from 'react';
 import type { PopulationData, ParseResult, TimeSeriesPopulationData, DataFormat, ProcessingState, ProcessingStep } from '../types';
 import { parsePopulationFile, detectDataFormat, ERROR_CODES } from '../services/fileParser';
-import { useI18n } from '../i18n';
+import type { Translations } from '../i18n';
 import { getStepDelay, delay } from '../config';
+
+interface UsePopulationDataProps {
+  /** Объект переводов */
+  t: Translations;
+}
 
 interface UsePopulationDataReturn {
   /** Загруженные данные о населении */
@@ -35,7 +40,7 @@ const INITIAL_PROCESSING_STATE: ProcessingState = {
 /**
  * Переводит код ошибки в локализованное сообщение
  */
-function translateErrorCode(code: string, t: ReturnType<typeof useI18n>['t']): string {
+function translateErrorCode(code: string, t: Translations): string {
   const errorMap: Record<string, string> = {
     [ERROR_CODES.AGE_COLUMN_NOT_FOUND]: t.errors.ageColumnNotFound,
     [ERROR_CODES.MALE_COLUMN_NOT_FOUND]: t.errors.maleColumnNotFound,
@@ -50,9 +55,9 @@ function translateErrorCode(code: string, t: ReturnType<typeof useI18n>['t']): s
 /**
  * Хук для управления состоянием данных о населении
  * Обрабатывает загрузку файлов и хранит результат
+ * @param props.t - Объект переводов для локализации ошибок
  */
-export function usePopulationData(): UsePopulationDataReturn {
-  const { t } = useI18n();
+export function usePopulationData({ t }: UsePopulationDataProps): UsePopulationDataReturn {
   const [data, setData] = useState<PopulationData | null>(null);
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesPopulationData | null>(null);
   const [detectedFormat, setDetectedFormat] = useState<DataFormat | null>(null);
