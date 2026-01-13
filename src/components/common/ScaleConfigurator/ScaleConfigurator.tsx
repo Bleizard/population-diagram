@@ -205,10 +205,11 @@ function formatNumberForInput(value: number): string {
 }
 
 /**
- * Парсит число из строки с пробелами
+ * Парсит число из строки с разделителями (пробелы, запятые)
  */
 function parseInputNumber(value: string): number {
-  const cleaned = value.replace(/\s/g, '').replace(',', '.');
+  // Удаляем все разделители тысяч (пробелы, запятые)
+  const cleaned = value.replace(/[\s,]/g, '');
   return parseInt(cleaned, 10) || 0;
 }
 
