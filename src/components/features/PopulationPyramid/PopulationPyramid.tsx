@@ -281,8 +281,9 @@ export function PopulationPyramid({
           } 
         },
         name: AXIS_LABELS.age,
-        nameLocation: 'end',
-        nameGap: 10,
+        nameLocation: 'middle',
+        nameRotate: 90,
+        nameGap: 40,
         nameTextStyle: {
           fontSize: 13,
           fontWeight: 500,
@@ -508,8 +509,9 @@ export function PopulationPyramid({
           } 
         },
         name: AXIS_LABELS.age,
-        nameLocation: 'end',
-        nameGap: 10,
+        nameLocation: 'middle',
+        nameRotate: 90,
+        nameGap: 40,
         nameTextStyle: {
           fontSize: 13,
           fontWeight: 500,
