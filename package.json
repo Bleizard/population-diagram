@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/gif.js": "^0.2.5",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.5",
+    "gif.js": "^0.2.0",
     "papaparse": "^5.5.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

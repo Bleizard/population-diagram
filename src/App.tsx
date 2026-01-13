@@ -231,6 +231,19 @@ function App() {
     setFullscreenChartId(null);
     document.body.style.overflow = '';
   }, []);
+  
+  // Получение canvas для экспорта GIF
+  const createGetChartCanvas = useCallback((chartId: string) => {
+    return async (_year: number): Promise<HTMLCanvasElement> => {
+      const chartRef = chartRefs.current[chartId];
+      if (!chartRef) {
+        throw new Error('Chart ref not available');
+      }
+      // Даём время на обновление графика
+      await new Promise(resolve => setTimeout(resolve, 50));
+      return chartRef.getCanvas();
+    };
+  }, []);
 
   // Вычисляем максимальный возраст для конфигуратора
   const currentOriginalData = getChartData(ORIGINAL_CHART_ID, initialData);
@@ -383,6 +396,8 @@ function App() {
                       selectedYear={currentYear}
                       onYearChange={(year) => handleYearChange(ORIGINAL_CHART_ID, year)}
                       compact
+                      chartTitle={settings.customTitle || initialData?.title}
+                      getChartCanvas={createGetChartCanvas(ORIGINAL_CHART_ID)}
                     />
                   )}
                 </div>
@@ -453,6 +468,8 @@ function App() {
                       selectedYear={currentYear}
                       onYearChange={(year) => handleYearChange(chart.id, year)}
                       compact
+                      chartTitle={settings.customTitle || chart.data.title || chart.id}
+                      getChartCanvas={createGetChartCanvas(chart.id)}
                     />
                   )}
                 </div>
@@ -623,6 +640,8 @@ function App() {
                     years={timeSeriesData.years}
                     selectedYear={currentYear}
                     onYearChange={(year) => handleYearChange(fullscreenChartId, year)}
+                    chartTitle={settings?.customTitle || initialData?.title}
+                    getChartCanvas={createGetChartCanvas(fullscreenChartId)}
                   />
                 </div>
               )}

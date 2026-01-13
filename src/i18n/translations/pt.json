@@ -158,7 +158,9 @@
     "speed": "Velocidade",
     "dataFrom": "Dados de",
     "dataTo": "até",
-    "years": "anos"
+    "years": "anos",
+    "exportGif": "Exportar como GIF",
+    "exporting": "Exportando..."
   },
   "actions": {
     "menu": "Ações",

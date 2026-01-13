@@ -260,3 +260,56 @@
   cursor: not-allowed;
 }
 
+/* GIF Export button */
+.gifButton {
+  min-width: 40px;
+  padding: 0 8px;
+  gap: 4px;
+}
+
+.gifButton:hover:not(:disabled) {
+  border-color: var(--color-success, #10b981);
+  color: var(--color-success, #10b981);
+}
+
+.gifButton.exporting {
+  background: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+  color: white;
+  min-width: 60px;
+  cursor: wait;
+}
+
+.exportProgress {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.progressText {
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact .gifButton {
+  min-width: 36px;
+}
+
+.compact .gifButton.exporting {
+  min-width: 52px;
+}
+

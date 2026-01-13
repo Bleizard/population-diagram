@@ -158,7 +158,9 @@
     "speed": "Скорость воспроизведения",
     "dataFrom": "Данные с",
     "dataTo": "по",
-    "years": "лет"
+    "years": "лет",
+    "exportGif": "Экспорт в GIF",
+    "exporting": "Экспорт..."
   },
   "actions": {
     "menu": "Действия",

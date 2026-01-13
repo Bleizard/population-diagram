@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useI18n } from '../../../i18n';
+import { exportToGif, downloadGif, calculateFrameDelay } from '../../../services/gifExporter';
 import styles from './YearSelector.module.css';
 
 interface YearSelectorProps {
@@ -11,6 +12,10 @@ interface YearSelectorProps {
   onYearChange: (year: number) => void;
   /** Компактный режим (без заголовка и информации) */
   compact?: boolean;
+  /** Название графика (для имени файла при экспорте) */
+  chartTitle?: string;
+  /** Функция для получения canvas графика для заданного года */
+  getChartCanvas?: (year: number) => Promise<HTMLCanvasElement>;
 }
 
 /** Доступные скорости воспроизведения */
@@ -31,10 +36,20 @@ function getYearLabelInterval(totalYears: number): number {
 /**
  * Компонент для выбора года из временного ряда
  */
-export function YearSelector({ years, selectedYear, onYearChange, compact = false }: YearSelectorProps) {
+export function YearSelector({ 
+  years, 
+  selectedYear, 
+  onYearChange, 
+  compact = false,
+  chartTitle,
+  getChartCanvas,
+}: YearSelectorProps) {
   const { t } = useI18n();
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<PlaybackSpeed>(1);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [exportingYear, setExportingYear] = useState<number | null>(null);
   
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const index = parseInt(e.target.value, 10);
@@ -97,6 +112,52 @@ export function YearSelector({ years, selectedYear, onYearChange, compact = fals
     const nextIdx = (currentIdx + 1) % PLAYBACK_SPEEDS.length;
     setSpeed(PLAYBACK_SPEEDS[nextIdx]);
   };
+
+  // Экспорт в GIF
+  const handleExportGif = useCallback(async () => {
+    if (!getChartCanvas || isExporting) return;
+    
+    setIsExporting(true);
+    setExportProgress(0);
+    setExportingYear(years[0]);
+    
+    // Сохраняем текущий год чтобы восстановить потом
+    const originalYear = selectedYear;
+    
+    try {
+      const result = await exportToGif({
+        years,
+        frameDelay: calculateFrameDelay(speed),
+        quality: 10,
+        onProgress: (progress, currentYear) => {
+          setExportProgress(Math.round(progress));
+          setExportingYear(currentYear);
+        },
+        getChartCanvas: async (year) => {
+          // Переключаем год и ждём обновления графика
+          onYearChange(year);
+          // Небольшая задержка для рендеринга
+          await new Promise(resolve => setTimeout(resolve, 100));
+          return getChartCanvas(year);
+        },
+      });
+      
+      // Скачиваем GIF
+      const filename = `${chartTitle || 'population-pyramid'}-${years[0]}-${years[years.length - 1]}.gif`;
+      downloadGif(result.url, filename.replace(/\s+/g, '_'));
+      
+      // Освобождаем URL
+      setTimeout(() => URL.revokeObjectURL(result.url), 1000);
+    } catch (error) {
+      console.error('GIF export failed:', error);
+    } finally {
+      // Восстанавливаем оригинальный год
+      onYearChange(originalYear);
+      setIsExporting(false);
+      setExportProgress(0);
+      setExportingYear(null);
+    }
+  }, [getChartCanvas, isExporting, years, speed, selectedYear, onYearChange, chartTitle]);
   
   // Определяем какие года показывать
   const labelInterval = useMemo(() => getYearLabelInterval(years.length), [years.length]);
@@ -200,9 +261,41 @@ export function YearSelector({ years, selectedYear, onYearChange, compact = fals
           onClick={cycleSpeed}
           aria-label={t.yearSelector.speed}
           title={t.yearSelector.speed}
+          disabled={isExporting}
         >
           {speed}x
         </button>
+
+        {/* GIF Export button */}
+        {getChartCanvas && (
+          <button
+            className={`${styles.navButton} ${styles.gifButton} ${isExporting ? styles.exporting : ''}`}
+            onClick={handleExportGif}
+            disabled={isExporting || isPlaying}
+            aria-label={t.yearSelector.exportGif}
+            title={isExporting 
+              ? `${t.yearSelector.exporting} ${exportProgress}% (${exportingYear})`
+              : t.yearSelector.exportGif
+            }
+          >
+            {isExporting ? (
+              <div className={styles.exportProgress}>
+                <svg className={styles.spinner} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" strokeDasharray="60" strokeDashoffset="20" />
+                </svg>
+                <span className={styles.progressText}>{exportProgress}%</span>
+              </div>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M8 12h8" />
+                <path d="M12 8v8" />
+                <circle cx="7" cy="7" r="1" fill="currentColor" />
+                <circle cx="17" cy="7" r="1" fill="currentColor" />
+              </svg>
+            )}
+          </button>
+        )}
       </div>
       
       {!compact && (

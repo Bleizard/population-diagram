@@ -14,6 +14,8 @@ import styles from './PopulationPyramid.module.css';
 export interface PopulationPyramidRef {
   /** Экспортировать график в SVG и скачать файл */
   exportToSvg: (filename?: string) => void;
+  /** Получить canvas с текущим состоянием графика */
+  getCanvas: () => Promise<HTMLCanvasElement>;
 }
 
 import type { ColorProfile } from '../../../types';
@@ -204,6 +206,51 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
       
       // Освобождаем URL
       URL.revokeObjectURL(url);
+    },
+    
+    getCanvas: async () => {
+      const echartsInstance = chartRef.current?.getEchartsInstance();
+      if (!echartsInstance) {
+        throw new Error('Chart instance not available');
+      }
+      
+      // Получаем DOM элемент ECharts
+      const echartsDOM = echartsInstance.getDom();
+      const svgElement = echartsDOM?.querySelector('svg');
+      
+      if (!svgElement) {
+        throw new Error('SVG element not found');
+      }
+      
+      // Создаём canvas
+      const canvas = document.createElement('canvas');
+      const bbox = svgElement.getBoundingClientRect();
+      canvas.width = bbox.width;
+      canvas.height = bbox.height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Failed to get canvas context');
+      }
+      
+      // Сериализуем SVG
+      const svgString = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      
+      return new Promise<HTMLCanvasElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          resolve(canvas);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error('Failed to load SVG as image'));
+        };
+        img.src = url;
+      });
     },
   }), [theme]);
   const chartData = useMemo(() => transformToChartData(data), [data]);

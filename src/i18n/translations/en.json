@@ -158,7 +158,9 @@
     "speed": "Playback speed",
     "dataFrom": "Data from",
     "dataTo": "to",
-    "years": "years"
+    "years": "years",
+    "exportGif": "Export as GIF",
+    "exporting": "Exporting..."
   },
   "actions": {
     "menu": "Actions",
