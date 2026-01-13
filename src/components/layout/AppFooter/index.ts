@@ -1,0 +1,2 @@
+export { AppFooter } from './AppFooter';
+
