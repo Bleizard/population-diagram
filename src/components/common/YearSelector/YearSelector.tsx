@@ -181,6 +181,11 @@ export function YearSelector({
         </div>
       )}
       
+      {/* Год по центру всего контейнера */}
+      {compact && (
+        <span className={styles.compactYear}>{selectedYear}</span>
+      )}
+      
       <div className={styles.controls}>
         {/* Play/Pause button */}
         <button
@@ -211,9 +216,6 @@ export function YearSelector({
         </button>
         
         <div className={styles.sliderContainer}>
-          {compact && (
-            <span className={styles.compactYear}>{selectedYear}</span>
-          )}
           <div className={styles.sliderWrapper}>
             <div 
               className={styles.sliderProgress}

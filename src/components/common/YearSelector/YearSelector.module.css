@@ -4,10 +4,11 @@
   padding: 16px 20px;
   border: 1px solid var(--color-border-light, #334155);
   border-top: none;
+  position: relative;
 }
 
 .compact {
-  padding: 10px 16px;
+  padding: 24px 16px 10px 16px;
 }
 
 .compact .header {
@@ -40,7 +41,7 @@
 
 .compactYear {
   position: absolute;
-  top: -8px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 20px;
@@ -124,7 +125,7 @@
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: var(--color-border, #334155);
+  background: var(--color-text-muted, #64748b);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -135,14 +136,14 @@
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: transparent;
+  background: var(--color-text-muted, #64748b);
 }
 
 .slider::-moz-range-track {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: transparent;
+  background: var(--color-text-muted, #64748b);
 }
 
 .slider::-webkit-slider-thumb {
