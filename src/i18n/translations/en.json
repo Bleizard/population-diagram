@@ -42,7 +42,14 @@
     "fromFile": "From file:",
     "enterTitle": "Enter chart title",
     "resetTitle": "Reset to original",
-    "gridLinesHint": "Number of grid lines on each side of center"
+    "gridLinesHint": "Number of grid lines on each side of center",
+    "colorProfile": "Color profile",
+    "colorPale": "Pale",
+    "colorContrast": "Contrast",
+    "showMedianLine": "Median line",
+    "showMedianLineDesc": "Display median age line on chart",
+    "showAsPercentage": "Show as percentage",
+    "showAsPercentageDesc": "Display values as percentage of total"
   },
   "viewMode": {
     "byGender": "By gender",
@@ -102,7 +109,8 @@
     "maleSurplus": "Male surplus",
     "femaleSurplus": "Female surplus",
     "age": "Age",
-    "population": "Population"
+    "population": "Population",
+    "median": "Median age"
   },
   "errors": {
     "ageColumnNotFound": "Age column not found (age)",

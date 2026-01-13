@@ -42,7 +42,14 @@
     "fromFile": "Du fichier :",
     "enterTitle": "Entrez le titre du graphique",
     "resetTitle": "Restaurer l'original",
-    "gridLinesHint": "Nombre de lignes de grille de chaque côté du centre"
+    "gridLinesHint": "Nombre de lignes de grille de chaque côté du centre",
+    "colorProfile": "Profil de couleur",
+    "colorPale": "Pâle",
+    "colorContrast": "Contraste",
+    "showMedianLine": "Ligne médiane",
+    "showMedianLineDesc": "Afficher la ligne d'âge médian",
+    "showAsPercentage": "Afficher en pourcentage",
+    "showAsPercentageDesc": "Afficher les valeurs en pourcentage du total"
   },
   "viewMode": {
     "byGender": "Par genre",
@@ -102,7 +109,8 @@
     "maleSurplus": "Excédent masculin",
     "femaleSurplus": "Excédent féminin",
     "age": "Âge",
-    "population": "Population"
+    "population": "Population",
+    "median": "Âge médian"
   },
   "errors": {
     "ageColumnNotFound": "Colonne d'âge non trouvée (age)",

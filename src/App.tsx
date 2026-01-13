@@ -12,6 +12,7 @@ import { ChartTitleInput } from './components/common/ChartTitleInput';
 import { ToggleSetting } from './components/common/ToggleSetting';
 import { XAxisSplitConfig } from './components/common/XAxisSplitConfig';
 import { YearSelector } from './components/common/YearSelector';
+import { ColorProfileSelector } from './components/common/ColorProfileSelector';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import type { PopulationPyramidRef } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
@@ -37,6 +38,9 @@ const DEFAULT_SETTINGS: ChartSettings = {
   showTotal: false,
   xAxisSplitCount: 5,
   showBarLabels: false,
+  colorProfile: 'pale',
+  showMedianLine: false,
+  showAsPercentage: false,
 };
 
 function App() {
@@ -368,6 +372,9 @@ function App() {
                     showTotal={settings.showTotal}
                     xAxisSplitCount={settings.xAxisSplitCount}
                     showBarLabels={settings.showBarLabels}
+                    colorProfile={settings.colorProfile}
+                    showMedianLine={settings.showMedianLine}
+                    showAsPercentage={settings.showAsPercentage}
                   />
                   {timeSeriesData && currentYear && (
                     <YearSelector
@@ -435,6 +442,9 @@ function App() {
                     showTotal={settings.showTotal}
                     xAxisSplitCount={settings.xAxisSplitCount}
                     showBarLabels={settings.showBarLabels}
+                    colorProfile={settings.colorProfile}
+                    showMedianLine={settings.showMedianLine}
+                    showAsPercentage={settings.showAsPercentage}
                   />
                   {timeSeriesData && currentYear && (
                     <YearSelector
@@ -494,6 +504,13 @@ function App() {
                   />
                 </SettingsSection>
                 
+                <SettingsSection title={t.settings.colorProfile}>
+                  <ColorProfileSelector
+                    value={currentSettings.colorProfile}
+                    onChange={(value) => updateSettings(settingsOpenFor, { colorProfile: value })}
+                  />
+                </SettingsSection>
+                
                 <SettingsSection title={t.settings.additional}>
                   <ToggleSetting
                     label={t.settings.showTotal}
@@ -506,6 +523,18 @@ function App() {
                     description={t.settings.barLabelsDesc}
                     checked={currentSettings.showBarLabels}
                     onChange={(value) => updateSettings(settingsOpenFor, { showBarLabels: value })}
+                  />
+                  <ToggleSetting
+                    label={t.settings.showMedianLine}
+                    description={t.settings.showMedianLineDesc}
+                    checked={currentSettings.showMedianLine}
+                    onChange={(value) => updateSettings(settingsOpenFor, { showMedianLine: value })}
+                  />
+                  <ToggleSetting
+                    label={t.settings.showAsPercentage}
+                    description={t.settings.showAsPercentageDesc}
+                    checked={currentSettings.showAsPercentage}
+                    onChange={(value) => updateSettings(settingsOpenFor, { showAsPercentage: value })}
                   />
                 </SettingsSection>
               </ChartSettingsPanel>
@@ -582,6 +611,9 @@ function App() {
                   showTotal={settings.showTotal}
                   xAxisSplitCount={settings.xAxisSplitCount}
                   showBarLabels={settings.showBarLabels}
+                  colorProfile={settings.colorProfile}
+                  showMedianLine={settings.showMedianLine}
+                  showAsPercentage={settings.showAsPercentage}
                 />
               </div>
               {timeSeriesData && currentYear && (

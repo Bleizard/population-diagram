@@ -42,7 +42,14 @@
     "fromFile": "Из файла:",
     "enterTitle": "Введите название графика",
     "resetTitle": "Сбросить к исходному",
-    "gridLinesHint": "Количество линий сетки с каждой стороны от центра"
+    "gridLinesHint": "Количество линий сетки с каждой стороны от центра",
+    "colorProfile": "Цветовой профиль",
+    "colorPale": "Бледный",
+    "colorContrast": "Контрастный",
+    "showMedianLine": "Медианная линия",
+    "showMedianLineDesc": "Показать линию медианного возраста",
+    "showAsPercentage": "Показывать в процентах",
+    "showAsPercentageDesc": "Отображать значения в процентах от общего"
   },
   "viewMode": {
     "byGender": "По полу",
@@ -102,7 +109,8 @@
     "maleSurplus": "Избыток мужчин",
     "femaleSurplus": "Избыток женщин",
     "age": "Возраст",
-    "population": "Население"
+    "population": "Население",
+    "median": "Медианный возраст"
   },
   "errors": {
     "ageColumnNotFound": "Колонка возраста не найдена (age)",

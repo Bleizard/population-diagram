@@ -1,6 +1,6 @@
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useMemo, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import type { PopulationData } from '../../../types';
 import type { Theme } from '../../../hooks';
 import type { ViewMode } from '../../common/ViewModeToggle';
@@ -15,6 +15,8 @@ export interface PopulationPyramidRef {
   /** Экспортировать график в SVG и скачать файл */
   exportToSvg: (filename?: string) => void;
 }
+
+import type { ColorProfile } from '../../../types';
 
 interface PopulationPyramidProps {
   /** Данные о населении */
@@ -35,22 +37,67 @@ interface PopulationPyramidProps {
   xAxisSplitCount?: number;
   /** Показывать значения внутри столбиков */
   showBarLabels?: boolean;
+  /** Цветовой профиль */
+  colorProfile?: ColorProfile;
+  /** Показывать медианную линию */
+  showMedianLine?: boolean;
+  /** Отображать данные в процентах */
+  showAsPercentage?: boolean;
   /** Дополнительный CSS класс */
   className?: string;
 }
 
 /**
- * Цвета диаграммы для разных тем
+ * Цветовые профили для диаграммы
+ */
+const COLOR_PROFILES = {
+  pale: {
+    light: {
+      male: '#93c5fd',
+      maleSurplus: '#3b82f6',
+      female: '#fda4af',
+      femaleSurplus: '#f43f5e',
+      total: '#3b82f6',
+      totalGradientStart: '#60a5fa',
+      totalGradientEnd: '#2563eb',
+    },
+    dark: {
+      male: '#7dd3fc',
+      maleSurplus: '#38bdf8',
+      female: '#fda4af',
+      femaleSurplus: '#fb7185',
+      total: '#60a5fa',
+      totalGradientStart: '#93c5fd',
+      totalGradientEnd: '#3b82f6',
+    },
+  },
+  contrast: {
+    light: {
+      male: '#60a5fa',
+      maleSurplus: '#1d4ed8',
+      female: '#f87171',
+      femaleSurplus: '#991b1b',
+      total: '#2563eb',
+      totalGradientStart: '#3b82f6',
+      totalGradientEnd: '#1e40af',
+    },
+    dark: {
+      male: '#3b82f6',
+      maleSurplus: '#1e40af',
+      female: '#ef4444',
+      femaleSurplus: '#7f1d1d',
+      total: '#3b82f6',
+      totalGradientStart: '#60a5fa',
+      totalGradientEnd: '#1d4ed8',
+    },
+  },
+};
+
+/**
+ * Цвета темы (не зависящие от профиля)
  */
 const THEME_COLORS = {
   light: {
-    male: '#93c5fd',
-    maleSurplus: '#3b82f6',
-    female: '#fda4af',
-    femaleSurplus: '#f43f5e',
-    total: '#3b82f6',
-    totalGradientStart: '#60a5fa',
-    totalGradientEnd: '#2563eb',
     text: '#374151',
     textSecondary: '#6b7280',
     grid: '#e5e7eb',
@@ -58,15 +105,9 @@ const THEME_COLORS = {
     background: '#ffffff',
     tooltipBg: '#ffffff',
     tooltipBorder: '#e5e7eb',
+    medianLine: '#059669',
   },
   dark: {
-    male: '#7dd3fc',
-    maleSurplus: '#38bdf8',
-    female: '#fda4af',
-    femaleSurplus: '#fb7185',
-    total: '#60a5fa',
-    totalGradientStart: '#93c5fd',
-    totalGradientEnd: '#3b82f6',
     text: '#e2e8f0',
     textSecondary: '#94a3b8',
     grid: '#334155',
@@ -74,6 +115,7 @@ const THEME_COLORS = {
     background: '#1e293b',
     tooltipBg: '#1e293b',
     tooltipBorder: '#475569',
+    medianLine: '#34d399',
   },
 };
 
@@ -92,6 +134,9 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     showTotal = false,
     xAxisSplitCount = 5,
     showBarLabels = false,
+    colorProfile = 'pale',
+    showMedianLine = false,
+    showAsPercentage = false,
     className 
   }, ref) {
   const { t } = useI18n();
@@ -163,7 +208,12 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
   }), [theme]);
   const chartData = useMemo(() => transformToChartData(data), [data]);
   const metadata = useMemo(() => extractChartMetadata(data), [data]);
-  const colors = THEME_COLORS[theme];
+  
+  // Комбинируем цвета профиля и темы
+  const effectiveColorProfile = colorProfile || 'pale';
+  const profileColors = COLOR_PROFILES[effectiveColorProfile][theme];
+  const themeColors = THEME_COLORS[theme];
+  const colors = { ...profileColors, ...themeColors };
   
   // Локализованные метки
   const LEGEND_LABELS = useMemo(() => ({
@@ -192,6 +242,21 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     return { male, female, total: male + female };
   }, [data.ageGroups]);
   
+  // Вычисляем медианный возраст
+  const medianAge = useMemo(() => {
+    const totalPopulation = totals.total;
+    const halfPopulation = totalPopulation / 2;
+    
+    let cumulative = 0;
+    for (const group of data.ageGroups) {
+      cumulative += group.male + group.female;
+      if (cumulative >= halfPopulation) {
+        return group.ageNumeric;
+      }
+    }
+    return 0;
+  }, [data.ageGroups, totals.total]);
+  
   // Используем кастомный масштаб или из метаданных
   const effectiveMaxScale = maxScale ?? metadata.maxValue;
 
@@ -219,14 +284,32 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     return Math.max(10, Math.min(60, maxBarHeight));
   }, [availableHeight, groupCount]);
 
+  // Индекс медианного возраста для линии
+  const medianAgeIndex = useMemo(() => {
+    return data.ageGroups.findIndex(g => g.ageNumeric === medianAge);
+  }, [data.ageGroups, medianAge]);
+
+  // Функция конвертации в проценты
+  const toPercent = useCallback((value: number) => {
+    return totals.total > 0 ? (value / totals.total) * 100 : 0;
+  }, [totals.total]);
+
   // Конфигурация для режима "split" (по полу)
   const splitOption: EChartsOption = useMemo(() => {
     const ageLabels = chartData.map((item) => item.age);
     
-    const maleBaseData = chartData.map((item) => item.maleBase);
-    const maleSurplusData = chartData.map((item) => item.maleSurplus);
-    const femaleBaseData = chartData.map((item) => item.femaleBase);
-    const femaleSurplusData = chartData.map((item) => item.femaleSurplus);
+    // Конвертируем данные в проценты если нужно
+    const convertValue = (val: number) => showAsPercentage ? toPercent(val) : val;
+    
+    const maleBaseData = chartData.map((item) => convertValue(item.maleBase));
+    const maleSurplusData = chartData.map((item) => convertValue(item.maleSurplus));
+    const femaleBaseData = chartData.map((item) => convertValue(item.femaleBase));
+    const femaleSurplusData = chartData.map((item) => convertValue(item.femaleSurplus));
+    
+    // Максимум для шкалы
+    const scaleMax = showAsPercentage 
+      ? Math.ceil(toPercent(effectiveMaxScale) * 10) / 10
+      : effectiveMaxScale;
 
     return {
       backgroundColor: colors.background,
@@ -330,11 +413,13 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
       },
       xAxis: {
         type: 'value',
-        min: -effectiveMaxScale,
-        max: effectiveMaxScale,
+        min: -scaleMax,
+        max: scaleMax,
         splitNumber: xAxisSplitCount * 2,
         axisLabel: {
-          formatter: (value: number) => formatPopulation(Math.abs(value)),
+          formatter: (value: number) => showAsPercentage 
+            ? `${Math.abs(value).toFixed(1)}%`
+            : formatPopulation(Math.abs(value)),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           fontSize: 11,
           color: colors.textSecondary,
@@ -448,6 +533,7 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
         },
       ],
       graphic: [
+        // Центральная линия
         {
           type: 'line',
           z: 100,
@@ -462,9 +548,46 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
             lineWidth: 1,
           },
         },
+        // Медианная линия (если включена)
+        ...(showMedianLine && medianAgeIndex >= 0 ? [{
+          type: 'group' as const,
+          top: CHART_CONFIG.padding.top + 80,
+          left: CHART_CONFIG.padding.left,
+          right: CHART_CONFIG.padding.right,
+          children: [
+            {
+              type: 'line' as const,
+              z: 200,
+              shape: {
+                x1: 0,
+                y1: ((groupCount - 1 - medianAgeIndex) / groupCount) * (chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80) + dynamicBarHeight / 2,
+                x2: '100%',
+                y2: ((groupCount - 1 - medianAgeIndex) / groupCount) * (chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80) + dynamicBarHeight / 2,
+              },
+              style: {
+                stroke: colors.medianLine,
+                lineWidth: 2,
+                lineDash: [6, 4],
+              },
+            },
+            {
+              type: 'text' as const,
+              z: 201,
+              style: {
+                text: `${t.common.median}: ${medianAge}`,
+                x: 10,
+                y: ((groupCount - 1 - medianAgeIndex) / groupCount) * (chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80) + dynamicBarHeight / 2 - 14,
+                fill: colors.medianLine,
+                fontSize: 11,
+                fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+              },
+            },
+          ],
+        }] : []),
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, LEGEND_LABELS, AXIS_LABELS, t]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, showAsPercentage, toPercent, showMedianLine, medianAgeIndex, medianAge, groupCount, LEGEND_LABELS, AXIS_LABELS, t]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {

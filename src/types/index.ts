@@ -17,4 +17,5 @@ export type {
   AgeRangeConfig,
   ChartInstance,
   ChartSettings,
+  ColorProfile,
 } from './population';

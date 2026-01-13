@@ -210,6 +210,11 @@ export interface ChartInstance {
 }
 
 /**
+ * Цветовой профиль графика
+ */
+export type ColorProfile = 'pale' | 'contrast';
+
+/**
  * Индивидуальные настройки графика
  */
 export interface ChartSettings {
@@ -231,4 +236,10 @@ export interface ChartSettings {
   showBarLabels: boolean;
   /** Выбранный год (для time-series данных) */
   selectedYear?: number;
+  /** Цветовой профиль */
+  colorProfile: ColorProfile;
+  /** Показывать медианную линию */
+  showMedianLine: boolean;
+  /** Отображать данные в процентах */
+  showAsPercentage: boolean;
 }

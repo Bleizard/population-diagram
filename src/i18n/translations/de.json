@@ -42,7 +42,14 @@
     "fromFile": "Aus Datei:",
     "enterTitle": "Diagrammtitel eingeben",
     "resetTitle": "Auf Original zurücksetzen",
-    "gridLinesHint": "Anzahl der Gitterlinien auf jeder Seite der Mitte"
+    "gridLinesHint": "Anzahl der Gitterlinien auf jeder Seite der Mitte",
+    "colorProfile": "Farbprofil",
+    "colorPale": "Blass",
+    "colorContrast": "Kontrast",
+    "showMedianLine": "Medianlinie",
+    "showMedianLineDesc": "Medianalter-Linie anzeigen",
+    "showAsPercentage": "Als Prozent anzeigen",
+    "showAsPercentageDesc": "Werte als Prozent der Gesamtzahl anzeigen"
   },
   "viewMode": {
     "byGender": "Nach Geschlecht",
@@ -102,7 +109,8 @@
     "maleSurplus": "Männerüberschuss",
     "femaleSurplus": "Frauenüberschuss",
     "age": "Alter",
-    "population": "Bevölkerung"
+    "population": "Bevölkerung",
+    "median": "Medianalter"
   },
   "errors": {
     "ageColumnNotFound": "Altersspalte nicht gefunden (age)",
