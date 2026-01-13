@@ -4,6 +4,8 @@ import { useI18n } from '../../../i18n';
 import type { ProcessingState, DataFormat } from '../../../types';
 import styles from './FileUpload.module.css';
 
+type FormatTab = 'simple' | 'timeseries' | 'eurostat';
+
 interface FileUploadProps {
   /** Callback при выборе файла */
   onFileSelect: (file: File) => void;
@@ -71,6 +73,7 @@ export function FileUpload({
 }: FileUploadProps) {
   const { t } = useI18n();
   const [isDragOver, setIsDragOver] = useState(false);
+  const [activeTab, setActiveTab] = useState<FormatTab>('simple');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -253,58 +256,77 @@ export function FileUpload({
         <div className={styles.formatsContainer}>
           <h4 className={styles.formatsTitle}>{t.upload.supportedFormats}</h4>
           
-          <div className={styles.formatsList}>
-            {/* Simple format */}
-            <div className={styles.formatCard}>
-              <div className={styles.formatHeader}>
-                <span className={styles.formatBadge}>1</span>
-                <h5>{t.upload.simpleFormat}</h5>
-              </div>
-              <p className={styles.formatDesc}>
-                {t.upload.simpleFormatDesc} <code>age</code>, <code>male</code>, <code>female</code>
-              </p>
-              <pre className={styles.example}>
+          {/* Tabs */}
+          <div className={styles.tabsContainer}>
+            <div className={styles.tabs}>
+              <button
+                type="button"
+                className={`${styles.tab} ${activeTab === 'simple' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('simple')}
+              >
+                {t.upload.simpleFormat}
+              </button>
+              <button
+                type="button"
+                className={`${styles.tab} ${activeTab === 'timeseries' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('timeseries')}
+              >
+                {t.upload.timeseriesFormat}
+              </button>
+              <button
+                type="button"
+                className={`${styles.tab} ${activeTab === 'eurostat' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('eurostat')}
+              >
+                {t.upload.eurostatFormat}
+              </button>
+            </div>
+
+            {/* Tab content */}
+            <div className={styles.tabContent}>
+              {activeTab === 'simple' && (
+                <>
+                  <p className={styles.formatDesc}>
+                    {t.upload.simpleFormatDesc} <code>age</code>, <code>male</code>, <code>female</code>
+                  </p>
+                  <pre className={styles.example}>
 {`age,male,female
 0,893000,847000
 1,889000,845000
 ...`}
-              </pre>
-            </div>
+                  </pre>
+                </>
+              )}
 
-            {/* Time Series format */}
-            <div className={styles.formatCard}>
-              <div className={styles.formatHeader}>
-                <span className={styles.formatBadge}>2</span>
-                <h5>{t.upload.timeseriesFormat}</h5>
-              </div>
-              <p className={styles.formatDesc}>
-                {t.upload.timeseriesFormatDesc} <code>year</code>, <code>age</code>, <code>male</code>, <code>female</code>
-              </p>
-              <pre className={styles.example}>
+              {activeTab === 'timeseries' && (
+                <>
+                  <p className={styles.formatDesc}>
+                    {t.upload.timeseriesFormatDesc} <code>year</code>, <code>age</code>, <code>male</code>, <code>female</code>
+                  </p>
+                  <pre className={styles.example}>
 {`year,age,male,female
 2020,0,410000,390000
 2020,1,415000,395000
 2021,0,405000,385000
 ...`}
-              </pre>
-            </div>
+                  </pre>
+                </>
+              )}
 
-            {/* Eurostat format */}
-            <div className={styles.formatCard}>
-              <div className={styles.formatHeader}>
-                <span className={styles.formatBadge}>3</span>
-                <h5>{t.upload.eurostatFormat}</h5>
-              </div>
-              <p className={styles.formatDesc}>
-                {t.upload.eurostatFormatDesc} <code>age</code>, <code>sex</code>, <code>geo</code>, <code>TIME_PERIOD</code>, <code>OBS_VALUE</code>
-              </p>
-              <pre className={styles.example}>
+              {activeTab === 'eurostat' && (
+                <>
+                  <p className={styles.formatDesc}>
+                    {t.upload.eurostatFormatDesc} <code>age</code>, <code>sex</code>, <code>geo</code>, <code>TIME_PERIOD</code>, <code>OBS_VALUE</code>
+                  </p>
+                  <pre className={styles.example}>
 {`age,sex,geo,TIME_PERIOD,OBS_VALUE
 Y0,M,FR,2020,367500
 Y0,F,FR,2020,351200
 Y1,M,FR,2020,372800
 ...`}
-              </pre>
+                  </pre>
+                </>
+              )}
             </div>
           </div>
         </div>
