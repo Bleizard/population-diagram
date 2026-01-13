@@ -534,16 +534,20 @@ export function PopulationPyramid({
               <span className={styles.totalLabel}>Total:</span>
               <span className={styles.totalValue}>{formatPopulation(totals.total)}</span>
             </div>
-            <div className={styles.totalItem}>
-              <span className={styles.totalDot} style={{ background: colors.male }} />
-              <span className={styles.totalLabel}>Males:</span>
-              <span className={styles.totalValue}>{formatPopulation(totals.male)}</span>
-            </div>
-            <div className={styles.totalItem}>
-              <span className={styles.totalDot} style={{ background: colors.female }} />
-              <span className={styles.totalLabel}>Females:</span>
-              <span className={styles.totalValue}>{formatPopulation(totals.female)}</span>
-            </div>
+            {viewMode === 'split' && (
+              <>
+                <div className={styles.totalItem}>
+                  <span className={styles.totalDot} style={{ background: colors.male }} />
+                  <span className={styles.totalLabel}>Males:</span>
+                  <span className={styles.totalValue}>{formatPopulation(totals.male)}</span>
+                </div>
+                <div className={styles.totalItem}>
+                  <span className={styles.totalDot} style={{ background: colors.female }} />
+                  <span className={styles.totalLabel}>Females:</span>
+                  <span className={styles.totalValue}>{formatPopulation(totals.female)}</span>
+                </div>
+              </>
+            )}
           </div>
         )}
         {sourceInfo && (
