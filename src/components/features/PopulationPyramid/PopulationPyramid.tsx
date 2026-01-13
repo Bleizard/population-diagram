@@ -106,17 +106,49 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
       // Получаем SVG как data URL
       const svgDataUrl = echartsInstance.getDataURL({
         type: 'svg',
-        pixelRatio: 2,
+        pixelRatio: 1, // Используем 1:1, т.к. SVG векторный
         backgroundColor: THEME_COLORS[theme].background,
       });
       
-      // Создаём ссылку для скачивания
+      // Декодируем data URL в SVG строку
+      const svgBase64 = svgDataUrl.split(',')[1];
+      let svgString = atob(svgBase64);
+      
+      // Извлекаем оригинальные размеры
+      const widthMatch = svgString.match(/width="(\d+(?:\.\d+)?)"/);
+      const heightMatch = svgString.match(/height="(\d+(?:\.\d+)?)"/);
+      
+      if (widthMatch && heightMatch) {
+        const width = widthMatch[1];
+        const height = heightMatch[1];
+        
+        // Добавляем viewBox если его нет
+        if (!svgString.includes('viewBox')) {
+          svgString = svgString.replace(
+            /<svg([^>]*)>/,
+            `<svg$1 viewBox="0 0 ${width} ${height}">`
+          );
+        }
+        
+        // Заменяем фиксированные размеры на 100% для масштабируемости
+        svgString = svgString
+          .replace(/width="\d+(?:\.\d+)?"/, 'width="100%"')
+          .replace(/height="\d+(?:\.\d+)?"/, 'height="100%"');
+      }
+      
+      // Создаём Blob и скачиваем
+      const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      
       const link = document.createElement('a');
       link.download = filename || `population-pyramid-${Date.now()}.svg`;
-      link.href = svgDataUrl;
+      link.href = url;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Освобождаем URL
+      URL.revokeObjectURL(url);
     },
   }), [theme]);
   const chartData = useMemo(() => transformToChartData(data), [data]);
