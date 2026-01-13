@@ -26,6 +26,8 @@ interface PopulationPyramidProps {
   showTotal?: boolean;
   /** Количество делений оси X (с каждой стороны от 0) */
   xAxisSplitCount?: number;
+  /** Показывать значения внутри столбиков */
+  showBarLabels?: boolean;
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -81,6 +83,7 @@ export function PopulationPyramid({
   customTitle,
   showTotal = false,
   xAxisSplitCount = 5,
+  showBarLabels = false,
   className 
 }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
@@ -296,6 +299,17 @@ export function PopulationPyramid({
           barWidth: dynamicBarHeight,
           barGap: '-100%',
           emphasis: { itemStyle: { opacity: 0.8 } },
+          label: {
+            show: showBarLabels,
+            position: 'left',
+            formatter: (params: { dataIndex: number }) => {
+              const value = Math.abs(chartData[params.dataIndex].male);
+              return formatPopulation(value);
+            },
+            fontSize: 10,
+            fontFamily: "'DM Sans', sans-serif",
+            color: colors.text,
+          },
         },
         {
           name: LEGEND_LABELS.maleSurplus,
@@ -315,6 +329,17 @@ export function PopulationPyramid({
           barWidth: dynamicBarHeight,
           barGap: '-100%',
           emphasis: { itemStyle: { opacity: 0.8 } },
+          label: {
+            show: showBarLabels,
+            position: 'right',
+            formatter: (params: { dataIndex: number }) => {
+              const value = chartData[params.dataIndex].female;
+              return formatPopulation(value);
+            },
+            fontSize: 10,
+            fontFamily: "'DM Sans', sans-serif",
+            color: colors.text,
+          },
         },
         {
           name: LEGEND_LABELS.femaleSurplus,
@@ -343,7 +368,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -511,10 +536,18 @@ export function PopulationPyramid({
               opacity: 0.9,
             },
           },
+          label: {
+            show: showBarLabels,
+            position: 'right',
+            formatter: (params: { value: number }) => formatPopulation(params.value),
+            fontSize: 10,
+            fontFamily: "'DM Sans', sans-serif",
+            color: colors.text,
+          },
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;

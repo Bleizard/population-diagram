@@ -129,4 +129,6 @@ export interface ChartSettings {
   showTotal: boolean;
   /** Количество делений оси X (с каждой стороны от 0) */
   xAxisSplitCount: number;
+  /** Показывать значения внутри столбиков */
+  showBarLabels: boolean;
 }

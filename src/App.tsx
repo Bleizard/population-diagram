@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: ChartSettings = {
   yAxisLabelMode: 'all',
   showTotal: false,
   xAxisSplitCount: 5,
+  showBarLabels: false,
 };
 
 function App() {
@@ -233,8 +234,9 @@ function App() {
                     customTitle={settings.customTitle}
                     showTotal={settings.showTotal}
                     xAxisSplitCount={settings.xAxisSplitCount}
+                    showBarLabels={settings.showBarLabels}
                   />
-                </div>
+      </div>
               );
             })()}
 
@@ -272,7 +274,7 @@ function App() {
                         >
                           <path d="M18 6 6 18M6 6l12 12" />
                         </svg>
-                      </button>
+        </button>
                     </div>
                   </div>
                   <PopulationPyramid 
@@ -284,6 +286,7 @@ function App() {
                     customTitle={settings.customTitle}
                     showTotal={settings.showTotal}
                     xAxisSplitCount={settings.xAxisSplitCount}
+                    showBarLabels={settings.showBarLabels}
                   />
                 </div>
               );
@@ -342,6 +345,12 @@ function App() {
                     checked={currentSettings.showTotal}
                     onChange={(value) => updateSettings(settingsOpenFor, { showTotal: value })}
                   />
+                  <ToggleSetting
+                    label="Значения на столбиках"
+                    description="Отображать числовые значения внутри баров"
+                    checked={currentSettings.showBarLabels}
+                    onChange={(value) => updateSettings(settingsOpenFor, { showBarLabels: value })}
+                  />
                 </SettingsSection>
               </ChartSettingsPanel>
             )}
@@ -361,7 +370,7 @@ function App() {
           </a>
         </p>
       </footer>
-    </div>
+      </div>
   );
 }
 
