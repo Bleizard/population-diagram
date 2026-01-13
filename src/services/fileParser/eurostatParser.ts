@@ -33,31 +33,39 @@ export function isEurostatFormat(headers: string[]): boolean {
 
 /**
  * Парсит Eurostat формат возраста в стандартный
- * @param eurostatAge - возраст в формате Eurostat (Y0, Y1, ..., Y_GE100)
+ * @param eurostatAge - возраст в формате Eurostat (Y0, Y1, ..., Y_GE100, Y_OPEN)
  */
 function parseEurostatAge(eurostatAge: string): { age: string; ageNumeric: number } {
-  const trimmed = eurostatAge.trim();
+  const trimmed = eurostatAge.trim().toUpperCase();
   
   // Пропускаем TOTAL и UNK
   if (trimmed === 'TOTAL' || trimmed === 'UNK') {
     return { age: trimmed, ageNumeric: -1 };
   }
   
-  // Y_GE100 - 100 лет и старше
+  // Y_GE100 или Y_GE85 и т.д. - N лет и старше
   if (trimmed.startsWith('Y_GE')) {
     const num = parseInt(trimmed.replace('Y_GE', ''), 10);
     return { age: `${num}+`, ageNumeric: num };
   }
   
-  // Y_LT1 - младше 1 года
+  // Y_OPEN - открытый интервал (100+ лет)
+  if (trimmed === 'Y_OPEN') {
+    return { age: '100+', ageNumeric: 100 };
+  }
+  
+  // Y_LT1 - младше 1 года (считаем как возраст 0)
   if (trimmed === 'Y_LT1') {
     return { age: '0', ageNumeric: 0 };
   }
   
   // Y0, Y1, ..., Y99
   if (trimmed.startsWith('Y')) {
-    const num = parseInt(trimmed.replace('Y', ''), 10);
-    return { age: String(num), ageNumeric: num };
+    const numPart = trimmed.replace('Y', '');
+    const num = parseInt(numPart, 10);
+    if (!isNaN(num)) {
+      return { age: String(num), ageNumeric: num };
+    }
   }
   
   // Попробуем извлечь число напрямую
