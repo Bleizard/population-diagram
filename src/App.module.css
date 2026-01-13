@@ -195,6 +195,8 @@
 .chartWrapper {
   display: flex;
   flex-direction: column;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
   animation: fadeInUp 0.4s ease-out;
 }
 
