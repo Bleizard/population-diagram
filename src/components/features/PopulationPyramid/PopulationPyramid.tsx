@@ -301,14 +301,16 @@ export function PopulationPyramid({
           emphasis: { itemStyle: { opacity: 0.8 } },
           label: {
             show: showBarLabels,
-            position: 'left',
+            position: 'insideRight',
             formatter: (params: { dataIndex: number }) => {
               const value = Math.abs(chartData[params.dataIndex].male);
               return formatPopulation(value);
             },
             fontSize: 10,
             fontFamily: "'DM Sans', sans-serif",
-            color: colors.text,
+            color: '#fff',
+            textShadowColor: 'rgba(0,0,0,0.3)',
+            textShadowBlur: 2,
           },
         },
         {
@@ -331,14 +333,16 @@ export function PopulationPyramid({
           emphasis: { itemStyle: { opacity: 0.8 } },
           label: {
             show: showBarLabels,
-            position: 'right',
+            position: 'insideLeft',
             formatter: (params: { dataIndex: number }) => {
               const value = chartData[params.dataIndex].female;
               return formatPopulation(value);
             },
             fontSize: 10,
             fontFamily: "'DM Sans', sans-serif",
-            color: colors.text,
+            color: '#fff',
+            textShadowColor: 'rgba(0,0,0,0.3)',
+            textShadowBlur: 2,
           },
         },
         {
@@ -538,11 +542,13 @@ export function PopulationPyramid({
           },
           label: {
             show: showBarLabels,
-            position: 'right',
+            position: 'insideRight',
             formatter: (params: { value: number }) => formatPopulation(params.value),
             fontSize: 10,
             fontFamily: "'DM Sans', sans-serif",
-            color: colors.text,
+            color: '#fff',
+            textShadowColor: 'rgba(0,0,0,0.3)',
+            textShadowBlur: 2,
           },
         },
       ],
