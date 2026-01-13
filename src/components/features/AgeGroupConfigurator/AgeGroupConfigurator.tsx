@@ -128,7 +128,7 @@ export function AgeGroupConfigurator({
         >
           <path d="M12 5v14M5 12h14" />
         </svg>
-        Создать группированный график
+        Create grouped chart
         <svg
           className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}
           xmlns="http://www.w3.org/2000/svg"
@@ -148,7 +148,7 @@ export function AgeGroupConfigurator({
       {isExpanded && (
         <div className={styles.panel}>
           <div className={styles.presets}>
-            <span className={styles.presetsLabel}>Пресеты:</span>
+            <span className={styles.presetsLabel}>Presets:</span>
             {presets.map((preset) => (
               <button
                 key={preset.id}
@@ -163,7 +163,7 @@ export function AgeGroupConfigurator({
 
           <div className={styles.groupsList}>
             <div className={styles.groupsHeader}>
-              <span>Возрастные группы</span>
+              <span>Age groups</span>
               <button
                 className={styles.addButton}
                 onClick={handleAddGroup}
@@ -182,7 +182,7 @@ export function AgeGroupConfigurator({
                 >
                   <path d="M12 5v14M5 12h14" />
                 </svg>
-                Добавить
+                Add
               </button>
             </div>
 
@@ -191,7 +191,7 @@ export function AgeGroupConfigurator({
                 <span className={styles.groupIndex}>{index + 1}.</span>
                 
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>От</label>
+                  <label className={styles.inputLabel}>From</label>
                   <input
                     type="number"
                     min="0"
@@ -203,7 +203,7 @@ export function AgeGroupConfigurator({
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label className={styles.inputLabel}>До</label>
+                  <label className={styles.inputLabel}>To</label>
                   <input
                     type="number"
                     min="0"
@@ -221,7 +221,7 @@ export function AgeGroupConfigurator({
                   className={styles.removeButton}
                   onClick={() => handleRemoveGroup(group.id)}
                   type="button"
-                  aria-label="Удалить группу"
+                  aria-label="Remove group"
                   disabled={groups.length <= 1}
                 >
                   <svg
@@ -271,7 +271,7 @@ export function AgeGroupConfigurator({
               <path d="M3 3v18h18" />
               <path d="m19 9-5 5-4-4-3 3" />
             </svg>
-            Создать график
+            Create chart
           </button>
         </div>
       )}

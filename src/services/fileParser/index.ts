@@ -31,7 +31,7 @@ export async function parsePopulationFile(file: File): Promise<ParseResult> {
   if (!format) {
     return {
       success: false,
-      error: 'Неподдерживаемый формат файла. Используйте CSV, XLS или XLSX.',
+      error: 'Unsupported file format. Please use CSV, XLS or XLSX.',
     };
   }
 
@@ -53,7 +53,7 @@ export async function parsePopulationFile(file: File): Promise<ParseResult> {
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Неизвестная ошибка при парсинге файла',
+      error: error instanceof Error ? error.message : 'Unknown error while parsing file',
     };
   }
 }

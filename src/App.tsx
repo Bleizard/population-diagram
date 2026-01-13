@@ -152,7 +152,7 @@ function App() {
           <div className={styles.titleBlock}>
             <h1 className={styles.title}>Population Pyramid</h1>
             <p className={styles.subtitle}>
-              Визуализация половозрастной структуры населения
+              Population age-sex structure visualization
             </p>
           </div>
           
@@ -190,17 +190,17 @@ function App() {
                 >
                   <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
-                Загрузить другой файл
+                Load another file
               </button>
               
               <div className={styles.dataInfo}>
-                <span className={styles.dataInfoLabel}>Загружено:</span>
+                <span className={styles.dataInfoLabel}>Loaded:</span>
                 <span className={styles.dataInfoValue}>
-                  {data.ageGroups.length} возрастных групп
+                  {data.ageGroups.length} age groups
                 </span>
                 {additionalCharts.length > 0 && (
                   <span className={styles.chartsCount}>
-                    +{additionalCharts.length} график{additionalCharts.length === 1 ? '' : additionalCharts.length < 5 ? 'а' : 'ов'}
+                    +{additionalCharts.length} chart{additionalCharts.length === 1 ? '' : 's'}
                   </span>
                 )}
               </div>
@@ -222,7 +222,7 @@ function App() {
               return (
                 <div className={styles.chartWrapper}>
                   <div className={styles.chartHeader}>
-                    <h2 className={styles.chartTitle}>Исходные данные</h2>
+                    <h2 className={styles.chartTitle}>Original data</h2>
                     <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
                   </div>
                   <PopulationPyramid 
@@ -251,7 +251,7 @@ function App() {
                 <div key={chart.id} className={styles.chartWrapper}>
                   <div className={styles.chartHeader}>
                     <h2 className={styles.chartTitle}>
-                      Группировка: {chart.groupConfig?.map((g) => g.label).join(', ')}
+                      Grouping: {chart.groupConfig?.map((g) => g.label).join(', ')}
                     </h2>
                     <div className={styles.chartActions}>
                       <SettingsButton onClick={() => setSettingsOpenFor(chart.id)} />
@@ -259,7 +259,7 @@ function App() {
                         className={styles.removeChartButton}
                         onClick={() => handleRemoveChart(chart.id)}
                         type="button"
-                        aria-label="Удалить график"
+                        aria-label="Remove chart"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -298,7 +298,7 @@ function App() {
                 isOpen={true}
                 onClose={() => setSettingsOpenFor(null)}
               >
-                <SettingsSection title="Название графика">
+                <SettingsSection title="Chart title">
                   <ChartTitleInput
                     value={currentSettings.customTitle}
                     originalTitle={settingsChartData.title}
@@ -306,14 +306,14 @@ function App() {
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Формат отображения">
+                <SettingsSection title="Display format">
                   <ViewModeToggle 
                     mode={currentSettings.viewMode} 
                     onChange={(value) => updateSettings(settingsOpenFor, { viewMode: value })} 
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Масштаб оси X">
+                <SettingsSection title="X-axis scale">
                   <ScaleConfigurator
                     config={toScaleConfig(currentSettings)}
                     onChange={(config) => updateSettings(settingsOpenFor, { 
@@ -324,30 +324,30 @@ function App() {
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Деления оси X">
+                <SettingsSection title="X-axis divisions">
                   <XAxisSplitConfig
                     value={currentSettings.xAxisSplitCount}
                     onChange={(value) => updateSettings(settingsOpenFor, { xAxisSplitCount: value })}
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Метки оси Y (возраст)">
+                <SettingsSection title="Y-axis labels (age)">
                   <YAxisLabelConfig
                     mode={currentSettings.yAxisLabelMode}
                     onChange={(value) => updateSettings(settingsOpenFor, { yAxisLabelMode: value })}
                   />
                 </SettingsSection>
                 
-                <SettingsSection title="Дополнительно">
+                <SettingsSection title="Additional">
                   <ToggleSetting
-                    label="Показать Total"
-                    description="Общая сумма населения по всем возрастам"
+                    label="Show Total"
+                    description="Total population across all age groups"
                     checked={currentSettings.showTotal}
                     onChange={(value) => updateSettings(settingsOpenFor, { showTotal: value })}
                   />
                   <ToggleSetting
-                    label="Значения на столбиках"
-                    description="Отображать числовые значения внутри баров"
+                    label="Bar labels"
+                    description="Display numeric values inside bars"
                     checked={currentSettings.showBarLabels}
                     onChange={(value) => updateSettings(settingsOpenFor, { showBarLabels: value })}
                   />
@@ -360,7 +360,7 @@ function App() {
 
       <footer className={styles.footer}>
         <p>
-          Построение половозрастных пирамид • 
+          Population Pyramid Builder • 
           <a 
             href="https://github.com/bleizard" 
             target="_blank" 

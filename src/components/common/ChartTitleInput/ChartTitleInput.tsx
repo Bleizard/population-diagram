@@ -42,7 +42,7 @@ export function ChartTitleInput({
   }, [onChange]);
   
   const isCustom = localValue.trim() !== '';
-  const displayPlaceholder = originalTitle || 'Введите название графика';
+  const displayPlaceholder = originalTitle || 'Enter chart title';
 
   return (
     <div className={styles.container}>
@@ -61,8 +61,8 @@ export function ChartTitleInput({
             type="button"
             className={styles.clearButton}
             onClick={handleReset}
-            aria-label="Сбросить название"
-            title="Сбросить к исходному"
+            aria-label="Reset title"
+            title="Reset to original"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +83,7 @@ export function ChartTitleInput({
       
       {originalTitle && (
         <div className={styles.hint}>
-          <span className={styles.hintLabel}>Из файла:</span>
+          <span className={styles.hintLabel}>From file:</span>
           <span className={styles.hintValue}>{originalTitle}</span>
         </div>
       )}

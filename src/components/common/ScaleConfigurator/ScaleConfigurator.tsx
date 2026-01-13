@@ -72,8 +72,8 @@ export function ScaleConfigurator({
           onClick={() => handleModeChange('auto')}
           type="button"
         >
-          Авто
-          <span className={styles.optionHint}>округление</span>
+          Auto
+          <span className={styles.optionHint}>rounded</span>
         </button>
 
         <button
@@ -81,7 +81,7 @@ export function ScaleConfigurator({
           onClick={() => handleModeChange('fit')}
           type="button"
         >
-          По данным
+          Fit data
           <span className={styles.optionHint}>+10%</span>
         </button>
 
@@ -90,13 +90,13 @@ export function ScaleConfigurator({
           onClick={() => handleModeChange('custom')}
           type="button"
         >
-          Вручную
+          Manual
         </button>
       </div>
 
       {config.mode === 'custom' && (
         <div className={styles.customInput}>
-          <label className={styles.inputLabel}>Максимум:</label>
+          <label className={styles.inputLabel}>Maximum:</label>
           <input
             type="text"
             value={customInput}
@@ -109,11 +109,11 @@ export function ScaleConfigurator({
 
       <div className={styles.info}>
         <div className={styles.infoRow}>
-          <span className={styles.infoLabel}>Макс. в данных:</span>
+          <span className={styles.infoLabel}>Data max:</span>
           <span className={styles.infoValue}>{formatNumber(dataMaxValue)}</span>
         </div>
         <div className={styles.infoRow}>
-          <span className={styles.infoLabel}>Шкала до:</span>
+          <span className={styles.infoLabel}>Scale to:</span>
           <span className={styles.infoValue}>{formatNumber(currentScale)}</span>
         </div>
       </div>
@@ -192,14 +192,14 @@ function roundToNiceNumber(value: number, tight: boolean = false): number {
  * Форматирует число с пробелами
  */
 function formatNumber(value: number): string {
-  return value.toLocaleString('ru-RU');
+  return value.toLocaleString('en-US');
 }
 
 /**
  * Форматирует число для input (с пробелами)
  */
 function formatNumberForInput(value: number): string {
-  return value.toLocaleString('ru-RU');
+  return value.toLocaleString('en-US');
 }
 
 /**

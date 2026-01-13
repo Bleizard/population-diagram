@@ -91,7 +91,7 @@ export function FileUpload({
         onKeyDown={handleKeyDown}
         role="button"
         tabIndex={0}
-        aria-label="Загрузить файл"
+        aria-label="Upload file"
       >
         <input
           ref={inputRef}
@@ -105,7 +105,7 @@ export function FileUpload({
         {isLoading ? (
           <div className={styles.loadingContent}>
             <div className={styles.spinner} />
-            <p className={styles.loadingText}>Загрузка файла...</p>
+            <p className={styles.loadingText}>Loading file...</p>
           </div>
         ) : (
           <div className={styles.content}>
@@ -127,10 +127,10 @@ export function FileUpload({
               </svg>
             </div>
             <p className={styles.mainText}>
-              Перетащите файл сюда или кликните для выбора
+              Drop file here or click to browse
             </p>
             <p className={styles.subText}>
-              Поддерживаемые форматы: CSV, XLSX, XLS
+              Supported formats: CSV, XLSX, XLS
             </p>
           </div>
         )}
@@ -139,13 +139,13 @@ export function FileUpload({
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.formatInfo}>
-        <h4>Формат файла:</h4>
+        <h4>File format:</h4>
         <p>
-          Файл должен содержать три колонки: <code>age</code>, <code>male</code>,{' '}
+          File must contain three columns: <code>age</code>, <code>male</code>,{' '}
           <code>female</code>
         </p>
         <p className={styles.example}>
-          Пример: age | male | female<br />
+          Example: age | male | female<br />
           0 | 893000 | 847000<br />
           1 | 889000 | 845000<br />
           ...

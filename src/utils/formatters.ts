@@ -11,10 +11,10 @@ export function formatPopulation(value: number): string {
   }
   
   if (absValue >= 1_000) {
-    return `${Math.round(absValue / 1_000).toLocaleString('ru-RU')} 000`;
+    return `${Math.round(absValue / 1_000).toLocaleString('en-US')},000`;
   }
   
-  return absValue.toLocaleString('ru-RU');
+  return absValue.toLocaleString('en-US');
 }
 
 /**
@@ -23,7 +23,7 @@ export function formatPopulation(value: number): string {
  * @returns Отформатированная строка с пробелами
  */
 export function formatNumber(value: number): string {
-  return Math.abs(value).toLocaleString('ru-RU');
+  return Math.abs(value).toLocaleString('en-US');
 }
 
 /**

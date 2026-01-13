@@ -45,13 +45,13 @@ function normalizeColumnNames(
     const female = findColumnValue(row, femaleAliases);
 
     if (age === undefined) {
-      throw new Error('Не найдена колонка с возрастом (age/возраст)');
+      throw new Error('Age column not found (age)');
     }
     if (male === undefined) {
-      throw new Error('Не найдена колонка с мужчинами (male/мужчины)');
+      throw new Error('Male column not found (male)');
     }
     if (female === undefined) {
-      throw new Error('Не найдена колонка с женщинами (female/женщины)');
+      throw new Error('Female column not found (female)');
     }
 
     return { age, male, female };

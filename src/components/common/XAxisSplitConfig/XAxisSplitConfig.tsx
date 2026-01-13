@@ -28,7 +28,7 @@ export function XAxisSplitConfig({ value, onChange }: XAxisSplitConfigProps) {
         ))}
       </div>
       <div className={styles.hint}>
-        Количество линий сетки с каждой стороны от центра
+        Number of grid lines on each side of center
       </div>
     </div>
   );

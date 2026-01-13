@@ -82,7 +82,7 @@ export function validateAgeGroups(
   const errors: string[] = [];
 
   if (groups.length === 0) {
-    errors.push('Добавьте хотя бы одну возрастную группу');
+    errors.push('Add at least one age group');
     return { valid: false, errors };
   }
 
@@ -95,12 +95,12 @@ export function validateAgeGroups(
 
     // Проверка корректности диапазона
     if (group.to !== null && group.from > group.to) {
-      errors.push(`Группа "${group.label}": начало больше конца`);
+      errors.push(`Group "${group.label}": start is greater than end`);
     }
 
     // Проверка на отрицательные значения
     if (group.from < 0) {
-      errors.push(`Группа "${group.label}": возраст не может быть отрицательным`);
+      errors.push(`Group "${group.label}": age cannot be negative`);
     }
 
     // Проверка на пересечения с предыдущей группой
@@ -109,7 +109,7 @@ export function validateAgeGroups(
       const prevEnd = prevGroup.to ?? maxAge;
       
       if (group.from <= prevEnd) {
-        errors.push(`Группы "${prevGroup.label}" и "${group.label}" пересекаются`);
+        errors.push(`Groups "${prevGroup.label}" and "${group.label}" overlap`);
       }
     }
   }
@@ -157,9 +157,9 @@ export const PRESET_GROUPS = {
  */
 export function getPresetOptions() {
   return [
-    { id: 'threeGenerations', label: '3 группы (0-19, 20-64, 65+)', groups: PRESET_GROUPS.threeGenerations },
-    { id: 'fiveGroups', label: '5 групп', groups: PRESET_GROUPS.fiveGroups },
-    { id: 'decades', label: 'По десятилетиям', groups: PRESET_GROUPS.decades },
+    { id: 'threeGenerations', label: '3 groups (0-19, 20-64, 65+)', groups: PRESET_GROUPS.threeGenerations },
+    { id: 'fiveGroups', label: '5 groups', groups: PRESET_GROUPS.fiveGroups },
+    { id: 'decades', label: 'By decades', groups: PRESET_GROUPS.decades },
   ];
 }
 

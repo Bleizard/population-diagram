@@ -14,7 +14,7 @@ export async function parseExcel(file: File): Promise<RawPopulationRow[]> {
       try {
         const data = event.target?.result;
         if (!data) {
-          throw new Error('Не удалось прочитать файл');
+          throw new Error('Failed to read file');
         }
 
         const workbook = XLSX.read(data, { type: 'array' });
@@ -22,7 +22,7 @@ export async function parseExcel(file: File): Promise<RawPopulationRow[]> {
         // Берём первый лист
         const firstSheetName = workbook.SheetNames[0];
         if (!firstSheetName) {
-          throw new Error('Excel файл не содержит листов');
+          throw new Error('Excel file contains no sheets');
         }
 
         const worksheet = workbook.Sheets[firstSheetName];
@@ -36,12 +36,12 @@ export async function parseExcel(file: File): Promise<RawPopulationRow[]> {
         const rows = normalizeColumnNames(jsonData);
         resolve(rows);
       } catch (error) {
-        reject(error instanceof Error ? error : new Error('Ошибка парсинга Excel'));
+        reject(error instanceof Error ? error : new Error('Excel parsing error'));
       }
     };
 
     reader.onerror = () => {
-      reject(new Error('Ошибка чтения файла'));
+      reject(new Error('File reading error'));
     };
 
     reader.readAsArrayBuffer(file);
@@ -64,13 +64,13 @@ function normalizeColumnNames(
     const female = findColumnValue(row, femaleAliases);
 
     if (age === undefined) {
-      throw new Error('Не найдена колонка с возрастом (age/возраст)');
+      throw new Error('Age column not found (age)');
     }
     if (male === undefined) {
-      throw new Error('Не найдена колонка с мужчинами (male/мужчины)');
+      throw new Error('Male column not found (male)');
     }
     if (female === undefined) {
-      throw new Error('Не найдена колонка с женщинами (female/женщины)');
+      throw new Error('Female column not found (female)');
     }
 
     return { age, male, female };

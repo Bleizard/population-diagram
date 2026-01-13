@@ -19,8 +19,8 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
       className={styles.toggle}
       onClick={onToggle}
       type="button"
-      aria-label={isDark ? 'Включить светлую тему' : 'Включить тёмную тему'}
-      title={isDark ? 'Светлая тема' : 'Тёмная тема'}
+      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+      title={isDark ? 'Light theme' : 'Dark theme'}
     >
       <span className={styles.iconWrapper}>
         {/* Солнце */}

@@ -545,7 +545,10 @@ export function PopulationPyramid({
           label: {
             show: showBarLabels,
             position: 'insideRight',
-            formatter: (params: { value: number }) => formatPopulation(params.value),
+            formatter: (params: unknown) => {
+              const p = params as { value?: number };
+              return formatPopulation(p.value ?? 0);
+            },
             fontSize: 10,
             fontFamily: "'DM Sans', sans-serif",
             color: '#fff',

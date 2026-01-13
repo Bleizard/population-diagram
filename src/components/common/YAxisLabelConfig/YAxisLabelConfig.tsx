@@ -10,10 +10,10 @@ interface YAxisLabelConfigProps {
 }
 
 const OPTIONS: Array<{ value: YAxisLabelMode; label: string; hint: string }> = [
-  { value: 'all', label: 'Все', hint: 'каждый возраст' },
-  { value: 'every2', label: 'Каждый 2-й', hint: '0, 2, 4...' },
-  { value: 'every5', label: 'Кратные 5', hint: '0, 5, 10...' },
-  { value: 'every10', label: 'Кратные 10', hint: '0, 10, 20...' },
+  { value: 'all', label: 'All', hint: 'every age' },
+  { value: 'every2', label: 'Every 2nd', hint: '0, 2, 4...' },
+  { value: 'every5', label: 'Multiple of 5', hint: '0, 5, 10...' },
+  { value: 'every10', label: 'Multiple of 10', hint: '0, 10, 20...' },
 ];
 
 /**
