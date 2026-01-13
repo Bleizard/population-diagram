@@ -121,9 +121,9 @@
   gap: 12px;
 }
 
-/* Кнопки действий (настройки, экспорт) */
+/* Кнопки действий (настройки) */
 .settingsButton,
-.exportButton {
+.actionsButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,15 +139,79 @@
 }
 
 .settingsButton:hover,
-.exportButton:hover {
+.actionsButton:hover {
   color: var(--color-text);
   background: var(--color-bg-card);
   border-color: var(--color-text-muted);
 }
 
 .settingsButton:active,
-.exportButton:active {
+.actionsButton:active {
   transform: scale(0.95);
+}
+
+/* Меню действий */
+.actionsMenu {
+  position: relative;
+}
+
+.actionsDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  text-align: left;
+}
+
+.actionItem:hover {
+  background: var(--color-bg-hover);
+}
+
+.actionItem:active {
+  background: var(--color-border-light);
+}
+
+.actionItem svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.actionItem:hover svg {
+  color: var(--color-primary);
 }
 
 /* Адаптивность */

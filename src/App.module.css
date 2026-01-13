@@ -307,6 +307,89 @@
   text-decoration: underline;
 }
 
+/* Полноэкранный режим */
+.fullscreenOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: fullscreenFadeIn 0.2s ease-out;
+}
+
+@keyframes fullscreenFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreenContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.fullscreenHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg-card);
+  flex-shrink: 0;
+}
+
+.fullscreenTitle {
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.fullscreenCloseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fullscreenCloseButton:hover {
+  color: var(--color-text);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
+}
+
+.fullscreenChart {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.fullscreenTimeline {
+  flex-shrink: 0;
+  padding: 16px 24px 24px;
+  background: var(--color-bg-card);
+  border-top: 1px solid var(--color-border-light);
+}
+
 /* Адаптивность */
 @media (max-width: 640px) {
   .header {
@@ -337,5 +420,13 @@
   
   .dataInfo {
     justify-content: center;
+  }
+  
+  .fullscreenHeader {
+    padding: 12px 16px;
+  }
+  
+  .fullscreenTimeline {
+    padding: 12px 16px 16px;
   }
 }

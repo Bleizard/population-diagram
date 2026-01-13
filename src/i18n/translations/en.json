@@ -153,7 +153,10 @@
     "years": "years"
   },
   "actions": {
-    "exportSvg": "Export as SVG"
+    "menu": "Actions",
+    "exportSvg": "Export as SVG",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen"
   }
 }
 

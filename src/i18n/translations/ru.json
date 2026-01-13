@@ -153,7 +153,10 @@
     "years": "лет"
   },
   "actions": {
-    "exportSvg": "Экспорт в SVG"
+    "menu": "Действия",
+    "exportSvg": "Экспорт в SVG",
+    "fullscreen": "Полный экран",
+    "exitFullscreen": "Выйти из полноэкранного режима"
   }
 }
 

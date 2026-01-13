@@ -19,7 +19,7 @@ import {
   ChartSettingsPanel, 
   SettingsSection, 
   SettingsButton,
-  ExportButton 
+  ChartActionsMenu 
 } from './components/features/ChartSettingsPanel';
 import { aggregateByAgeGroups } from './services/dataAggregator';
 import type { AgeRangeConfig, ChartInstance, ChartSettings, PopulationData } from './types';
@@ -64,6 +64,9 @@ function App() {
   
   // ID графика, для которого открыты настройки (null если закрыто)
   const [settingsOpenFor, setSettingsOpenFor] = useState<string | null>(null);
+  
+  // ID графика в полноэкранном режиме (null если не в полноэкранном)
+  const [fullscreenChartId, setFullscreenChartId] = useState<string | null>(null);
   
   // Refs для доступа к методам графиков
   const chartRefs = useRef<Record<string, PopulationPyramidRef | null>>({});
@@ -210,6 +213,19 @@ function App() {
       chartRef.exportToSvg(filename);
     }
   }, [chartSettings, initialData?.title]);
+  
+  // Открытие полноэкранного режима
+  const handleFullscreen = useCallback((chartId: string) => {
+    setFullscreenChartId(chartId);
+    // Блокируем прокрутку body
+    document.body.style.overflow = 'hidden';
+  }, []);
+  
+  // Закрытие полноэкранного режима
+  const handleCloseFullscreen = useCallback(() => {
+    setFullscreenChartId(null);
+    document.body.style.overflow = '';
+  }, []);
 
   // Вычисляем максимальный возраст для конфигуратора
   const currentOriginalData = getChartData(ORIGINAL_CHART_ID, initialData);
@@ -334,7 +350,10 @@ function App() {
                   <div className={styles.chartHeader}>
                     <h2 className={styles.chartTitle}>{t.chart.originalData}</h2>
                     <div className={styles.chartActions}>
-                      <ExportButton onClick={() => handleExportSvg(ORIGINAL_CHART_ID)} />
+                      <ChartActionsMenu
+                        onExportSvg={() => handleExportSvg(ORIGINAL_CHART_ID)}
+                        onFullscreen={() => handleFullscreen(ORIGINAL_CHART_ID)}
+                      />
                       <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
                     </div>
                   </div>
@@ -378,7 +397,10 @@ function App() {
                       {t.chart.grouping} {chart.groupConfig?.map((g) => g.label).join(', ')}
                     </h2>
                     <div className={styles.chartActions}>
-                      <ExportButton onClick={() => handleExportSvg(chart.id)} />
+                      <ChartActionsMenu
+                        onExportSvg={() => handleExportSvg(chart.id)}
+                        onFullscreen={() => handleFullscreen(chart.id)}
+                      />
                       <SettingsButton onClick={() => setSettingsOpenFor(chart.id)} />
                       <button
                         className={styles.removeChartButton}
@@ -504,6 +526,77 @@ function App() {
           </a>
         </p>
       </footer>
+      
+      {/* Полноэкранный режим */}
+      {fullscreenChartId && (() => {
+        const isOriginal = fullscreenChartId === ORIGINAL_CHART_ID;
+        const chart = isOriginal ? null : additionalCharts.find(c => c.id === fullscreenChartId);
+        const settings = getSettings(fullscreenChartId);
+        const chartData = isOriginal 
+          ? getChartData(ORIGINAL_CHART_ID, initialData)
+          : chart ? getAggregatedChartData(chart) : null;
+        
+        if (!chartData) return null;
+        
+        const dataMaxValue = getDataMaxValue(chartData);
+        const effectiveScale = calculateScale(toScaleConfig(settings), dataMaxValue);
+        const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
+        const currentYear = settings.selectedYear ?? initialSelectedYear;
+        
+        return (
+          <div className={styles.fullscreenOverlay}>
+            <div className={styles.fullscreenContainer}>
+              <div className={styles.fullscreenHeader}>
+                <h2 className={styles.fullscreenTitle}>
+                  {isOriginal ? t.chart.originalData : `${t.chart.grouping} ${chart?.groupConfig?.map(g => g.label).join(', ')}`}
+                </h2>
+                <button
+                  className={styles.fullscreenCloseButton}
+                  onClick={handleCloseFullscreen}
+                  type="button"
+                  aria-label={t.actions.exitFullscreen}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className={styles.fullscreenChart}>
+                <PopulationPyramid
+                  data={chartData}
+                  theme={theme}
+                  viewMode={settings.viewMode}
+                  maxScale={effectiveScale}
+                  yAxisInterval={yAxisInterval}
+                  customTitle={settings.customTitle}
+                  showTotal={settings.showTotal}
+                  xAxisSplitCount={settings.xAxisSplitCount}
+                  showBarLabels={settings.showBarLabels}
+                />
+              </div>
+              {timeSeriesData && currentYear && (
+                <div className={styles.fullscreenTimeline}>
+                  <YearSelector
+                    years={timeSeriesData.years}
+                    selectedYear={currentYear}
+                    onYearChange={(year) => handleYearChange(fullscreenChartId, year)}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
       </div>
     </I18nContext.Provider>
   );

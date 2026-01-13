@@ -153,7 +153,10 @@
     "years": "años"
   },
   "actions": {
-    "exportSvg": "Exportar como SVG"
+    "menu": "Acciones",
+    "exportSvg": "Exportar como SVG",
+    "fullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa"
   }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useI18n } from '../../../i18n';
 import styles from './ChartSettingsPanel.module.css';
@@ -170,38 +170,130 @@ export function SettingsButton({ onClick }: SettingsButtonProps) {
 }
 
 /**
- * Кнопка экспорта в SVG
+ * Меню действий графика
  */
-interface ExportButtonProps {
-  onClick: () => void;
+interface ChartActionsMenuProps {
+  onExportSvg: () => void;
+  onFullscreen: () => void;
 }
 
-export function ExportButton({ onClick }: ExportButtonProps) {
+export function ChartActionsMenu({ onExportSvg, onFullscreen }: ChartActionsMenuProps) {
   const { t } = useI18n();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Закрытие меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Закрытие по Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   return (
-    <button
-      className={styles.exportButton}
-      onClick={onClick}
-      type="button"
-      aria-label={t.actions.exportSvg}
-      title={t.actions.exportSvg}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <div className={styles.actionsMenu} ref={menuRef}>
+      <button
+        className={styles.actionsButton}
+        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        aria-label={t.actions.menu}
+        title={t.actions.menu}
+        aria-expanded={isOpen}
       >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" x2="12" y1="15" y2="3" />
-      </svg>
-    </button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="12" cy="5" r="1" />
+          <circle cx="12" cy="19" r="1" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className={styles.actionsDropdown}>
+          <button
+            className={styles.actionItem}
+            onClick={() => {
+              onFullscreen();
+              setIsOpen(false);
+            }}
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+              <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+            </svg>
+            {t.actions.fullscreen}
+          </button>
+          <button
+            className={styles.actionItem}
+            onClick={() => {
+              onExportSvg();
+              setIsOpen(false);
+            }}
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
+            {t.actions.exportSvg}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

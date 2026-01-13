@@ -2,6 +2,6 @@ export {
   ChartSettingsPanel, 
   SettingsSection, 
   SettingsButton,
-  ExportButton 
+  ChartActionsMenu 
 } from './ChartSettingsPanel';
 
