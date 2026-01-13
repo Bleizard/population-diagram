@@ -333,7 +333,23 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
 
   // Индекс медианного возраста для линии
   const medianAgeIndex = useMemo(() => {
-    return data.ageGroups.findIndex(g => g.ageNumeric === medianAge);
+    // Сначала пробуем точное совпадение
+    const exactIndex = data.ageGroups.findIndex(g => g.ageNumeric === medianAge);
+    if (exactIndex >= 0) return exactIndex;
+    
+    // Для агрегированных данных ищем группу, содержащую медианный возраст
+    // Группы отсортированы по ageNumeric, ищем первую группу с ageNumeric > medianAge
+    // и берём предыдущую (или последнюю если медиана больше всех)
+    for (let i = 0; i < data.ageGroups.length; i++) {
+      const next = data.ageGroups[i + 1];
+      
+      // Если следующей группы нет или её ageNumeric > medianAge, текущая содержит медиану
+      if (!next || next.ageNumeric > medianAge) {
+        return i;
+      }
+    }
+    
+    return data.ageGroups.length - 1;
   }, [data.ageGroups, medianAge]);
 
   // Функция конвертации в проценты
