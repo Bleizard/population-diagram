@@ -1,20 +1,24 @@
 import { useCallback, useMemo } from 'react';
 import { usePopulationData, useTheme, useLanguage, useChartSettings } from './hooks';
 import { I18nContext } from './i18n';
-import { FileUpload } from './components/common/FileUpload';
-import { ViewModeToggle } from './components/common/ViewModeToggle';
-import { ScaleConfigurator } from './components/common/ScaleConfigurator';
-import { YAxisLabelConfig } from './components/common/YAxisLabelConfig';
-import { ChartTitleInput } from './components/common/ChartTitleInput';
-import { ToggleSetting } from './components/common/ToggleSetting';
-import { XAxisSplitConfig } from './components/common/XAxisSplitConfig';
-import { ColorProfileSelector } from './components/common/ColorProfileSelector';
-import { AppHeader } from './components/layout/AppHeader';
-import { AppFooter } from './components/layout/AppFooter';
-import { ChartCard } from './components/features/ChartCard';
-import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
-import { ChartSettingsPanel, SettingsSection } from './components/features/ChartSettingsPanel';
-import { FullscreenChart } from './components/features/FullscreenChart';
+import {
+  FileUpload,
+  ViewModeToggle,
+  ScaleConfigurator,
+  YAxisLabelConfig,
+  ChartTitleInput,
+  ToggleSetting,
+  XAxisSplitConfig,
+  ColorProfileSelector,
+} from './components/common';
+import { AppHeader, AppFooter } from './components/layout';
+import {
+  ChartCard,
+  AgeGroupConfigurator,
+  ChartSettingsPanel,
+  SettingsSection,
+  FullscreenChart,
+} from './components/features';
 import { ORIGINAL_CHART_ID } from './constants';
 import styles from './App.module.css';
 
