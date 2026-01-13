@@ -584,10 +584,19 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
     const ageLabels = data.ageGroups.map((group) => group.age);
-    const totalData = data.ageGroups.map((group) => group.male + group.female);
-    const maxTotal = Math.max(...totalData);
+    const rawTotalData = data.ageGroups.map((group) => group.male + group.female);
+    const maxTotal = Math.max(...rawTotalData);
+    
+    // Конвертируем в проценты если нужно
+    const totalData = showAsPercentage 
+      ? rawTotalData.map(val => toPercent(val))
+      : rawTotalData;
+    
     // Для combined режима используем двойной масштаб (male + female)
-    const combinedMaxScale = maxScale ? maxScale * 2 : Math.ceil(maxTotal * 1.1 / 100000) * 100000;
+    const rawCombinedMaxScale = maxScale ? maxScale * 2 : Math.ceil(maxTotal * 1.1 / 100000) * 100000;
+    const combinedMaxScale = showAsPercentage 
+      ? Math.ceil(toPercent(rawCombinedMaxScale) * 10) / 10
+      : rawCombinedMaxScale;
 
     return {
       backgroundColor: colors.background,
@@ -631,19 +640,23 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
           
           const item = items[0];
           const age = item.axisValue;
-          const total = item.value;
           const ageGroup = data.ageGroups[item.dataIndex];
+          const rawTotal = ageGroup.male + ageGroup.female;
+          
+          const formatVal = (val: number) => showAsPercentage 
+            ? `${toPercent(val).toFixed(2)}%`
+            : formatPopulation(val);
           
           return `
             <div style="font-family: 'DM Sans', sans-serif; padding: 4px 0; color: ${colors.text};">
               <div style="font-weight: 600; margin-bottom: 8px;">${AXIS_LABELS.age}: ${age}</div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.total}; border-radius: 2px;"></span>
-                <span>${t.common.total}: ${formatPopulation(total)}</span>
+                <span>${t.common.total}: ${formatVal(rawTotal)}</span>
               </div>
               <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${colors.grid}; font-size: 0.875em; color: ${colors.textSecondary};">
-                <div>${LEGEND_LABELS.male}: ${formatPopulation(ageGroup.male)}</div>
-                <div>${LEGEND_LABELS.female}: ${formatPopulation(ageGroup.female)}</div>
+                <div>${LEGEND_LABELS.male}: ${formatVal(ageGroup.male)}</div>
+                <div>${LEGEND_LABELS.female}: ${formatVal(ageGroup.female)}</div>
               </div>
             </div>
           `;
@@ -677,7 +690,9 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
         max: combinedMaxScale,
         splitNumber: xAxisSplitCount,
         axisLabel: {
-          formatter: (value: number) => formatPopulation(value),
+          formatter: (value: number) => showAsPercentage 
+            ? `${value.toFixed(1)}%`
+            : formatPopulation(value),
           fontFamily: "'DM Sans', -apple-system, sans-serif",
           fontSize: 11,
           color: colors.textSecondary,
@@ -754,7 +769,8 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
             position: 'insideRight',
             formatter: (params: unknown) => {
               const p = params as { value?: number };
-              return formatPopulation(p.value ?? 0);
+              const val = p.value ?? 0;
+              return showAsPercentage ? `${val.toFixed(2)}%` : formatPopulation(val);
             },
             fontSize: 10,
             fontFamily: "'DM Sans', sans-serif",
@@ -794,7 +810,7 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, showMedianLine, medianAgeIndex, medianAge, AXIS_LABELS, LEGEND_LABELS, t]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, showAsPercentage, toPercent, showMedianLine, medianAgeIndex, medianAge, AXIS_LABELS, LEGEND_LABELS, t]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;
