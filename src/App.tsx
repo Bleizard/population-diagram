@@ -20,7 +20,7 @@ import {
   SettingsButton 
 } from './components/features/ChartSettingsPanel';
 import { aggregateByAgeGroups } from './services/dataAggregator';
-import type { AgeRangeConfig, ChartInstance, ChartSettings } from './types';
+import type { AgeRangeConfig, ChartInstance, ChartSettings, PopulationData } from './types';
 import styles from './App.module.css';
 
 // ID для оригинального графика
@@ -39,15 +39,14 @@ const DEFAULT_SETTINGS: ChartSettings = {
 
 function App() {
   const { 
-    data, 
+    data: initialData, 
     timeSeriesData, 
     detectedFormat,
-    selectedYear,
+    selectedYear: initialSelectedYear,
     isLoading, 
     error, 
     loadFile, 
     clearData,
-    selectYear,
     processingState,
   } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
@@ -88,12 +87,67 @@ function App() {
     }
     return max;
   }, []);
+  
+  // Получение данных для графика с учётом выбранного года
+  const getChartData = useCallback((chartId: string, baseData: PopulationData | null): PopulationData | null => {
+    if (!baseData) return null;
+    
+    // Если нет time-series данных, возвращаем базовые данные
+    if (!timeSeriesData) return baseData;
+    
+    const settings = chartSettings[chartId];
+    const year = settings?.selectedYear;
+    
+    // Если год не выбран, возвращаем базовые данные
+    if (!year) return baseData;
+    
+    const yearData = timeSeriesData.dataByYear[year];
+    if (!yearData) return baseData;
+    
+    return {
+      title: timeSeriesData.title,
+      date: String(year),
+      source: timeSeriesData.source,
+      ageGroups: yearData,
+    };
+  }, [timeSeriesData, chartSettings]);
+  
+  // Обработчик изменения года для конкретного графика
+  const handleYearChange = useCallback((chartId: string, year: number) => {
+    updateSettings(chartId, { selectedYear: year });
+  }, [updateSettings]);
+  
+  // Получение данных для агрегированного графика с учётом выбранного года
+  const getAggregatedChartData = useCallback((chart: ChartInstance): PopulationData => {
+    // Если нет time-series данных, возвращаем сохранённые данные
+    if (!timeSeriesData || !chart.groupConfig) return chart.data;
+    
+    const settings = chartSettings[chart.id];
+    const year = settings?.selectedYear;
+    
+    // Если год не выбран, возвращаем сохранённые данные
+    if (!year) return chart.data;
+    
+    const yearData = timeSeriesData.dataByYear[year];
+    if (!yearData) return chart.data;
+    
+    // Пересчитываем агрегацию для выбранного года
+    const baseData: PopulationData = {
+      title: timeSeriesData.title,
+      date: String(year),
+      source: timeSeriesData.source,
+      ageGroups: yearData,
+    };
+    
+    return aggregateByAgeGroups(baseData, chart.groupConfig);
+  }, [timeSeriesData, chartSettings]);
 
   // Создание нового агрегированного графика
   const handleCreateGroupedChart = useCallback((groups: AgeRangeConfig[]) => {
-    if (!data) return;
+    const currentData = getChartData(ORIGINAL_CHART_ID, initialData);
+    if (!currentData) return;
 
-    const aggregatedData = aggregateByAgeGroups(data, groups);
+    const aggregatedData = aggregateByAgeGroups(currentData, groups);
     const newChartId = crypto.randomUUID();
     const newChart: ChartInstance = {
       id: newChartId,
@@ -101,14 +155,18 @@ function App() {
       isOriginal: false,
       groupConfig: groups,
     };
+    
+    // Копируем текущий год из оригинального графика
+    const originalSettings = chartSettings[ORIGINAL_CHART_ID];
+    const currentYear = originalSettings?.selectedYear ?? initialSelectedYear;
 
     setAdditionalCharts((prev) => [...prev, newChart]);
-    // Добавляем настройки по умолчанию для нового графика
+    // Добавляем настройки по умолчанию для нового графика с тем же годом
     setChartSettings((prev) => ({
       ...prev,
-      [newChartId]: { ...DEFAULT_SETTINGS },
+      [newChartId]: { ...DEFAULT_SETTINGS, selectedYear: currentYear ?? undefined },
     }));
-  }, [data]);
+  }, [initialData, getChartData, chartSettings, initialSelectedYear]);
 
   // Удаление агрегированного графика
   const handleRemoveChart = useCallback((chartId: string) => {
@@ -133,21 +191,23 @@ function App() {
   }, [clearData]);
 
   // Вычисляем максимальный возраст для конфигуратора
-  const maxAge = data 
-    ? Math.max(...data.ageGroups.map((g) => g.ageNumeric))
+  const currentOriginalData = getChartData(ORIGINAL_CHART_ID, initialData);
+  const maxAge = currentOriginalData 
+    ? Math.max(...currentOriginalData.ageGroups.map((g) => g.ageNumeric))
     : 100;
 
   // Данные и настройки для открытой панели
   const settingsChartData = useMemo(() => {
-    if (!settingsOpenFor || !data) return null;
+    if (!settingsOpenFor || !initialData) return null;
     
     if (settingsOpenFor === ORIGINAL_CHART_ID) {
-      return data;
+      return getChartData(ORIGINAL_CHART_ID, initialData);
     }
     
     const chart = additionalCharts.find((c) => c.id === settingsOpenFor);
-    return chart?.data ?? null;
-  }, [settingsOpenFor, data, additionalCharts]);
+    if (!chart) return null;
+    return getAggregatedChartData(chart);
+  }, [settingsOpenFor, initialData, additionalCharts, getChartData, getAggregatedChartData]);
 
   const currentSettings = settingsOpenFor ? getSettings(settingsOpenFor) : null;
 
@@ -180,7 +240,7 @@ function App() {
       </header>
 
       <main className={styles.main}>
-        {!data ? (
+        {!initialData ? (
           <section className={styles.uploadSection}>
             <FileUpload
               onFileSelect={loadFile}
@@ -216,7 +276,7 @@ function App() {
               <div className={styles.dataInfo}>
                 <span className={styles.dataInfoLabel}>{t.toolbar.loaded}</span>
                 <span className={styles.dataInfoValue}>
-                  {data.ageGroups.length} {t.toolbar.ageGroups}
+                  {initialData.ageGroups.length} {t.toolbar.ageGroups}
                 </span>
                 {detectedFormat && detectedFormat !== 'simple' && detectedFormat !== 'unknown' && (
                   <span className={styles.formatBadge}>
@@ -240,9 +300,13 @@ function App() {
             {/* Оригинальный график */}
             {(() => {
               const settings = getSettings(ORIGINAL_CHART_ID);
-              const dataMaxValue = getDataMaxValue(data);
+              const chartData = getChartData(ORIGINAL_CHART_ID, initialData);
+              if (!chartData) return null;
+              
+              const dataMaxValue = getDataMaxValue(chartData);
               const effectiveScale = calculateScale(toScaleConfig(settings), dataMaxValue);
               const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
+              const currentYear = settings.selectedYear ?? initialSelectedYear;
               
               return (
                 <div className={styles.chartWrapper}>
@@ -251,7 +315,7 @@ function App() {
                     <SettingsButton onClick={() => setSettingsOpenFor(ORIGINAL_CHART_ID)} />
                   </div>
                   <PopulationPyramid 
-                    data={data} 
+                    data={chartData} 
                     theme={theme} 
                     viewMode={settings.viewMode}
                     maxScale={effectiveScale}
@@ -261,11 +325,11 @@ function App() {
                     xAxisSplitCount={settings.xAxisSplitCount}
                     showBarLabels={settings.showBarLabels}
                   />
-                  {timeSeriesData && selectedYear && (
+                  {timeSeriesData && currentYear && (
                     <YearSelector
                       years={timeSeriesData.years}
-                      selectedYear={selectedYear}
-                      onYearChange={selectYear}
+                      selectedYear={currentYear}
+                      onYearChange={(year) => handleYearChange(ORIGINAL_CHART_ID, year)}
                       compact
                     />
                   )}
@@ -276,9 +340,11 @@ function App() {
             {/* Агрегированные графики */}
             {additionalCharts.map((chart) => {
               const settings = getSettings(chart.id);
-              const dataMaxValue = getDataMaxValue(chart.data);
+              const chartData = getAggregatedChartData(chart);
+              const dataMaxValue = getDataMaxValue(chartData);
               const effectiveScale = calculateScale(toScaleConfig(settings), dataMaxValue);
               const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
+              const currentYear = settings.selectedYear ?? initialSelectedYear;
               
               return (
                 <div key={chart.id} className={styles.chartWrapper}>
@@ -311,7 +377,7 @@ function App() {
                     </div>
                   </div>
                   <PopulationPyramid 
-                    data={chart.data} 
+                    data={chartData} 
                     theme={theme} 
                     viewMode={settings.viewMode}
                     maxScale={effectiveScale}
@@ -321,11 +387,11 @@ function App() {
                     xAxisSplitCount={settings.xAxisSplitCount}
                     showBarLabels={settings.showBarLabels}
                   />
-                  {timeSeriesData && selectedYear && (
+                  {timeSeriesData && currentYear && (
                     <YearSelector
                       years={timeSeriesData.years}
-                      selectedYear={selectedYear}
-                      onYearChange={selectYear}
+                      selectedYear={currentYear}
+                      onYearChange={(year) => handleYearChange(chart.id, year)}
                       compact
                     />
                   )}

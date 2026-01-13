@@ -229,4 +229,6 @@ export interface ChartSettings {
   xAxisSplitCount: number;
   /** Показывать значения внутри столбиков */
   showBarLabels: boolean;
+  /** Выбранный год (для time-series данных) */
+  selectedYear?: number;
 }

@@ -50,12 +50,12 @@ export function getYAxisInterval(mode: YAxisLabelMode): number | 'auto' | ((inde
     case 'every2':
       return 1; // Показываем каждый второй (интервал = 1 означает пропуск 1)
     case 'every5':
-      return (index: number, value: string) => {
+      return (_: number, value: string) => {
         const num = parseInt(value, 10);
         return !isNaN(num) && num % 5 === 0;
       };
     case 'every10':
-      return (index: number, value: string) => {
+      return (_: number, value: string) => {
         const num = parseInt(value, 10);
         return !isNaN(num) && num % 10 === 0;
       };
