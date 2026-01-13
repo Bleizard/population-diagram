@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useI18n } from '../../../i18n';
+import type { ProcessingState, DataFormat } from '../../../types';
 import styles from './FileUpload.module.css';
 
 interface FileUploadProps {
@@ -12,15 +13,61 @@ interface FileUploadProps {
   isLoading?: boolean;
   /** Текст ошибки */
   error?: string | null;
+  /** Состояние обработки файла */
+  processingState?: ProcessingState;
 }
 
 const DEFAULT_FORMATS = ['.csv', '.xlsx', '.xls'];
+
+// Иконки для этапов
+const STEP_ICONS: Record<string, JSX.Element> = {
+  reading: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14,2 14,8 20,8"/>
+    </svg>
+  ),
+  detecting: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/>
+      <path d="M21 21l-4.35-4.35"/>
+    </svg>
+  ),
+  validating: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 11l3 3L22 4"/>
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>
+  ),
+  building: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7"/>
+      <rect x="14" y="3" width="7" height="7"/>
+      <rect x="14" y="14" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/>
+    </svg>
+  ),
+  done: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22,4 12,14.01 9,11.01"/>
+    </svg>
+  ),
+  error: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="15" y1="9" x2="9" y2="15"/>
+      <line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>
+  ),
+};
 
 export function FileUpload({
   onFileSelect,
   acceptedFormats = DEFAULT_FORMATS,
   isLoading = false,
   error = null,
+  processingState,
 }: FileUploadProps) {
   const { t } = useI18n();
   const [isDragOver, setIsDragOver] = useState(false);
@@ -80,6 +127,15 @@ export function FileUpload({
     [handleClick]
   );
 
+  // Получить локализованное название формата
+  const getFormatName = (format: DataFormat): string => {
+    const formatInfo = (t.dataFormats as Record<string, { name: string }>)[format];
+    return formatInfo?.name || format;
+  };
+
+  // Показываем прогресс обработки
+  const showProcessing = isLoading && processingState && processingState.step !== 'idle';
+
   return (
     <div className={styles.container}>
       <div
@@ -89,10 +145,10 @@ export function FileUpload({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
+        onClick={isLoading ? undefined : handleClick}
+        onKeyDown={isLoading ? undefined : handleKeyDown}
         role="button"
-        tabIndex={0}
+        tabIndex={isLoading ? -1 : 0}
         aria-label="Upload file"
       >
         <input
@@ -104,7 +160,60 @@ export function FileUpload({
           disabled={isLoading}
         />
 
-        {isLoading ? (
+        {showProcessing && processingState ? (
+          <div className={styles.processingContent}>
+            {/* Прогресс-бар */}
+            <div className={styles.progressContainer}>
+              <div 
+                className={styles.progressBar}
+                style={{ width: `${processingState.progress}%` }}
+              />
+            </div>
+
+            {/* Текущий этап */}
+            <div className={styles.currentStep}>
+              <span className={`${styles.stepIcon} ${styles[processingState.step]}`}>
+                {STEP_ICONS[processingState.step]}
+              </span>
+              <span className={styles.stepText}>
+                {processingState.message || t.upload.loading}
+              </span>
+            </div>
+
+            {/* Определённый формат */}
+            {processingState.detectedFormat && processingState.step !== 'reading' && (
+              <div className={styles.detectedFormat}>
+                <span className={styles.formatLabel}>{t.processing.formatDetected}</span>
+                <span className={styles.formatValue}>
+                  {getFormatName(processingState.detectedFormat)}
+                </span>
+              </div>
+            )}
+
+            {/* Этапы */}
+            <div className={styles.steps}>
+              {(['reading', 'detecting', 'validating', 'building', 'done'] as const).map((step, index) => {
+                const currentIndex = ['reading', 'detecting', 'validating', 'building', 'done'].indexOf(processingState.step);
+                const stepIndex = index;
+                const isCompleted = stepIndex < currentIndex;
+                const isCurrent = step === processingState.step;
+                const isPending = stepIndex > currentIndex;
+
+                return (
+                  <div 
+                    key={step}
+                    className={`${styles.stepItem} ${isCompleted ? styles.completed : ''} ${isCurrent ? styles.current : ''} ${isPending ? styles.pending : ''}`}
+                  >
+                    <span className={styles.stepDot} />
+                    <span className={styles.stepName}>
+                      {(t.processing as Record<string, string>)[step]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : isLoading ? (
           <div className={styles.loadingContent}>
             <div className={styles.spinner} />
             <p className={styles.loadingText}>{t.upload.loading}</p>
@@ -140,20 +249,21 @@ export function FileUpload({
 
       {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.formatInfo}>
-        <h4>{t.upload.formatTitle}</h4>
-        <p>
-          {t.upload.formatDescription} <code>age</code>, <code>male</code>,{' '}
-          <code>female</code>
-        </p>
-        <p className={styles.example}>
-          {t.upload.example} age | male | female<br />
-          0 | 893000 | 847000<br />
-          1 | 889000 | 845000<br />
-          ...
-        </p>
-      </div>
+      {!isLoading && (
+        <div className={styles.formatInfo}>
+          <h4>{t.upload.formatTitle}</h4>
+          <p>
+            {t.upload.formatDescription} <code>age</code>, <code>male</code>,{' '}
+            <code>female</code>
+          </p>
+          <p className={styles.example}>
+            {t.upload.example} age | male | female<br />
+            0 | 893000 | 847000<br />
+            1 | 889000 | 845000<br />
+            ...
+          </p>
+        </div>
+      )}
     </div>
   );
 }
-

@@ -171,3 +171,150 @@
   overflow-x: auto;
   margin-top: 12px;
 }
+
+/* Processing states */
+.processingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 12px 0;
+}
+
+.progressContainer {
+  width: 100%;
+  max-width: 300px;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent, #8b5cf6));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.currentStep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.stepIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.stepIcon.done {
+  background: var(--color-success, #22c55e);
+  animation: none;
+}
+
+.stepIcon.error {
+  background: var(--color-error);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.stepText {
+  font-weight: 500;
+}
+
+.detectedFormat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-bg-hover);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.formatLabel {
+  color: var(--color-text-secondary);
+}
+
+.formatValue {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  transition: all 0.3s ease;
+}
+
+.stepItem.completed {
+  color: var(--color-success, #22c55e);
+}
+
+.stepItem.current {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.stepItem.pending {
+  opacity: 0.5;
+}
+
+.stepDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: all 0.3s ease;
+}
+
+.stepItem.current .stepDot {
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.stepName {
+  display: none;
+}
+
+@media (min-width: 500px) {
+  .stepName {
+    display: inline;
+  }
+  
+  .steps {
+    gap: 16px;
+  }
+}

@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
-import type { PopulationData, ParseResult, TimeSeriesPopulationData, DataFormat } from '../types';
-import { parsePopulationFile, ERROR_CODES } from '../services/fileParser';
+import type { PopulationData, ParseResult, TimeSeriesPopulationData, DataFormat, ProcessingState, ProcessingStep } from '../types';
+import { parsePopulationFile, detectDataFormat, ERROR_CODES } from '../services/fileParser';
 import { useI18n } from '../i18n';
+import { getStepDelay, delay } from '../config';
 
 interface UsePopulationDataReturn {
   /** Загруженные данные о населении */
@@ -22,7 +23,14 @@ interface UsePopulationDataReturn {
   selectYear: (year: number) => void;
   /** Текущий выбранный год */
   selectedYear: number | null;
+  /** Состояние обработки файла */
+  processingState: ProcessingState;
 }
+
+const INITIAL_PROCESSING_STATE: ProcessingState = {
+  step: 'idle',
+  progress: 0,
+};
 
 /**
  * Переводит код ошибки в локализованное сообщение
@@ -51,13 +59,63 @@ export function usePopulationData(): UsePopulationDataReturn {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [processingState, setProcessingState] = useState<ProcessingState>(INITIAL_PROCESSING_STATE);
+
+  // Обновление этапа обработки
+  const updateStep = useCallback((step: ProcessingStep, extra: Partial<ProcessingState> = {}) => {
+    const progressMap: Record<ProcessingStep, number> = {
+      idle: 0,
+      reading: 20,
+      detecting: 40,
+      validating: 60,
+      building: 80,
+      done: 100,
+      error: 0,
+    };
+    
+    setProcessingState(prev => ({
+      ...prev,
+      step,
+      progress: progressMap[step],
+      ...extra,
+    }));
+  }, []);
 
   const loadFile = useCallback(async (file: File) => {
     setIsLoading(true);
     setError(null);
+    setProcessingState(INITIAL_PROCESSING_STATE);
 
     try {
+      // Этап 1: Чтение файла
+      updateStep('reading', { message: t.processing.reading });
+      await delay(getStepDelay('reading'));
+
+      // Этап 2: Определение формата
+      updateStep('detecting', { message: t.processing.detecting });
+      const format = await detectDataFormat(file);
+      await delay(getStepDelay('detecting'));
+      
+      updateStep('detecting', { 
+        message: t.processing.detecting,
+        detectedFormat: format,
+      });
+
+      // Этап 3: Валидация
+      updateStep('validating', { 
+        message: t.processing.validating,
+        detectedFormat: format,
+      });
+      await delay(getStepDelay('validating'));
+
+      // Этап 4: Построение модели данных
+      updateStep('building', { 
+        message: t.processing.building,
+        detectedFormat: format,
+      });
+      
       const result: ParseResult = await parsePopulationFile(file);
+      await delay(getStepDelay('building'));
 
       if (result.success && result.data) {
         setData(result.data);
@@ -74,11 +132,24 @@ export function usePopulationData(): UsePopulationDataReturn {
           setSelectedYear(null);
         }
         
+        // Этап 5: Завершено
+        await delay(getStepDelay('done'));
+        updateStep('done', { 
+          message: t.processing.done,
+          detectedFormat: result.detectedFormat || 'simple',
+        });
+        
         setError(null);
       } else {
         const errorMsg = result.error 
           ? translateErrorCode(result.error, t) 
           : t.errors.unknownError;
+        
+        updateStep('error', { 
+          message: errorMsg,
+          error: errorMsg,
+        });
+        
         setError(errorMsg);
         setData(null);
         setTimeSeriesData(null);
@@ -89,6 +160,12 @@ export function usePopulationData(): UsePopulationDataReturn {
       const errorMsg = err instanceof Error 
         ? translateErrorCode(err.message, t)
         : t.errors.fileLoadError;
+      
+      updateStep('error', { 
+        message: errorMsg,
+        error: errorMsg,
+      });
+      
       setError(errorMsg);
       setData(null);
       setTimeSeriesData(null);
@@ -97,7 +174,7 @@ export function usePopulationData(): UsePopulationDataReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [t]);
+  }, [t, updateStep]);
 
   const selectYear = useCallback((year: number) => {
     if (!timeSeriesData || !timeSeriesData.years.includes(year)) {
@@ -124,6 +201,7 @@ export function usePopulationData(): UsePopulationDataReturn {
     setDetectedFormat(null);
     setSelectedYear(null);
     setError(null);
+    setProcessingState(INITIAL_PROCESSING_STATE);
   }, []);
 
   return {
@@ -136,6 +214,6 @@ export function usePopulationData(): UsePopulationDataReturn {
     loadFile,
     clearData,
     selectYear,
+    processingState,
   };
 }
-

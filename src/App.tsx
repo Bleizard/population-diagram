@@ -47,7 +47,8 @@ function App() {
     error, 
     loadFile, 
     clearData,
-    selectYear 
+    selectYear,
+    processingState,
   } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
   const { language, t, setLanguage } = useLanguage();
@@ -185,6 +186,7 @@ function App() {
               onFileSelect={loadFile}
               isLoading={isLoading}
               error={error}
+              processingState={processingState}
             />
           </section>
         ) : (
