@@ -31,7 +31,11 @@ export function AgeGroupConfigurator({
   const [errors, setErrors] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const presets = getPresetOptions();
+  const presets = getPresetOptions({
+    preset3: t.groupConfig.preset3,
+    preset5: t.groupConfig.preset5,
+    presetDecades: t.groupConfig.presetDecades,
+  });
 
   const handleAddGroup = useCallback(() => {
     // Находим следующий свободный диапазон

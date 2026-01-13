@@ -154,12 +154,13 @@ export const PRESET_GROUPS = {
 
 /**
  * Получает список пресетов с метаданными
+ * @param labels - объект с локализованными метками { preset3, preset5, presetDecades }
  */
-export function getPresetOptions() {
+export function getPresetOptions(labels?: { preset3: string; preset5: string; presetDecades: string }) {
   return [
-    { id: 'threeGenerations', label: '3 groups (0-19, 20-64, 65+)', groups: PRESET_GROUPS.threeGenerations },
-    { id: 'fiveGroups', label: '5 groups', groups: PRESET_GROUPS.fiveGroups },
-    { id: 'decades', label: 'By decades', groups: PRESET_GROUPS.decades },
+    { id: 'threeGenerations', label: labels?.preset3 ?? '3 groups (0-19, 20-64, 65+)', groups: PRESET_GROUPS.threeGenerations },
+    { id: 'fiveGroups', label: labels?.preset5 ?? '5 groups', groups: PRESET_GROUPS.fiveGroups },
+    { id: 'decades', label: labels?.presetDecades ?? 'By decades', groups: PRESET_GROUPS.decades },
   ];
 }
 
