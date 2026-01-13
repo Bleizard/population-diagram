@@ -408,6 +408,12 @@ function App() {
             {additionalCharts.map((chart) => {
               const settings = getSettings(chart.id);
               const chartData = getAggregatedChartData(chart);
+              // Получаем исходные данные для текущего года (для расчёта медианы)
+              // Используем данные оригинального графика с учётом выбранного года для этого графика
+              const chartYear = settings.selectedYear ?? initialSelectedYear;
+              const sourceData = timeSeriesData && chartYear
+                ? { ...initialData!, ageGroups: timeSeriesData.dataByYear[chartYear] || initialData!.ageGroups }
+                : initialData;
               const dataMaxValue = getDataMaxValue(chartData);
               const effectiveScale = calculateScale(toScaleConfig(settings), dataMaxValue);
               const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
@@ -449,7 +455,8 @@ function App() {
                   </div>
                   <PopulationPyramid
                     ref={(el) => { chartRefs.current[chart.id] = el; }}
-                    data={chartData} 
+                    data={chartData}
+                    sourceDataForMedian={sourceData ?? undefined}
                     theme={theme} 
                     viewMode={settings.viewMode}
                     maxScale={effectiveScale}
@@ -590,6 +597,11 @@ function App() {
         const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
         const currentYear = settings.selectedYear ?? initialSelectedYear;
         
+        // Исходные данные для медианы (для агрегированных графиков)
+        const sourceDataForMedian = !isOriginal && timeSeriesData && currentYear
+          ? { ...initialData!, ageGroups: timeSeriesData.dataByYear[currentYear] || initialData!.ageGroups }
+          : undefined;
+        
         return (
           <div className={styles.fullscreenOverlay}>
             <div className={styles.fullscreenContainer}>
@@ -621,6 +633,7 @@ function App() {
               <div className={styles.fullscreenChart}>
                 <PopulationPyramid
                   data={chartData}
+                  sourceDataForMedian={sourceDataForMedian}
                   theme={theme}
                   viewMode={settings.viewMode}
                   maxScale={effectiveScale}
