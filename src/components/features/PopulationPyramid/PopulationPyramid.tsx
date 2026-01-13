@@ -103,38 +103,48 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
       const echartsInstance = chartRef.current?.getEchartsInstance();
       if (!echartsInstance) return;
       
-      // Получаем SVG как data URL
-      const svgDataUrl = echartsInstance.getDataURL({
-        type: 'svg',
-        pixelRatio: 1, // Используем 1:1, т.к. SVG векторный
-        backgroundColor: THEME_COLORS[theme].background,
-      });
+      // Получаем DOM элемент ECharts
+      const echartsDOM = echartsInstance.getDom();
+      const svgElement = echartsDOM?.querySelector('svg');
       
-      // Декодируем data URL в SVG строку
-      const svgBase64 = svgDataUrl.split(',')[1];
-      let svgString = atob(svgBase64);
+      if (!svgElement) return;
       
-      // Извлекаем оригинальные размеры
-      const widthMatch = svgString.match(/width="(\d+(?:\.\d+)?)"/);
-      const heightMatch = svgString.match(/height="(\d+(?:\.\d+)?)"/);
+      // Клонируем SVG чтобы не модифицировать оригинал
+      const svgClone = svgElement.cloneNode(true) as SVGSVGElement;
       
-      if (widthMatch && heightMatch) {
-        const width = widthMatch[1];
-        const height = heightMatch[1];
-        
-        // Добавляем viewBox если его нет
-        if (!svgString.includes('viewBox')) {
-          svgString = svgString.replace(
-            /<svg([^>]*)>/,
-            `<svg$1 viewBox="0 0 ${width} ${height}">`
-          );
-        }
-        
-        // Заменяем фиксированные размеры на 100% для масштабируемости
-        svgString = svgString
-          .replace(/width="\d+(?:\.\d+)?"/, 'width="100%"')
-          .replace(/height="\d+(?:\.\d+)?"/, 'height="100%"');
+      // Получаем текущие размеры
+      const width = svgElement.getAttribute('width') || svgElement.clientWidth.toString();
+      const height = svgElement.getAttribute('height') || svgElement.clientHeight.toString();
+      
+      // Убираем 'px' если есть
+      const numWidth = parseFloat(width);
+      const numHeight = parseFloat(height);
+      
+      // Устанавливаем viewBox для масштабируемости
+      if (!svgClone.getAttribute('viewBox')) {
+        svgClone.setAttribute('viewBox', `0 0 ${numWidth} ${numHeight}`);
       }
+      
+      // Устанавливаем 100% для адаптивности
+      svgClone.setAttribute('width', '100%');
+      svgClone.setAttribute('height', '100%');
+      
+      // Добавляем preserveAspectRatio для корректного масштабирования
+      svgClone.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      
+      // Добавляем фоновый цвет как первый элемент
+      const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bgRect.setAttribute('width', '100%');
+      bgRect.setAttribute('height', '100%');
+      bgRect.setAttribute('fill', THEME_COLORS[theme].background);
+      svgClone.insertBefore(bgRect, svgClone.firstChild);
+      
+      // Сериализуем в строку
+      const serializer = new XMLSerializer();
+      let svgString = serializer.serializeToString(svgClone);
+      
+      // Добавляем XML declaration
+      svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
       
       // Создаём Blob и скачиваем
       const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
