@@ -224,6 +224,7 @@ export function PopulationPyramid({
         itemGap: 8,
         itemWidth: 16,
         itemHeight: 12,
+        selectedMode: false,
         textStyle: {
           fontSize: 12,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
@@ -450,6 +451,7 @@ export function PopulationPyramid({
         itemGap: 8,
         itemWidth: 16,
         itemHeight: 12,
+        selectedMode: false,
         textStyle: {
           fontSize: 12,
           fontFamily: "'DM Sans', -apple-system, sans-serif",
