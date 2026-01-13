@@ -87,10 +87,27 @@ export function PopulationPyramid({
   // Используем кастомный масштаб или из метаданных
   const effectiveMaxScale = maxScale ?? metadata.maxValue;
 
+  // Количество групп
+  const groupCount = data.ageGroups.length;
+  
+  // Динамическая высота бара в зависимости от количества групп
+  // Для малого количества групп — толще, для большого — тоньше
+  const dynamicBarHeight = useMemo(() => {
+    if (groupCount <= 5) return 40;
+    if (groupCount <= 10) return 28;
+    if (groupCount <= 20) return 20;
+    if (groupCount <= 50) return 16;
+    return CHART_CONFIG.barHeight; // 12 для 50+ групп
+  }, [groupCount]);
+  
+  // Динамическая высота на группу
+  const dynamicHeightPerAge = dynamicBarHeight + 8; // бар + отступ
+
   // Высота диаграммы зависит от количества возрастных групп
   const chartHeight = Math.max(
-    CHART_CONFIG.minHeight,
-    data.ageGroups.length * CHART_CONFIG.heightPerAge + 
+    // Минимальная высота зависит от количества групп
+    groupCount <= 10 ? 300 : CHART_CONFIG.minHeight,
+    groupCount * dynamicHeightPerAge + 
     CHART_CONFIG.padding.top + 
     CHART_CONFIG.padding.bottom
   );
@@ -259,7 +276,7 @@ export function PopulationPyramid({
           stack: 'male',
           data: maleBaseData,
           itemStyle: { color: colors.male },
-          barWidth: CHART_CONFIG.barHeight,
+          barWidth: dynamicBarHeight,
           barGap: '-100%',
           emphasis: { itemStyle: { opacity: 0.8 } },
         },
@@ -269,7 +286,7 @@ export function PopulationPyramid({
           stack: 'male',
           data: maleSurplusData,
           itemStyle: { color: colors.maleSurplus },
-          barWidth: CHART_CONFIG.barHeight,
+          barWidth: dynamicBarHeight,
           emphasis: { itemStyle: { opacity: 0.8 } },
         },
         {
@@ -278,7 +295,7 @@ export function PopulationPyramid({
           stack: 'female',
           data: femaleBaseData,
           itemStyle: { color: colors.female },
-          barWidth: CHART_CONFIG.barHeight,
+          barWidth: dynamicBarHeight,
           barGap: '-100%',
           emphasis: { itemStyle: { opacity: 0.8 } },
         },
@@ -288,7 +305,7 @@ export function PopulationPyramid({
           stack: 'female',
           data: femaleSurplusData,
           itemStyle: { color: colors.femaleSurplus },
-          barWidth: CHART_CONFIG.barHeight,
+          barWidth: dynamicBarHeight,
           emphasis: { itemStyle: { opacity: 0.8 } },
         },
       ],
@@ -309,7 +326,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -470,7 +487,7 @@ export function PopulationPyramid({
             },
             borderRadius: [0, 4, 4, 0],
           },
-          barWidth: CHART_CONFIG.barHeight,
+          barWidth: dynamicBarHeight,
           emphasis: {
             itemStyle: {
               opacity: 0.9,
@@ -479,7 +496,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;
