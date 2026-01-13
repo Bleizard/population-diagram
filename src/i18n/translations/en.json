@@ -136,6 +136,14 @@
     "rowsFound": "rows found",
     "yearsFound": "years found",
     "preview": "Preview (first 5 rows)"
+  },
+  "yearSelector": {
+    "label": "Year",
+    "previous": "Previous year",
+    "next": "Next year",
+    "dataFrom": "Data from",
+    "dataTo": "to",
+    "years": "years"
   }
 }
 

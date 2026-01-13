@@ -1,8 +1,10 @@
 import { parseCSV, ERROR_CODES } from './csvParser';
 import { parseExcel } from './excelParser';
-import type { FileFormat, ParseResult, RawPopulationRow, PopulationData } from '../../types';
+import { parseEurostat, isEurostatFormat, getCSVHeaders } from './eurostatParser';
+import type { FileFormat, DataFormat, ParseResult, RawPopulationRow, PopulationData } from '../../types';
 
 export { ERROR_CODES } from './csvParser';
+export { isEurostatFormat, parseEurostat } from './eurostatParser';
 
 /**
  * Определяет формат файла по расширению
@@ -23,14 +25,56 @@ export function getFileFormat(fileName: string): FileFormat | null {
 }
 
 /**
+ * Определяет формат данных по заголовкам
+ */
+export async function detectDataFormat(file: File): Promise<DataFormat> {
+  const fileFormat = getFileFormat(file.name);
+  
+  if (fileFormat === 'csv') {
+    try {
+      const headers = await getCSVHeaders(file);
+      
+      // Проверяем Eurostat формат
+      if (isEurostatFormat(headers)) {
+        return 'eurostat';
+      }
+      
+      // Проверяем timeseries формат (year, age, male, female)
+      const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
+      if (normalizedHeaders.includes('year') && 
+          normalizedHeaders.includes('age') &&
+          (normalizedHeaders.includes('male') || normalizedHeaders.includes('males')) &&
+          (normalizedHeaders.includes('female') || normalizedHeaders.includes('females'))) {
+        return 'timeseries';
+      }
+      
+      // Simple формат (age, male, female)
+      if (normalizedHeaders.includes('age') &&
+          (normalizedHeaders.includes('male') || normalizedHeaders.includes('males')) &&
+          (normalizedHeaders.includes('female') || normalizedHeaders.includes('females'))) {
+        return 'simple';
+      }
+      
+      return 'unknown';
+    } catch {
+      return 'unknown';
+    }
+  }
+  
+  // Для Excel пока поддерживаем только simple формат
+  return 'simple';
+}
+
+/**
  * Парсит файл с данными о населении
+ * Автоматически определяет формат данных
  * @param file - Файл для парсинга (CSV или Excel)
  * @returns Promise с результатом парсинга
  */
 export async function parsePopulationFile(file: File): Promise<ParseResult> {
-  const format = getFileFormat(file.name);
+  const fileFormat = getFileFormat(file.name);
   
-  if (!format) {
+  if (!fileFormat) {
     return {
       success: false,
       error: ERROR_CODES.UNKNOWN_FILE_FORMAT,
@@ -38,9 +82,34 @@ export async function parsePopulationFile(file: File): Promise<ParseResult> {
   }
 
   try {
+    // Определяем формат данных
+    const dataFormat = await detectDataFormat(file);
+    
+    // Eurostat формат
+    if (dataFormat === 'eurostat') {
+      const timeSeriesData = await parseEurostat(file);
+      
+      // Для обратной совместимости также возвращаем data с последним годом
+      const lastYear = timeSeriesData.years[timeSeriesData.years.length - 1];
+      const lastYearData = timeSeriesData.dataByYear[lastYear];
+      
+      return {
+        success: true,
+        data: {
+          title: timeSeriesData.title,
+          date: String(lastYear),
+          source: timeSeriesData.source,
+          ageGroups: lastYearData,
+        },
+        timeSeriesData,
+        detectedFormat: 'eurostat',
+      };
+    }
+    
+    // Simple и timeseries форматы
     let rawData: RawPopulationRow[];
     
-    if (format === 'csv') {
+    if (fileFormat === 'csv') {
       rawData = await parseCSV(file);
     } else {
       rawData = await parseExcel(file);
@@ -51,6 +120,7 @@ export async function parsePopulationFile(file: File): Promise<ParseResult> {
     return {
       success: true,
       data: populationData,
+      detectedFormat: dataFormat,
     };
   } catch (error) {
     return {
@@ -117,4 +187,5 @@ function parseNumber(value: string | number): number {
 
 export { parseCSV } from './csvParser';
 export { parseExcel } from './excelParser';
+export { getCSVHeaders } from './eurostatParser';
 

@@ -136,6 +136,14 @@
     "rowsFound": "строк найдено",
     "yearsFound": "лет найдено",
     "preview": "Превью (первые 5 строк)"
+  },
+  "yearSelector": {
+    "label": "Год",
+    "previous": "Предыдущий год",
+    "next": "Следующий год",
+    "dataFrom": "Данные с",
+    "dataTo": "по",
+    "years": "лет"
   }
 }
 

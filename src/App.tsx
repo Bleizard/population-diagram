@@ -11,6 +11,7 @@ import { YAxisLabelConfig, getYAxisInterval } from './components/common/YAxisLab
 import { ChartTitleInput } from './components/common/ChartTitleInput';
 import { ToggleSetting } from './components/common/ToggleSetting';
 import { XAxisSplitConfig } from './components/common/XAxisSplitConfig';
+import { YearSelector } from './components/common/YearSelector';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { 
@@ -37,7 +38,17 @@ const DEFAULT_SETTINGS: ChartSettings = {
 };
 
 function App() {
-  const { data, isLoading, error, loadFile, clearData } = usePopulationData();
+  const { 
+    data, 
+    timeSeriesData, 
+    detectedFormat,
+    selectedYear,
+    isLoading, 
+    error, 
+    loadFile, 
+    clearData,
+    selectYear 
+  } = usePopulationData();
   const { theme, toggleTheme } = useTheme();
   const { language, t, setLanguage } = useLanguage();
   
@@ -205,6 +216,11 @@ function App() {
                 <span className={styles.dataInfoValue}>
                   {data.ageGroups.length} {t.toolbar.ageGroups}
                 </span>
+                {detectedFormat && detectedFormat !== 'simple' && detectedFormat !== 'unknown' && (
+                  <span className={styles.formatBadge}>
+                    {(t.dataFormats as Record<string, { name: string }>)[detectedFormat]?.name || detectedFormat}
+                  </span>
+                )}
                 {additionalCharts.length > 0 && (
                   <span className={styles.chartsCount}>
                     +{additionalCharts.length} {additionalCharts.length === 1 ? t.toolbar.chart : t.toolbar.charts}
@@ -212,6 +228,15 @@ function App() {
                 )}
               </div>
             </div>
+
+            {/* Селектор года для временных рядов */}
+            {timeSeriesData && selectedYear && (
+              <YearSelector
+                years={timeSeriesData.years}
+                selectedYear={selectedYear}
+                onYearChange={selectYear}
+              />
+            )}
 
             {/* Конфигуратор групп */}
             <AgeGroupConfigurator

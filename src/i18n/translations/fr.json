@@ -136,6 +136,14 @@
     "rowsFound": "lignes trouvées",
     "yearsFound": "années trouvées",
     "preview": "Aperçu (5 premières lignes)"
+  },
+  "yearSelector": {
+    "label": "Année",
+    "previous": "Année précédente",
+    "next": "Année suivante",
+    "dataFrom": "Données de",
+    "dataTo": "à",
+    "years": "années"
   }
 }
 
