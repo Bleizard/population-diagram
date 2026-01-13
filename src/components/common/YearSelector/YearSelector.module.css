@@ -40,13 +40,14 @@
 
 .compactYear {
   position: absolute;
-  top: -24px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-primary, #3b82f6);
   font-variant-numeric: tabular-nums;
+  z-index: 10;
 }
 
 .controls {
@@ -90,12 +91,12 @@
 .sliderContainer {
   flex: 1;
   position: relative;
-  padding-bottom: 24px;
-  padding-top: 4px;
+  padding-top: 24px;
+  padding-bottom: 4px;
 }
 
 .compact .sliderContainer {
-  padding-top: 28px;
+  padding-top: 32px;
 }
 
 .sliderWrapper {
@@ -110,9 +111,10 @@
   left: 0;
   height: 6px;
   border-radius: 3px 0 0 3px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--color-primary, #3b82f6);
   pointer-events: none;
   transition: width 0.1s ease;
+  z-index: 1;
 }
 
 .slider {
@@ -173,7 +175,7 @@
 
 .yearMarks {
   position: absolute;
-  top: 20px;
+  top: 0;
   left: 0;
   right: 0;
   height: 20px;
