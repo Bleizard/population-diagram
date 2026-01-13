@@ -11,16 +11,61 @@
     box-shadow var(--transition-normal);
 }
 
-.source {
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
   padding: 12px 24px;
-  text-align: right;
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   border-top: 1px solid var(--color-border-light);
   background: var(--color-bg-hover);
   transition: 
     background-color var(--transition-normal),
-    border-color var(--transition-normal),
-    color var(--transition-normal);
+    border-color var(--transition-normal);
+}
+
+.footer:empty {
+  display: none;
+}
+
+.totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.totalItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.totalDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.totalLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  transition: color var(--transition-normal);
+}
+
+.totalValue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color var(--transition-normal);
+}
+
+.source {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin-left: auto;
+  transition: color var(--transition-normal);
 }

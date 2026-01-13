@@ -22,6 +22,8 @@ interface PopulationPyramidProps {
   yAxisInterval?: number | 'auto' | ((index: number, value: string) => boolean);
   /** Кастомное название графика */
   customTitle?: string;
+  /** Показывать общую сумму населения */
+  showTotal?: boolean;
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -75,6 +77,7 @@ export function PopulationPyramid({
   maxScale,
   yAxisInterval = 0,
   customTitle,
+  showTotal = false,
   className 
 }: PopulationPyramidProps) {
   const chartData = useMemo(() => transformToChartData(data), [data]);
@@ -83,6 +86,17 @@ export function PopulationPyramid({
   
   // Используем кастомное название если оно задано
   const effectiveTitle = customTitle?.trim() || metadata.title;
+  
+  // Вычисляем общие суммы
+  const totals = useMemo(() => {
+    let male = 0;
+    let female = 0;
+    for (const group of data.ageGroups) {
+      male += group.male;
+      female += group.female;
+    }
+    return { male, female, total: male + female };
+  }, [data.ageGroups]);
   
   // Используем кастомный масштаб или из метаданных
   const effectiveMaxScale = maxScale ?? metadata.maxValue;
@@ -508,11 +522,31 @@ export function PopulationPyramid({
         opts={{ renderer: 'svg' }}
         notMerge={true}
       />
-      {sourceInfo && (
-        <div className={styles.source}>
-          Source: {sourceInfo}
-        </div>
-      )}
+      <div className={styles.footer}>
+        {showTotal && (
+          <div className={styles.totals}>
+            <div className={styles.totalItem}>
+              <span className={styles.totalLabel}>Total:</span>
+              <span className={styles.totalValue}>{formatPopulation(totals.total)}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalDot} style={{ background: colors.male }} />
+              <span className={styles.totalLabel}>Males:</span>
+              <span className={styles.totalValue}>{formatPopulation(totals.male)}</span>
+            </div>
+            <div className={styles.totalItem}>
+              <span className={styles.totalDot} style={{ background: colors.female }} />
+              <span className={styles.totalLabel}>Females:</span>
+              <span className={styles.totalValue}>{formatPopulation(totals.female)}</span>
+            </div>
+          </div>
+        )}
+        {sourceInfo && (
+          <div className={styles.source}>
+            Source: {sourceInfo}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

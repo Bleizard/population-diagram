@@ -125,4 +125,8 @@ export interface ChartSettings {
   scaleCustomValue?: number;
   /** Режим отображения меток оси Y */
   yAxisLabelMode: 'all' | 'every2' | 'every5' | 'every10';
+  /** Показывать общую сумму населения */
+  showTotal: boolean;
+  /** Количество делений оси X (с каждой стороны от 0) */
+  xAxisSplitCount: number;
 }

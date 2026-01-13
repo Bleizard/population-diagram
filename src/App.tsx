@@ -7,6 +7,7 @@ import { ScaleConfigurator, calculateScale } from './components/common/ScaleConf
 import type { ScaleConfig } from './components/common/ScaleConfigurator';
 import { YAxisLabelConfig, getYAxisInterval } from './components/common/YAxisLabelConfig';
 import { ChartTitleInput } from './components/common/ChartTitleInput';
+import { ToggleSetting } from './components/common/ToggleSetting';
 import { PopulationPyramid } from './components/features/PopulationPyramid';
 import { AgeGroupConfigurator } from './components/features/AgeGroupConfigurator';
 import { 
@@ -27,6 +28,8 @@ const DEFAULT_SETTINGS: ChartSettings = {
   viewMode: 'split',
   scaleMode: 'auto',
   yAxisLabelMode: 'all',
+  showTotal: false,
+  xAxisSplitCount: 5,
 };
 
 function App() {
@@ -227,6 +230,7 @@ function App() {
                     maxScale={effectiveScale}
                     yAxisInterval={yAxisInterval}
                     customTitle={settings.customTitle}
+                    showTotal={settings.showTotal}
                   />
                 </div>
               );
@@ -276,6 +280,7 @@ function App() {
                     maxScale={effectiveScale}
                     yAxisInterval={yAxisInterval}
                     customTitle={settings.customTitle}
+                    showTotal={settings.showTotal}
                   />
                 </div>
               );
@@ -317,6 +322,15 @@ function App() {
                   <YAxisLabelConfig
                     mode={currentSettings.yAxisLabelMode}
                     onChange={(value) => updateSettings(settingsOpenFor, { yAxisLabelMode: value })}
+                  />
+                </SettingsSection>
+                
+                <SettingsSection title="Дополнительно">
+                  <ToggleSetting
+                    label="Показать Total"
+                    description="Общая сумма населения по всем возрастам"
+                    checked={currentSettings.showTotal}
+                    onChange={(value) => updateSettings(settingsOpenFor, { showTotal: value })}
                   />
                 </SettingsSection>
               </ChartSettingsPanel>
