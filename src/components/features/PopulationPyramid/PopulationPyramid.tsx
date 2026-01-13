@@ -90,27 +90,26 @@ export function PopulationPyramid({
   // Количество групп
   const groupCount = data.ageGroups.length;
   
-  // Динамическая высота бара в зависимости от количества групп
-  // Для малого количества групп — толще, для большого — тоньше
-  const dynamicBarHeight = useMemo(() => {
-    if (groupCount <= 5) return 40;
-    if (groupCount <= 10) return 28;
-    if (groupCount <= 20) return 20;
-    if (groupCount <= 50) return 16;
-    return CHART_CONFIG.barHeight; // 12 для 50+ групп
-  }, [groupCount]);
+  // Минимальная высота графика
+  const minChartHeight = groupCount <= 10 ? 400 : CHART_CONFIG.minHeight;
   
-  // Динамическая высота на группу
-  const dynamicHeightPerAge = dynamicBarHeight + 8; // бар + отступ
-
   // Высота диаграммы зависит от количества возрастных групп
   const chartHeight = Math.max(
-    // Минимальная высота зависит от количества групп
-    groupCount <= 10 ? 300 : CHART_CONFIG.minHeight,
-    groupCount * dynamicHeightPerAge + 
+    minChartHeight,
+    groupCount * CHART_CONFIG.heightPerAge + 
     CHART_CONFIG.padding.top + 
     CHART_CONFIG.padding.bottom
   );
+  
+  // Доступная высота для данных (без отступов и заголовка)
+  const availableHeight = chartHeight - CHART_CONFIG.padding.top - CHART_CONFIG.padding.bottom - 80;
+  
+  // Динамическая высота бара — занимаем ~70% доступного пространства на группу
+  const dynamicBarHeight = useMemo(() => {
+    const maxBarHeight = Math.floor((availableHeight / groupCount) * 0.7);
+    // Ограничиваем: минимум 10, максимум 60
+    return Math.max(10, Math.min(60, maxBarHeight));
+  }, [availableHeight, groupCount]);
 
   // Конфигурация для режима "split" (по полу)
   const splitOption: EChartsOption = useMemo(() => {
