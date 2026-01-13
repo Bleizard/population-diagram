@@ -210,17 +210,17 @@ export function PopulationPyramid({
           
           return `
             <div style="font-family: 'DM Sans', sans-serif; padding: 4px 0; color: ${colors.text};">
-              <div style="font-weight: 600; margin-bottom: 8px;">Age: ${age}</div>
+              <div style="font-weight: 600; margin-bottom: 8px;">${AXIS_LABELS.age}: ${age}</div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.male}; border-radius: 2px;"></span>
-                <span>Males: ${formatPopulation(maleTotal)}</span>
+                <span>${LEGEND_LABELS.male}: ${formatPopulation(maleTotal)}</span>
               </div>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.female}; border-radius: 2px;"></span>
-                <span>Females: ${formatPopulation(femaleTotal)}</span>
+                <span>${LEGEND_LABELS.female}: ${formatPopulation(femaleTotal)}</span>
               </div>
               <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${colors.grid};">
-                <strong>Total: ${formatPopulation(maleTotal + femaleTotal)}</strong>
+                <strong>${t.common.total}: ${formatPopulation(maleTotal + femaleTotal)}</strong>
               </div>
             </div>
           `;
@@ -389,7 +389,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, LEGEND_LABELS, AXIS_LABELS]);
+  }, [chartData, metadata, chartHeight, colors, effectiveMaxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, LEGEND_LABELS, AXIS_LABELS, t]);
 
   // Конфигурация для режима "combined" (суммарно)
   const combinedOption: EChartsOption = useMemo(() => {
@@ -446,21 +446,21 @@ export function PopulationPyramid({
           
           return `
             <div style="font-family: 'DM Sans', sans-serif; padding: 4px 0; color: ${colors.text};">
-              <div style="font-weight: 600; margin-bottom: 8px;">Age: ${age}</div>
+              <div style="font-weight: 600; margin-bottom: 8px;">${AXIS_LABELS.age}: ${age}</div>
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.total}; border-radius: 2px;"></span>
-                <span>Total: ${formatPopulation(total)}</span>
+                <span>${t.common.total}: ${formatPopulation(total)}</span>
               </div>
               <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${colors.grid}; font-size: 0.875em; color: ${colors.textSecondary};">
-                <div>Males: ${formatPopulation(ageGroup.male)}</div>
-                <div>Females: ${formatPopulation(ageGroup.female)}</div>
+                <div>${LEGEND_LABELS.male}: ${formatPopulation(ageGroup.male)}</div>
+                <div>${LEGEND_LABELS.female}: ${formatPopulation(ageGroup.female)}</div>
               </div>
             </div>
           `;
         },
       },
       legend: {
-        data: ['Total'],
+        data: [t.common.total],
         top: 55,
         left: 20,
         orient: 'vertical',
@@ -575,7 +575,7 @@ export function PopulationPyramid({
         },
       ],
     };
-  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, AXIS_LABELS]);
+  }, [data, metadata, colors, maxScale, yAxisInterval, effectiveTitle, dynamicBarHeight, xAxisSplitCount, showBarLabels, AXIS_LABELS, LEGEND_LABELS, t]);
 
   const option = viewMode === 'split' ? splitOption : combinedOption;
   const sourceInfo = metadata.source || data.source;
