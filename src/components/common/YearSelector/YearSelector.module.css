@@ -1,8 +1,21 @@
 .container {
-  background: var(--surface-secondary);
-  border-radius: 12px;
+  background: var(--color-bg-hover, #1e293b);
+  border-radius: 0 0 12px 12px;
   padding: 16px 20px;
-  margin-bottom: 16px;
+  border: 1px solid var(--color-border-light, #334155);
+  border-top: none;
+}
+
+.compact {
+  padding: 12px 16px;
+}
+
+.compact .header {
+  display: none;
+}
+
+.compact .info {
+  display: none;
 }
 
 .header {
@@ -14,14 +27,25 @@
 
 .label {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary, #94a3b8);
   font-weight: 500;
 }
 
 .yearDisplay {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--color-text, #e2e8f0);
+  font-variant-numeric: tabular-nums;
+}
+
+.compactYear {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-primary, #3b82f6);
   font-variant-numeric: tabular-nums;
 }
 
@@ -32,23 +56,24 @@
 }
 
 .navButton {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--surface-primary);
-  color: var(--text-primary);
+  border: 1px solid var(--color-border, #334155);
+  background: var(--color-bg-card, #0f172a);
+  color: var(--color-text, #e2e8f0);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 10px;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .navButton:hover:not(:disabled) {
-  background: var(--surface-hover);
-  border-color: var(--accent-color);
+  background: var(--color-bg-hover, #1e293b);
+  border-color: var(--color-primary, #3b82f6);
 }
 
 .navButton:disabled {
@@ -56,33 +81,60 @@
   cursor: not-allowed;
 }
 
+.compact .navButton {
+  width: 28px;
+  height: 28px;
+  font-size: 9px;
+}
+
 .sliderContainer {
   flex: 1;
   position: relative;
   padding-bottom: 24px;
+  padding-top: 4px;
+}
+
+.compact .sliderContainer {
+  padding-top: 28px;
 }
 
 .slider {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: var(--border-color);
+  background: var(--color-border, #334155);
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-border, #334155);
+}
+
+.slider::-moz-range-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-border, #334155);
 }
 
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--accent-color);
+  background: var(--color-primary, #3b82f6);
   cursor: pointer;
-  border: 3px solid var(--surface-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 3px solid var(--color-bg-card, #0f172a);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
+  margin-top: -6px;
 }
 
 .slider::-webkit-slider-thumb:hover {
@@ -90,13 +142,13 @@
 }
 
 .slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--accent-color);
+  background: var(--color-primary, #3b82f6);
   cursor: pointer;
-  border: 3px solid var(--surface-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 3px solid var(--color-bg-card, #0f172a);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .yearMarks {
@@ -111,13 +163,14 @@
   position: absolute;
   transform: translateX(-50%);
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: var(--color-text-muted, #64748b);
   font-variant-numeric: tabular-nums;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .yearMark.active {
-  color: var(--accent-color);
+  color: var(--color-primary, #3b82f6);
   font-weight: 600;
   font-size: 11px;
 }
@@ -125,19 +178,12 @@
 .info {
   margin-top: 8px;
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: var(--color-text-muted, #64748b);
   text-align: center;
 }
 
 .count {
   margin-left: 6px;
-  color: var(--text-secondary);
-}
-
-/* Hide year marks if there are too many */
-@container (max-width: 400px) {
-  .yearMark:not(.active) {
-    display: none;
-  }
+  color: var(--color-text-secondary, #94a3b8);
 }
 

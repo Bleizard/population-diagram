@@ -231,15 +231,6 @@ function App() {
               </div>
             </div>
 
-            {/* Селектор года для временных рядов */}
-            {timeSeriesData && selectedYear && (
-              <YearSelector
-                years={timeSeriesData.years}
-                selectedYear={selectedYear}
-                onYearChange={selectYear}
-              />
-            )}
-
             {/* Конфигуратор групп */}
             <AgeGroupConfigurator
               onCreateChart={handleCreateGroupedChart}
@@ -270,7 +261,15 @@ function App() {
                     xAxisSplitCount={settings.xAxisSplitCount}
                     showBarLabels={settings.showBarLabels}
                   />
-      </div>
+                  {timeSeriesData && selectedYear && (
+                    <YearSelector
+                      years={timeSeriesData.years}
+                      selectedYear={selectedYear}
+                      onYearChange={selectYear}
+                      compact
+                    />
+                  )}
+                </div>
               );
             })()}
 
@@ -322,6 +321,14 @@ function App() {
                     xAxisSplitCount={settings.xAxisSplitCount}
                     showBarLabels={settings.showBarLabels}
                   />
+                  {timeSeriesData && selectedYear && (
+                    <YearSelector
+                      years={timeSeriesData.years}
+                      selectedYear={selectedYear}
+                      onYearChange={selectYear}
+                      compact
+                    />
+                  )}
                 </div>
               );
             })}

@@ -149,9 +149,13 @@ function transformEurostatData(
       }
       
       const entry = ageMap.get(age)!;
-      const value = typeof row.OBS_VALUE === 'number'
-        ? row.OBS_VALUE
-        : parseFloat(String(row.OBS_VALUE)) || 0;
+      let value = 0;
+      if (typeof row.OBS_VALUE === 'number' && !isNaN(row.OBS_VALUE)) {
+        value = row.OBS_VALUE;
+      } else if (row.OBS_VALUE != null && row.OBS_VALUE !== '') {
+        const parsed = parseFloat(String(row.OBS_VALUE));
+        value = isNaN(parsed) ? 0 : parsed;
+      }
       
       const sex = String(row.sex).toUpperCase();
       if (sex === 'M') {
