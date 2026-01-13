@@ -260,6 +260,7 @@ export function PopulationPyramid({
           data: maleBaseData,
           itemStyle: { color: colors.male },
           barWidth: CHART_CONFIG.barHeight,
+          barGap: '-100%',
           emphasis: { itemStyle: { opacity: 0.8 } },
         },
         {
@@ -278,6 +279,7 @@ export function PopulationPyramid({
           data: femaleBaseData,
           itemStyle: { color: colors.female },
           barWidth: CHART_CONFIG.barHeight,
+          barGap: '-100%',
           emphasis: { itemStyle: { opacity: 0.8 } },
         },
         {
