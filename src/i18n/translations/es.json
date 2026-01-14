@@ -6,6 +6,7 @@
   },
   "upload": {
     "dropzone": "Arrastra el archivo aquí o haz clic para seleccionar",
+    "dropHere": "Suelta el archivo aquí",
     "formats": "Formatos compatibles: CSV, XLSX, XLS",
     "loading": "Cargando archivo...",
     "supportedFormats": "Formatos de datos compatibles:",
@@ -17,7 +18,8 @@
     "eurostatFormatDesc": "Formato SDMX de Eurostat con columnas:",
     "or": "o",
     "tryDemo": "Ver demo",
-    "demoHint": "Datos de población de España 1975–2024 de Eurostat"
+    "demoHint": "Datos de población de España 1975–2024 de Eurostat",
+    "pasteHint": "para pegar desde el portapapeles"
   },
   "toolbar": {
     "loadAnother": "Cargar otro archivo",

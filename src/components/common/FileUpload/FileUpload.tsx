@@ -1,5 +1,6 @@
-import { useCallback, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useRef, useState, useEffect, type ReactElement } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { useI18n } from '../../../i18n';
 import type { ProcessingState, DataFormat } from '../../../types';
 import styles from './FileUpload.module.css';
@@ -76,9 +77,12 @@ export function FileUpload({
 }: FileUploadProps) {
   const { t } = useI18n();
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isGlobalDrag, setIsGlobalDrag] = useState(false);
   const [activeTab, setActiveTab] = useState<FormatTab>('simple');
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragCounterRef = useRef(0);
 
+  // Обработчики для dropzone
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -96,6 +100,8 @@ export function FileUpload({
       e.preventDefault();
       e.stopPropagation();
       setIsDragOver(false);
+      setIsGlobalDrag(false);
+      dragCounterRef.current = 0;
 
       const files = e.dataTransfer.files;
       if (files.length > 0) {
@@ -104,6 +110,61 @@ export function FileUpload({
     },
     [onFileSelect]
   );
+
+  // Глобальный drag and drop на всю страницу
+  useEffect(() => {
+    if (isLoading) return;
+
+    const handleGlobalDragEnter = (e: globalThis.DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current++;
+      
+      // Проверяем, есть ли файлы
+      if (e.dataTransfer?.types.includes('Files')) {
+        setIsGlobalDrag(true);
+      }
+    };
+
+    const handleGlobalDragOver = (e: globalThis.DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'copy';
+      }
+    };
+
+    const handleGlobalDragLeave = (e: globalThis.DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current--;
+      
+      if (dragCounterRef.current === 0) {
+        setIsGlobalDrag(false);
+      }
+    };
+
+    const handleGlobalDrop = (e: globalThis.DragEvent) => {
+      e.preventDefault();
+      setIsGlobalDrag(false);
+      setIsDragOver(false);
+      dragCounterRef.current = 0;
+
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        onFileSelect(files[0]);
+      }
+    };
+
+    document.addEventListener('dragenter', handleGlobalDragEnter);
+    document.addEventListener('dragover', handleGlobalDragOver);
+    document.addEventListener('dragleave', handleGlobalDragLeave);
+    document.addEventListener('drop', handleGlobalDrop);
+
+    return () => {
+      document.removeEventListener('dragenter', handleGlobalDragEnter);
+      document.removeEventListener('dragover', handleGlobalDragOver);
+      document.removeEventListener('dragleave', handleGlobalDragLeave);
+      document.removeEventListener('drop', handleGlobalDrop);
+    };
+  }, [isLoading, onFileSelect]);
 
   const handleFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -133,6 +194,30 @@ export function FileUpload({
     [handleClick]
   );
 
+  // Глобальный обработчик paste для всей страницы (Ctrl+V / Cmd+V)
+  useEffect(() => {
+    const handleGlobalPaste = (e: globalThis.ClipboardEvent) => {
+      if (isLoading) return;
+      
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault();
+            onFileSelect(file);
+            return;
+          }
+        }
+      }
+    };
+
+    document.addEventListener('paste', handleGlobalPaste);
+    return () => document.removeEventListener('paste', handleGlobalPaste);
+  }, [onFileSelect, isLoading]);
+
   // Получить локализованное название формата
   const getFormatName = (format: DataFormat): string => {
     const formatInfo = (t.dataFormats as Record<string, { name: string }>)[format];
@@ -142,8 +227,50 @@ export function FileUpload({
   // Показываем прогресс обработки
   const showProcessing = isLoading && processingState && processingState.step !== 'idle';
 
+  // Глобальный overlay для drag and drop
+  const globalDropOverlay = isGlobalDrag && !isLoading && createPortal(
+    <div 
+      className={styles.globalDropOverlay}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        setIsGlobalDrag(false);
+        setIsDragOver(false);
+        dragCounterRef.current = 0;
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          onFileSelect(files[0]);
+        }
+      }}
+    >
+      <div className={styles.globalDropContent}>
+        <div className={styles.globalDropIcon}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17,8 12,3 7,8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        </div>
+        <p className={styles.globalDropText}>{t.upload.dropHere}</p>
+        <p className={styles.globalDropSubtext}>{t.upload.formats}</p>
+      </div>
+    </div>,
+    document.body
+  );
+
   return (
     <div className={styles.container}>
+      {globalDropOverlay}
       <div
         className={`${styles.dropzone} ${isDragOver ? styles.dragOver : ''} ${
           error ? styles.hasError : ''
@@ -248,6 +375,9 @@ export function FileUpload({
             </p>
             <p className={styles.subText}>
               {t.upload.formats}
+            </p>
+            <p className={styles.pasteHint}>
+              <kbd>Ctrl</kbd>+<kbd>V</kbd> {t.upload.pasteHint}
             </p>
           </div>
         )}

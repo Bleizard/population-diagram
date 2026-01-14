@@ -80,6 +80,44 @@
   transition: color var(--transition-normal);
 }
 
+.pasteHint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 8px 0 0 0;
+  padding: 6px 12px;
+  background: var(--color-bg-hover);
+  border-radius: 6px;
+  transition: 
+    color var(--transition-normal),
+    background-color var(--transition-normal);
+}
+
+.pasteHint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 
+    0 1px 0 1px var(--color-border),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: 
+    background-color var(--transition-normal),
+    border-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
 .loadingContent {
   display: flex;
   flex-direction: column;
@@ -435,4 +473,80 @@
   color: var(--color-text-secondary);
   text-align: center;
   max-width: 300px;
+}
+
+/* Global drop overlay */
+.globalDropOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  animation: overlayFadeIn 0.2s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.globalDropContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 64px;
+  background: var(--color-bg-card);
+  border: 3px dashed var(--color-primary);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: contentBounce 0.3s ease-out;
+}
+
+@keyframes contentBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  70% {
+    transform: scale(1.02) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.globalDropIcon {
+  color: var(--color-primary);
+  animation: iconFloat 1.5s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.globalDropText {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.globalDropSubtext {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
 }

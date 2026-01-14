@@ -6,6 +6,7 @@
   },
   "upload": {
     "dropzone": "Drop file here or click to browse",
+    "dropHere": "Drop file here",
     "formats": "Supported formats: CSV, XLSX, XLS",
     "loading": "Loading file...",
     "supportedFormats": "Supported data formats:",
@@ -17,7 +18,8 @@
     "eurostatFormatDesc": "SDMX format from Eurostat with columns:",
     "or": "or",
     "tryDemo": "Try Demo",
-    "demoHint": "Spain population data 1975–2024 from Eurostat"
+    "demoHint": "Spain population data 1975–2024 from Eurostat",
+    "pasteHint": "to paste from clipboard"
   },
   "toolbar": {
     "loadAnother": "Load another file",

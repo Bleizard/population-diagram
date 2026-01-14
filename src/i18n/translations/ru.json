@@ -6,6 +6,7 @@
   },
   "upload": {
     "dropzone": "Перетащите файл сюда или нажмите для выбора",
+    "dropHere": "Отпустите файл здесь",
     "formats": "Поддерживаемые форматы: CSV, XLSX, XLS",
     "loading": "Загрузка файла...",
     "supportedFormats": "Поддерживаемые форматы данных:",
@@ -17,7 +18,8 @@
     "eurostatFormatDesc": "SDMX формат из Eurostat с колонками:",
     "or": "или",
     "tryDemo": "Демо",
-    "demoHint": "Данные о населении Испании 1975–2024 из Eurostat"
+    "demoHint": "Данные о населении Испании 1975–2024 из Eurostat",
+    "pasteHint": "для вставки из буфера"
   },
   "toolbar": {
     "loadAnother": "Загрузить другой файл",

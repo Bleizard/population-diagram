@@ -6,6 +6,7 @@
   },
   "upload": {
     "dropzone": "Datei hierher ziehen oder klicken zum Auswählen",
+    "dropHere": "Datei hier ablegen",
     "formats": "Unterstützte Formate: CSV, XLSX, XLS",
     "loading": "Datei wird geladen...",
     "supportedFormats": "Unterstützte Datenformate:",
@@ -17,7 +18,8 @@
     "eurostatFormatDesc": "SDMX-Format von Eurostat mit Spalten:",
     "or": "oder",
     "tryDemo": "Demo ansehen",
-    "demoHint": "Bevölkerungsdaten Spaniens 1975–2024 von Eurostat"
+    "demoHint": "Bevölkerungsdaten Spaniens 1975–2024 von Eurostat",
+    "pasteHint": "zum Einfügen aus der Zwischenablage"
   },
   "toolbar": {
     "loadAnother": "Andere Datei laden",
