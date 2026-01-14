@@ -84,20 +84,22 @@ export function EmbedChart({
 
   return (
     <div className={styles.embedContainer}>
-      <PopulationPyramid
-        ref={chartRef}
-        data={currentData}
-        theme={theme}
-        viewMode={viewMode}
-        maxScale={effectiveMaxScale}
-        yAxisInterval={yAxisInterval}
-        customTitle={effectiveTitle}
-        xAxisSplitCount={xAxisSplitCount}
-        showBarLabels={showBarLabels}
-        colorProfile={colorProfile}
-        showMedianLine={showMedianLine}
-        showAsPercentage={showAsPercentage}
-      />
+      <div className={styles.chartWrapper}>
+        <PopulationPyramid
+          ref={chartRef}
+          data={currentData}
+          theme={theme}
+          viewMode={viewMode}
+          maxScale={effectiveMaxScale}
+          yAxisInterval={yAxisInterval}
+          customTitle={effectiveTitle}
+          xAxisSplitCount={xAxisSplitCount}
+          showBarLabels={showBarLabels}
+          colorProfile={colorProfile}
+          showMedianLine={showMedianLine}
+          showAsPercentage={showAsPercentage}
+        />
+      </div>
       {timeSeriesData && currentYear && onYearChange && (
         <div className={styles.embedTimeline}>
           <YearSelector
