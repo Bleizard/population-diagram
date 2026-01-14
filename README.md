@@ -167,9 +167,9 @@ MIT © [Aleksandr Iarkeev](mailto:bleizardwhite@gmail.com)
 
 ## 🔗 Links
 
-- [Live Demo](https://population-pyramid.vercel.app/)
+- [Live Demo](https://bleizard.github.io/population-diagram/)
 - [GitHub Repository](https://github.com/bleizard/population-diagram)
-- [Eurostat API Guide](data/EUROSTAT_API_GUIDE.md)
+- [Eurostat API Guide](EUROSTAT_API_GUIDE.md)
 
 ## 🙏 Acknowledgments
 
