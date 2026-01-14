@@ -19,10 +19,21 @@ const htmlBasePathPlugin = (): Plugin => {
     name: 'html-base-path',
     transformIndexHtml(html: string) {
       // Заменяем абсолютные пути на пути с base path
-      return html.replace(
+      let result = html.replace(
         /href="\/(favicon\.svg|manifest\.json)"/g,
         `href="${basePath}$1"`
       );
+      
+      // Для всех HTML файлов обновляем пути к скриптам и стилям с base path
+      if (basePath !== '/') {
+        // Обновляем пути к скриптам
+        result = result.replace(
+          /(src|href)="\/(assets\/[^"]+)"/g,
+          `$1="${basePath}$2"`
+        );
+      }
+      
+      return result;
     },
   };
 };
@@ -30,13 +41,24 @@ const htmlBasePathPlugin = (): Plugin => {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+      include: '**/*.{jsx,tsx}',
+      babel: {
+        plugins: [],
+      },
+    }),
     htmlBasePathPlugin(),
   ],
   // Base path для GitHub Pages
   base: basePath,
   build: {
     rollupOptions: {
+      // Множественные точки входа: основная страница и embed страница
+      input: {
+        main: './index.html',
+        embed: './embed.html',
+      },
       output: {
         manualChunks: {
           // Выносим тяжёлые библиотеки в отдельные чанки

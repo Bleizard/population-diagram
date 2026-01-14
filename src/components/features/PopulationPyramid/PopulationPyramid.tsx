@@ -1,6 +1,5 @@
-import ReactECharts from 'echarts-for-react/lib/core';
+import ReactECharts from 'echarts-for-react';
 import { useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
-import echarts from '../../../lib/echarts';
 import type { PopulationData, ColorProfile } from '../../../types';
 import type { Theme } from '../../../hooks';
 import type { ViewMode } from '../../common/ViewModeToggle';
@@ -174,7 +173,6 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
       <div className={`${styles.container} ${className || ''}`}>
         <ReactECharts
           ref={chartRef}
-          echarts={echarts}
           option={option}
           style={{ height: chartHeight, width: '100%' }}
           opts={{ renderer: 'svg' }}

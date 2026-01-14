@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useChartSettings } from '../../../hooks';
 import { useI18n } from '../../../i18n';
 import {
@@ -14,6 +14,8 @@ import { ChartCard } from '../ChartCard';
 import { AgeGroupConfigurator } from '../AgeGroupConfigurator';
 import { ChartSettingsPanel, SettingsSection } from '../ChartSettingsPanel';
 import { FullscreenChart } from '../FullscreenChart';
+import { EmbedCodeModal } from '../EmbedCodeModal';
+import { generateSimpleEmbedCode } from '../../../utils/embedCodeGenerator';
 import { ORIGINAL_CHART_ID } from '../../../constants';
 import type { Theme } from '../../../hooks';
 import type { PopulationData, TimeSeriesPopulationData, DataFormat, AgeRangeConfig } from '../../../types';
@@ -43,6 +45,8 @@ export function ChartWorkspace({
   onClearData,
 }: ChartWorkspaceProps) {
   const { t } = useI18n();
+  const [embedCode, setEmbedCode] = useState<string | null>(null);
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
   
   const {
     additionalCharts,
@@ -78,6 +82,35 @@ export function ChartWorkspace({
     const currentData = getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData);
     createGroupedChart(groups, currentData, initialSelectedYear);
   }, [createGroupedChart, getChartData, initialData, timeSeriesData, initialSelectedYear]);
+
+  // Генерация embed кода
+  const handleGetEmbedCode = useCallback((chartId: string) => {
+    const settings = getSettings(chartId);
+    const isOriginal = chartId === ORIGINAL_CHART_ID;
+    const chartData = isOriginal
+      ? getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData)
+      : (() => {
+          const chart = additionalCharts.find(c => c.id === chartId);
+          return chart ? getAggregatedChartData(chart, timeSeriesData, initialData) : null;
+        })();
+    
+    if (!chartData) return;
+
+    const baseUrl = import.meta.env.BASE_URL === '/' 
+      ? window.location.origin 
+      : `${window.location.origin}${import.meta.env.BASE_URL}`.replace(/\/$/, '');
+
+    const code = generateSimpleEmbedCode(
+      chartData,
+      settings,
+      timeSeriesData,
+      theme,
+      baseUrl
+    );
+    
+    setEmbedCode(code);
+    setIsEmbedModalOpen(true);
+  }, [getSettings, getChartData, getAggregatedChartData, initialData, timeSeriesData, additionalCharts, theme]);
 
   // Данные оригинального графика
   const originalChartData = getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData);
@@ -197,6 +230,7 @@ export function ChartWorkspace({
               title={t.chart.originalData}
               onExportSvg={() => exportToSvg(ORIGINAL_CHART_ID, initialData?.title)}
               onFullscreen={() => openFullscreen(ORIGINAL_CHART_ID)}
+              onGetEmbedCode={() => handleGetEmbedCode(ORIGINAL_CHART_ID)}
               onOpenSettings={() => openSettings(ORIGINAL_CHART_ID)}
               onYearChange={(year) => handleYearChange(ORIGINAL_CHART_ID, year)}
               getChartCanvas={createGetChartCanvas(ORIGINAL_CHART_ID)}
@@ -230,6 +264,7 @@ export function ChartWorkspace({
               removable
               onExportSvg={() => exportToSvg(chart.id, chart.data.title)}
               onFullscreen={() => openFullscreen(chart.id)}
+              onGetEmbedCode={() => handleGetEmbedCode(chart.id)}
               onOpenSettings={() => openSettings(chart.id)}
               onRemove={() => removeChart(chart.id)}
               onYearChange={(year) => handleYearChange(chart.id, year)}
@@ -332,6 +367,18 @@ export function ChartWorkspace({
           onClose={closeFullscreen}
           onYearChange={(year) => handleYearChange(fullscreenChartId, year)}
           getChartCanvas={createGetChartCanvas(fullscreenChartId)}
+        />
+      )}
+
+      {/* Модальное окно embed кода */}
+      {embedCode && (
+        <EmbedCodeModal
+          isOpen={isEmbedModalOpen}
+          onClose={() => {
+            setIsEmbedModalOpen(false);
+            setEmbedCode(null);
+          }}
+          embedCode={embedCode}
         />
       )}
     </>

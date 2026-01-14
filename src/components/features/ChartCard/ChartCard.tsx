@@ -36,6 +36,8 @@ interface ChartCardProps {
   onExportSvg: () => void;
   /** Callback для полноэкранного режима */
   onFullscreen: () => void;
+  /** Callback для получения embed кода */
+  onGetEmbedCode?: () => void;
   /** Callback для открытия настроек */
   onOpenSettings: () => void;
   /** Callback для удаления */
@@ -79,6 +81,7 @@ export const ChartCard = forwardRef<PopulationPyramidRef, ChartCardProps>(
       removable = false,
       onExportSvg,
       onFullscreen,
+      onGetEmbedCode,
       onOpenSettings,
       onRemove,
       onYearChange,
@@ -105,6 +108,7 @@ export const ChartCard = forwardRef<PopulationPyramidRef, ChartCardProps>(
             <ChartActionsMenu
               onExportSvg={onExportSvg}
               onFullscreen={onFullscreen}
+              onGetEmbedCode={onGetEmbedCode}
             />
             <SettingsButton onClick={onOpenSettings} />
             {removable && onRemove && (
