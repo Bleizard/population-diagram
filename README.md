@@ -46,6 +46,21 @@ npm run build
 npm run preview
 ```
 
+## 🚀 Deployment
+
+### GitHub Pages
+
+Проект настроен для автоматического деплоя на GitHub Pages через GitHub Actions.
+
+**Быстрый старт:**
+1. Включи GitHub Pages в Settings → Pages (источник: GitHub Actions)
+2. Запушь изменения в `main` ветку
+3. GitHub Actions автоматически задеплоит сайт
+
+**Подробная инструкция:** см. [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)
+
+**Live Demo:** [View on GitHub Pages](https://bleizard.github.io/population-diagram/)
+
 ## 📋 Supported Data Formats
 
 ### 1. Simple Format
