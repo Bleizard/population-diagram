@@ -1,4 +1,4 @@
-import { useCallback, lazy, Suspense } from 'react';
+import { useCallback, lazy, Suspense, useEffect } from 'react';
 import { usePopulationData, useTheme, useLanguage } from './hooks';
 import { I18nContext } from './i18n';
 import { FileUpload } from './components/common';
@@ -47,6 +47,17 @@ function App() {
       console.error('Failed to load demo file:', err);
     }
   }, [loadFile]);
+
+  // Динамическое обновление title для SEO
+  useEffect(() => {
+    const baseTitle = 'Population Pyramid Builder';
+    if (initialData) {
+      const dataTitle = initialData.title || 'Population Data';
+      document.title = `${dataTitle} - ${baseTitle}`;
+    } else {
+      document.title = `${baseTitle} - Visualize Age-Sex Structure from CSV/Excel`;
+    }
+  }, [initialData]);
 
   return (
     <I18nContext.Provider value={{ language, t, setLanguage }}>

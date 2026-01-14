@@ -1,0 +1,11 @@
+# robots.txt for Population Pyramid Builder
+
+User-agent: *
+Allow: /
+
+# Disallow admin or private areas (if any)
+# Disallow: /admin/
+
+# Sitemap location
+Sitemap: https://population-pyramid.vercel.app/sitemap.xml
+

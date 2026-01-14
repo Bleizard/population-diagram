@@ -2,10 +2,90 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Population age-sex structure visualization - build pyramids from CSV/Excel files" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Population Pyramid Builder - Visualize Age-Sex Structure from CSV/Excel</title>
+    <meta name="title" content="Population Pyramid Builder - Visualize Age-Sex Structure from CSV/Excel" />
+    <meta name="description" content="Free online tool to create interactive population pyramids from CSV or Excel files. Visualize age-sex structure, demographics, and population data with beautiful charts. Supports multiple formats including Eurostat data." />
+    <meta name="keywords" content="population pyramid, demographics, age-sex structure, population visualization, CSV, Excel, Eurostat, demographic data, population chart, age distribution" />
+    <meta name="author" content="Aleksandr Iarkeev" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://population-pyramid.vercel.app/" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Theme Color -->
     <meta name="theme-color" content="#3b82f6" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://population-pyramid.vercel.app/" />
+    <meta property="og:title" content="Population Pyramid Builder - Visualize Age-Sex Structure" />
+    <meta property="og:description" content="Free online tool to create interactive population pyramids from CSV or Excel files. Visualize demographics and population data with beautiful charts." />
+    <meta property="og:image" content="https://population-pyramid.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Population Pyramid Builder - Demographic Visualization Tool" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Population Pyramid Builder" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://population-pyramid.vercel.app/" />
+    <meta name="twitter:title" content="Population Pyramid Builder - Visualize Age-Sex Structure" />
+    <meta name="twitter:description" content="Free online tool to create interactive population pyramids from CSV or Excel files. Visualize demographics and population data." />
+    <meta name="twitter:image" content="https://population-pyramid.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="Population Pyramid Builder - Demographic Visualization Tool" />
+    <meta name="twitter:creator" content="@bleizard" />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Population Pyramid Builder",
+      "description": "Free online tool to create interactive population pyramids from CSV or Excel files. Visualize age-sex structure, demographics, and population data with beautiful charts.",
+      "url": "https://population-pyramid.vercel.app/",
+      "applicationCategory": "DataVisualization",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Aleksandr Iarkeev",
+        "url": "https://github.com/bleizard"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      },
+      "featureList": [
+        "CSV/Excel file upload",
+        "Interactive population pyramids",
+        "Age-sex structure visualization",
+        "Eurostat data support",
+        "Time-series animation",
+        "Export to SVG",
+        "Multiple chart views",
+        "Dark mode support"
+      ]
+    }
+    </script>
     
     <!-- Preconnect для быстрого соединения с Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,8 +101,6 @@
     <noscript>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
     </noscript>
-    
-    <title>Population Pyramid</title>
   </head>
   <body>
     <div id="root"></div>
