@@ -10,7 +10,7 @@ export default defineConfig({
         manualChunks: {
           // Выносим тяжёлые библиотеки в отдельные чанки
           'vendor-react': ['react', 'react-dom'],
-          'vendor-echarts': ['echarts', 'echarts-for-react'],
+          'vendor-echarts': ['echarts/core', 'echarts/charts', 'echarts/components', 'echarts/renderers', 'echarts-for-react'],
           'vendor-xlsx': ['xlsx'],
           'vendor-parsers': ['papaparse'],
         },

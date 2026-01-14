@@ -1,5 +1,7 @@
-/* Подключение шрифтов */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+/* 
+ * Шрифты загружаются через preload в index.html
+ * для устранения render-blocking и оптимизации FCP
+ */
 
 /* CSS Reset и базовые стили */
 *,
@@ -19,6 +21,11 @@ html {
 }
 
 body {
+  /* 
+   * System font stack как fallback — текст виден мгновенно.
+   * Google Fonts загружаются с display=swap (в index.html),
+   * что заменяет шрифт после загрузки без блокировки рендеринга.
+   */
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
     Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;

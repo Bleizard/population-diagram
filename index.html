@@ -1,12 +1,28 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Визуализация половозрастной структуры населения - построение пирамид из CSV/Excel файлов" />
+    <meta name="description" content="Population age-sex structure visualization - build pyramids from CSV/Excel files" />
     <meta name="theme-color" content="#3b82f6" />
-    <title>Population Pyramid - Визуализация населения</title>
+    
+    <!-- Preconnect для быстрого соединения с Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Preload критичных шрифтов (font-display: swap уже включён) -->
+    <link 
+      rel="preload" 
+      as="style" 
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
+    </noscript>
+    
+    <title>Population Pyramid</title>
   </head>
   <body>
     <div id="root"></div>
