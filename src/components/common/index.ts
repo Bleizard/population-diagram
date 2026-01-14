@@ -1,6 +1,7 @@
 // Barrel export для common компонентов
 export { ChartTitleInput } from './ChartTitleInput';
 export { ColorProfileSelector } from './ColorProfileSelector';
+export { ErrorBoundary } from './ErrorBoundary';
 export { FileUpload } from './FileUpload';
 export { LanguageSelector } from './LanguageSelector';
 export { ScaleConfigurator, calculateScale } from './ScaleConfigurator';

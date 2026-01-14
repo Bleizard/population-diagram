@@ -1,7 +1,7 @@
 import { useCallback, lazy, Suspense, useEffect } from 'react';
 import { usePopulationData, useTheme, useLanguage } from './hooks';
 import { I18nContext } from './i18n';
-import { FileUpload } from './components/common';
+import { FileUpload, ErrorBoundary } from './components/common';
 import { AppHeader, AppFooter } from './components/layout';
 import styles from './App.module.css';
 
@@ -60,8 +60,9 @@ function App() {
   }, [initialData]);
 
   return (
-    <I18nContext.Provider value={{ language, t, setLanguage }}>
-      <div className={styles.app}>
+    <ErrorBoundary>
+      <I18nContext.Provider value={{ language, t, setLanguage }}>
+        <div className={styles.app}>
         <div className={styles.backgroundPattern} aria-hidden="true" />
         
         <AppHeader
@@ -97,8 +98,9 @@ function App() {
         </main>
 
         <AppFooter />
-      </div>
-    </I18nContext.Provider>
+        </div>
+      </I18nContext.Provider>
+    </ErrorBoundary>
   );
 }
 
