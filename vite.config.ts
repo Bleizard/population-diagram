@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // Определяем base path
-const getBasePath = () => {
+const getBasePath = (): string => {
   if (process.env.GITHUB_PAGES === 'true') {
     return process.env.GITHUB_REPOSITORY 
       ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/` 
@@ -13,24 +13,25 @@ const getBasePath = () => {
 
 const basePath = getBasePath();
 
+// Плагин для замены абсолютных путей в HTML на пути с base
+const htmlBasePathPlugin = (): Plugin => {
+  return {
+    name: 'html-base-path',
+    transformIndexHtml(html: string) {
+      // Заменяем абсолютные пути на пути с base path
+      return html.replace(
+        /href="\/(favicon\.svg|manifest\.json)"/g,
+        `href="${basePath}$1"`
+      );
+    },
+  };
+};
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    // Плагин для замены абсолютных путей в HTML на пути с base
-    {
-      name: 'html-base-path',
-      transformIndexHtml: {
-        enforce: 'pre',
-        transform(html) {
-          // Заменяем абсолютные пути на пути с base path
-          return html.replace(
-            /href="\/(favicon\.svg|manifest\.json)"/g,
-            `href="${basePath}$1"`
-          );
-        },
-      },
-    },
+    htmlBasePathPlugin(),
   ],
   // Base path для GitHub Pages
   base: basePath,
