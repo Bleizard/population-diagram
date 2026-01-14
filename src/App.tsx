@@ -39,7 +39,9 @@ function App() {
   // Загрузка демо-файла
   const loadDemo = useCallback(async () => {
     try {
-      const response = await fetch('/examples/spain-1975-2024.csv');
+      // Используем import.meta.env.BASE_URL для корректной работы на GitHub Pages
+      const baseUrl = import.meta.env.BASE_URL;
+      const response = await fetch(`${baseUrl}examples/spain-1975-2024.csv`);
       const blob = await response.blob();
       const file = new File([blob], 'spain-1975-2024.csv', { type: 'text/csv' });
       loadFile(file);

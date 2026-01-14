@@ -1,8 +1,8 @@
 import GIF from 'gif.js';
 
 // Копируем worker из node_modules в public при сборке
-// Worker будет загружен из /gif.worker.js
-const WORKER_URL = '/gif.worker.js';
+// Worker будет загружен с учётом base path для GitHub Pages
+const WORKER_URL = `${import.meta.env.BASE_URL}gif.worker.js`;
 
 export interface GifExportOptions {
   /** Массив годов для анимации */
