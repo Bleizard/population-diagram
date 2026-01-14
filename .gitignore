@@ -22,7 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-data/
 
 # Lighthouse reports
 lighthouse-*.json
