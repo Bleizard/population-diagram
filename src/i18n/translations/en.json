@@ -21,6 +21,8 @@
     "or": "or",
     "tryDemo": "Try Demo",
     "demoHint": "Spain population data 1975–2024 from Eurostat",
+    "totalOnlyFormat": "Total only",
+    "totalOnlyFormatDesc": "Format without gender split, with columns:",
     "pasteHint": "to paste from clipboard"
   },
   "toolbar": {
@@ -127,7 +129,8 @@
     "excelParseError": "Excel parsing error",
     "unknownFileFormat": "Unknown file format",
     "unknownError": "Unknown error",
-    "fileLoadError": "Error loading file"
+    "fileLoadError": "Error loading file",
+    "totalColumnNotFound": "Total column not found (total, population, value)"
   },
   "dataFormats": {
     "simple": {
@@ -141,6 +144,14 @@
     "eurostat": {
       "name": "Eurostat",
       "description": "SDMX format from Eurostat database"
+    },
+    "simple-total": {
+      "name": "Simple (total)",
+      "description": "Basic format with age and total population"
+    },
+    "timeseries-total": {
+      "name": "Time Series (total)",
+      "description": "Total population data across multiple years"
     }
   },
   "processing": {

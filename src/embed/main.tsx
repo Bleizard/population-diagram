@@ -15,6 +15,7 @@ interface CompactPopulationData {
   date?: string;
   source?: string;
   ageGroups: CompactAgeGroup[];
+  hasGenderData?: boolean;
 }
 
 interface CompactTimeSeriesData {
@@ -41,15 +42,13 @@ interface EmbedData {
  * Восстанавливает PopulationData из компактного формата
  */
 function expandPopulationData(compact: CompactPopulationData): PopulationData {
-  return {
+  const result: PopulationData = {
     title: compact.title,
     date: compact.date,
     source: compact.source,
     ageGroups: compact.ageGroups.map(([ageNumeric, male, female]) => {
-      // Восстанавливаем age из ageNumeric
-      // Для точности нужно было бы сохранять age отдельно, но для экономии места используем ageNumeric
-      const age = ageNumeric === 0 ? '0' : 
-                  ageNumeric < 100 ? String(ageNumeric) : 
+      const age = ageNumeric === 0 ? '0' :
+                  ageNumeric < 100 ? String(ageNumeric) :
                   '100+';
       return {
         age,
@@ -59,6 +58,10 @@ function expandPopulationData(compact: CompactPopulationData): PopulationData {
       };
     }),
   };
+  if (compact.hasGenderData === false) {
+    result.hasGenderData = false;
+  }
+  return result;
 }
 
 /**
@@ -221,7 +224,7 @@ function EmbedApp() {
         timeSeriesData={embedData.timeSeriesData}
         selectedYear={selectedYear}
         theme={embedData.theme || 'light'}
-        viewMode={embedData.settings.viewMode}
+        viewMode={embedData.data.hasGenderData === false ? 'combined' : embedData.settings.viewMode}
         maxScale={embedData.settings.scaleCustomValue}
         yAxisInterval={embedData.settings.yAxisLabelMode === 'all' ? 0 : 'auto'}
         customTitle={embedData.settings.customTitle}

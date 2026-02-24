@@ -21,6 +21,8 @@
     "or": "или",
     "tryDemo": "Демо",
     "demoHint": "Данные о населении Испании 1975–2024 из Eurostat",
+    "totalOnlyFormat": "Только общее",
+    "totalOnlyFormatDesc": "Формат без деления по полу, с колонками:",
     "pasteHint": "для вставки из буфера"
   },
   "toolbar": {
@@ -127,7 +129,8 @@
     "excelParseError": "Ошибка парсинга Excel",
     "unknownFileFormat": "Неизвестный формат файла",
     "unknownError": "Неизвестная ошибка",
-    "fileLoadError": "Ошибка при загрузке файла"
+    "fileLoadError": "Ошибка при загрузке файла",
+    "totalColumnNotFound": "Колонка общего количества не найдена (total, population, value)"
   },
   "dataFormats": {
     "simple": {
@@ -141,6 +144,14 @@
     "eurostat": {
       "name": "Eurostat",
       "description": "Формат SDMX из базы данных Eurostat"
+    },
+    "simple-total": {
+      "name": "Простой (общий)",
+      "description": "Базовый формат с возрастом и общим населением"
+    },
+    "timeseries-total": {
+      "name": "Временной ряд (общий)",
+      "description": "Данные об общем населении за несколько лет"
     }
   },
   "processing": {

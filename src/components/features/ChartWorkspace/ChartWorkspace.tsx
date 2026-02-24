@@ -284,12 +284,14 @@ export function ChartWorkspace({
               />
             </SettingsSection>
             
-            <SettingsSection title={t.settings.displayFormat}>
-              <ViewModeToggle 
-                mode={currentSettings.viewMode} 
-                onChange={(value) => updateSettings(settingsOpenFor, { viewMode: value })} 
-              />
-            </SettingsSection>
+            {settingsChartData?.hasGenderData !== false && (
+              <SettingsSection title={t.settings.displayFormat}>
+                <ViewModeToggle
+                  mode={currentSettings.viewMode}
+                  onChange={(value) => updateSettings(settingsOpenFor, { viewMode: value })}
+                />
+              </SettingsSection>
+            )}
             
             <SettingsSection title={t.settings.xAxisScale}>
               <ScaleConfigurator

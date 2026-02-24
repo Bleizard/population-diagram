@@ -105,7 +105,7 @@ export function FullscreenChart({
             data={data}
             sourceDataForMedian={sourceDataForMedian}
             theme={theme}
-            viewMode={settings.viewMode}
+            viewMode={data.hasGenderData === false ? 'combined' : settings.viewMode}
             maxScale={effectiveScale}
             yAxisInterval={yAxisInterval}
             customTitle={settings.customTitle}

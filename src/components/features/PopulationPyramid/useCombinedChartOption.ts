@@ -34,6 +34,7 @@ interface UseCombinedChartOptionParams {
   medianAge: number;
   theme: Theme;
   t: Translations;
+  hasGenderData?: boolean;
 }
 
 /**
@@ -56,6 +57,7 @@ export function useCombinedChartOption({
   medianAge,
   theme,
   t,
+  hasGenderData,
 }: UseCombinedChartOptionParams): EChartsOption {
   return useMemo(() => {
     const ageLabels = data.ageGroups.map((group) => group.age);
@@ -95,6 +97,13 @@ export function useCombinedChartOption({
           ? `${toPercent(val, totalPopulation).toFixed(2)}%`
           : formatPopulation(val);
       
+      const genderBreakdown = hasGenderData !== false
+        ? `<div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${colors.grid}; font-size: 0.875em; color: ${colors.textSecondary};">
+            <div>${t.common.males}: ${formatVal(ageGroup.male)}</div>
+            <div>${t.common.females}: ${formatVal(ageGroup.female)}</div>
+          </div>`
+        : '';
+
       return `
         <div style="font-family: 'DM Sans', sans-serif; padding: 4px 0; color: ${colors.text};">
           <div style="font-weight: 600; margin-bottom: 8px;">${t.common.age}: ${age}</div>
@@ -102,10 +111,7 @@ export function useCombinedChartOption({
             <span style="display: inline-block; width: 12px; height: 12px; background: ${colors.total}; border-radius: 2px;"></span>
             <span>${t.common.total}: ${formatVal(rawTotal)}</span>
           </div>
-          <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${colors.grid}; font-size: 0.875em; color: ${colors.textSecondary};">
-            <div>${t.common.males}: ${formatVal(ageGroup.male)}</div>
-            <div>${t.common.females}: ${formatVal(ageGroup.female)}</div>
-          </div>
+          ${genderBreakdown}
         </div>
       `;
     };
@@ -174,6 +180,6 @@ export function useCombinedChartOption({
   }, [
     data, metadata, colors, maxScale, yAxisInterval, effectiveTitle,
     dynamicBarHeight, xAxisSplitCount, showBarLabels, showAsPercentage,
-    totalPopulation, showMedianLine, medianAgeIndex, medianAge, theme, t
+    totalPopulation, showMedianLine, medianAgeIndex, medianAge, theme, t, hasGenderData
   ]);
 }

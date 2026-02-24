@@ -37,13 +37,17 @@ interface CompactTimeSeriesData {
 /**
  * Преобразует PopulationData в компактный формат
  */
-function compactPopulationData(data: PopulationData): CompactPopulationData {
-  return {
+function compactPopulationData(data: PopulationData): CompactPopulationData & { hasGenderData?: boolean } {
+  const result: CompactPopulationData & { hasGenderData?: boolean } = {
     title: data.title,
     date: data.date,
     source: data.source,
     ageGroups: data.ageGroups.map(g => [g.ageNumeric, g.male, g.female] as CompactAgeGroup),
   };
+  if (data.hasGenderData === false) {
+    result.hasGenderData = false;
+  }
+  return result;
 }
 
 

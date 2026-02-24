@@ -21,6 +21,8 @@
     "or": "ou",
     "tryDemo": "Ver demo",
     "demoHint": "Dados da população da Espanha 1975–2024 do Eurostat",
+    "totalOnlyFormat": "Apenas total",
+    "totalOnlyFormatDesc": "Formato sem divisão por sexo, com colunas:",
     "pasteHint": "para colar da área de transferência"
   },
   "toolbar": {
@@ -127,7 +129,8 @@
     "excelParseError": "Erro ao analisar Excel",
     "unknownFileFormat": "Formato de arquivo desconhecido",
     "unknownError": "Erro desconhecido",
-    "fileLoadError": "Erro ao carregar o arquivo"
+    "fileLoadError": "Erro ao carregar o arquivo",
+    "totalColumnNotFound": "Coluna de total não encontrada (total, population, value)"
   },
   "dataFormats": {
     "simple": {
@@ -141,6 +144,14 @@
     "eurostat": {
       "name": "Eurostat",
       "description": "Formato SDMX do banco de dados Eurostat"
+    },
+    "simple-total": {
+      "name": "Simples (total)",
+      "description": "Formato básico com idade e população total"
+    },
+    "timeseries-total": {
+      "name": "Série temporal (total)",
+      "description": "Dados de população total ao longo de vários anos"
     }
   },
   "processing": {

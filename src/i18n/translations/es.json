@@ -21,6 +21,8 @@
     "or": "o",
     "tryDemo": "Ver demo",
     "demoHint": "Datos de población de España 1975–2024 de Eurostat",
+    "totalOnlyFormat": "Solo total",
+    "totalOnlyFormatDesc": "Formato sin división por sexo, con columnas:",
     "pasteHint": "para pegar desde el portapapeles"
   },
   "toolbar": {
@@ -127,7 +129,8 @@
     "excelParseError": "Error al analizar Excel",
     "unknownFileFormat": "Formato de archivo desconocido",
     "unknownError": "Error desconocido",
-    "fileLoadError": "Error al cargar el archivo"
+    "fileLoadError": "Error al cargar el archivo",
+    "totalColumnNotFound": "Columna de total no encontrada (total, population, value)"
   },
   "dataFormats": {
     "simple": {
@@ -141,6 +144,14 @@
     "eurostat": {
       "name": "Eurostat",
       "description": "Formato SDMX de la base de datos Eurostat"
+    },
+    "simple-total": {
+      "name": "Simple (total)",
+      "description": "Formato básico con edad y población total"
+    },
+    "timeseries-total": {
+      "name": "Serie temporal (total)",
+      "description": "Datos de población total a lo largo de varios años"
     }
   },
   "processing": {

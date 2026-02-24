@@ -164,6 +164,7 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
       medianAge,
       theme,
       t,
+      hasGenderData: data.hasGenderData,
     });
 
     const option = viewMode === 'split' ? splitOption : combinedOption;
@@ -185,7 +186,7 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
                 <span className={styles.totalLabel}>{t.common.total}:</span>
                 <span className={styles.totalValue}>{formatPopulation(totals.total)}</span>
               </div>
-              {viewMode === 'split' && (
+              {viewMode === 'split' && data.hasGenderData !== false && (
                 <>
                   <div className={styles.totalItem}>
                     <span className={styles.totalDot} style={{ background: colors.male }} />

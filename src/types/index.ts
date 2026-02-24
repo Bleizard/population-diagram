@@ -10,6 +10,8 @@ export type {
   ParseResult,
   RawPopulationRow,
   RawTimeSeriesRow,
+  RawTotalOnlyRow,
+  RawTimeSeriesTotalRow,
   RawEurostatRow,
   TimeSeriesPopulationData,
   ProcessingStep,

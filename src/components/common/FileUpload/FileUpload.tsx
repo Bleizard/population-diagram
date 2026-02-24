@@ -5,7 +5,7 @@ import { useI18n } from '../../../i18n';
 import type { ProcessingState, DataFormat } from '../../../types';
 import styles from './FileUpload.module.css';
 
-type FormatTab = 'simple' | 'timeseries' | 'eurostat';
+type FormatTab = 'simple' | 'timeseries' | 'eurostat' | 'simple-total';
 
 interface FileUploadProps {
   /** Callback при выборе файла */
@@ -440,6 +440,13 @@ export function FileUpload({
               >
                 {t.upload.eurostatFormat}
               </button>
+              <button
+                type="button"
+                className={`${styles.tab} ${activeTab === 'simple-total' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('simple-total')}
+              >
+                {t.upload.totalOnlyFormat}
+              </button>
             </div>
 
             {/* Tab content */}
@@ -483,6 +490,21 @@ export function FileUpload({
 Y0,M,FR,2020,367500
 Y0,F,FR,2020,351200
 Y1,M,FR,2020,372800
+...`}
+                  </pre>
+                </>
+              )}
+
+              {activeTab === 'simple-total' && (
+                <>
+                  <p className={styles.formatDesc}>
+                    {t.upload.totalOnlyFormatDesc} <code>age</code>, <code>total</code> / <code>population</code> / <code>value</code>
+                  </p>
+                  <pre className={styles.example}>
+{`age,total
+0,1740000
+1,1734000
+2,1721000
 ...`}
                   </pre>
                 </>

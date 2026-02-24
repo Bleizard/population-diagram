@@ -1,11 +1,12 @@
 import Papa from 'papaparse';
-import type { RawPopulationRow } from '../../types';
+import type { RawPopulationRow, RawTotalOnlyRow } from '../../types';
 
 // Коды ошибок для перевода
 export const ERROR_CODES = {
   AGE_COLUMN_NOT_FOUND: 'AGE_COLUMN_NOT_FOUND',
   MALE_COLUMN_NOT_FOUND: 'MALE_COLUMN_NOT_FOUND',
   FEMALE_COLUMN_NOT_FOUND: 'FEMALE_COLUMN_NOT_FOUND',
+  TOTAL_COLUMN_NOT_FOUND: 'TOTAL_COLUMN_NOT_FOUND',
   CSV_PARSE_ERROR: 'CSV_PARSE_ERROR',
   EXCEL_PARSE_ERROR: 'EXCEL_PARSE_ERROR',
   UNKNOWN_FILE_FORMAT: 'UNKNOWN_FILE_FORMAT',
@@ -67,6 +68,63 @@ function normalizeColumnNames(
     }
 
     return { age, male, female };
+  });
+}
+
+/**
+ * Парсит CSV файл с total-only данными (без деления по полу)
+ */
+export async function parseTotalOnlyCSV(file: File): Promise<RawTotalOnlyRow[]> {
+  return new Promise((resolve, reject) => {
+    Papa.parse<Record<string, string | number>>(file, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      complete: (results) => {
+        try {
+          const rows = normalizeTotalOnlyColumnNames(results.data);
+          resolve(rows);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: () => {
+        reject(new Error(ERROR_CODES.CSV_PARSE_ERROR));
+      },
+    });
+  });
+}
+
+/**
+ * Нормализует названия колонок для total-only формата
+ */
+function normalizeTotalOnlyColumnNames(
+  data: Record<string, string | number>[]
+): RawTotalOnlyRow[] {
+  const ageAliases = ['age', 'возраст', 'Age', 'AGE', 'Возраст'];
+  const totalAliases = ['total', 'population', 'value', 'count', 'Total', 'Population', 'Value', 'число', 'население', 'всего', 'Население', 'Всего'];
+
+  return data.map((row) => {
+    const age = findColumnValue(row, ageAliases);
+    const total = findColumnValue(row, totalAliases);
+
+    if (age === undefined) {
+      throw new Error(ERROR_CODES.AGE_COLUMN_NOT_FOUND);
+    }
+    if (total === undefined) {
+      throw new Error(ERROR_CODES.TOTAL_COLUMN_NOT_FOUND);
+    }
+
+    const result: RawTotalOnlyRow = { age, total };
+
+    // Сохраняем year если есть (для timeseries-total)
+    const yearAliases = ['year', 'Year', 'YEAR', 'год', 'Год'];
+    const year = findColumnValue(row, yearAliases);
+    if (year !== undefined) {
+      (result as Record<string, unknown>)['year'] = Number(year);
+    }
+
+    return result;
   });
 }
 

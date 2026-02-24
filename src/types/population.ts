@@ -24,6 +24,8 @@ export interface PopulationData {
   source?: string;
   /** Данные по возрастным группам */
   ageGroups: PopulationAgeGroup[];
+  /** Есть ли разделение по полу (undefined/true = есть, false = только total) */
+  hasGenderData?: boolean;
 }
 
 /**
@@ -73,7 +75,7 @@ export type FileFormat = FileExtension;
 /**
  * Формат данных (структура)
  */
-export type DataFormat = 'simple' | 'timeseries' | 'eurostat' | 'unknown';
+export type DataFormat = 'simple' | 'timeseries' | 'eurostat' | 'simple-total' | 'timeseries-total' | 'unknown';
 
 /**
  * Описание формата данных
@@ -121,6 +123,21 @@ export interface RawTimeSeriesRow extends RawPopulationRow {
 }
 
 /**
+ * Сырые данные total-only формата (без деления по полу)
+ */
+export interface RawTotalOnlyRow {
+  age: string | number;
+  total: string | number;
+}
+
+/**
+ * Сырые данные total-only с годом (формат timeseries-total)
+ */
+export interface RawTimeSeriesTotalRow extends RawTotalOnlyRow {
+  year: number;
+}
+
+/**
  * Сырые данные Eurostat
  */
 export interface RawEurostatRow {
@@ -145,6 +162,8 @@ export interface TimeSeriesPopulationData {
   years: number[];
   /** Данные по годам */
   dataByYear: Record<number, PopulationAgeGroup[]>;
+  /** Есть ли разделение по полу (undefined/true = есть, false = только total) */
+  hasGenderData?: boolean;
 }
 
 /**

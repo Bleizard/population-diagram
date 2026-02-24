@@ -47,6 +47,7 @@ function translateErrorCode(code: string, t: Translations): string {
     [ERROR_CODES.FEMALE_COLUMN_NOT_FOUND]: t.errors.femaleColumnNotFound,
     [ERROR_CODES.CSV_PARSE_ERROR]: t.errors.csvParseError,
     [ERROR_CODES.EXCEL_PARSE_ERROR]: t.errors.excelParseError,
+    [ERROR_CODES.TOTAL_COLUMN_NOT_FOUND]: t.errors.totalColumnNotFound,
     [ERROR_CODES.UNKNOWN_FILE_FORMAT]: t.errors.unknownFileFormat,
   };
   return errorMap[code] || code;
@@ -191,12 +192,16 @@ export function usePopulationData({ t }: UsePopulationDataProps): UsePopulationD
     // Обновляем data для текущего года
     const yearData = timeSeriesData.dataByYear[year];
     if (yearData) {
-      setData({
+      const newData: PopulationData = {
         title: timeSeriesData.title,
         date: String(year),
         source: timeSeriesData.source,
         ageGroups: yearData,
-      });
+      };
+      if (timeSeriesData.hasGenderData === false) {
+        newData.hasGenderData = false;
+      }
+      setData(newData);
     }
   }, [timeSeriesData]);
 
