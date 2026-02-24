@@ -2,7 +2,9 @@
   "app": {
     "title": "Pyramide des âges",
     "subtitle": "Visualisation de la structure par âge et sexe",
-    "footer": "Constructeur de pyramides des âges"
+    "footer": "Constructeur de pyramides des âges",
+    "footerFreeToUse": "Gratuit pour un usage personnel et commercial",
+    "footerSourceCode": "Code source sur GitHub"
   },
   "upload": {
     "dropzone": "Déposez le fichier ici ou cliquez pour sélectionner",

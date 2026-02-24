@@ -1,8 +1,11 @@
 # Population Pyramid Builder
 
-Free online tool to create interactive population pyramids from CSV or Excel files. Visualize age-sex structure, demographics, and population data with beautiful charts.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue)](https://bleizard.github.io/population-diagram/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-![Population Pyramid Preview](docs/preview.png)
+**[🇷🇺 Русская версия](README.ru.md)**
+
+Free online tool to create interactive population pyramids from CSV or Excel files. Visualize age-sex structure, demographics, and population data with beautiful charts.
 
 ## 🚀 Features
 
@@ -50,14 +53,14 @@ npm run preview
 
 ### GitHub Pages
 
-Проект настроен для автоматического деплоя на GitHub Pages через GitHub Actions.
+The project is configured for automatic deployment to GitHub Pages via GitHub Actions.
 
-**Быстрый старт:**
-1. Включи GitHub Pages в Settings → Pages (источник: GitHub Actions)
-2. Запушь изменения в `main` ветку
-3. GitHub Actions автоматически задеплоит сайт
+**Quick start:**
+1. Enable GitHub Pages in Settings → Pages (source: GitHub Actions)
+2. Push changes to the `main` branch
+3. GitHub Actions will automatically deploy the site
 
-**Подробная инструкция:** см. [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)
+**Detailed guide:** see [GITHUB_PAGES_SETUP.md](./GITHUB_PAGES_SETUP.md)
 
 **Live Demo:** [View on GitHub Pages](https://bleizard.github.io/population-diagram/)
 

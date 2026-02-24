@@ -2,7 +2,9 @@
   "app": {
     "title": "Pirámide poblacional",
     "subtitle": "Visualización de la estructura por edad y sexo",
-    "footer": "Constructor de pirámides poblacionales"
+    "footer": "Constructor de pirámides poblacionales",
+    "footerFreeToUse": "Gratis para uso personal y comercial",
+    "footerSourceCode": "Código fuente en GitHub"
   },
   "upload": {
     "dropzone": "Arrastra el archivo aquí o haz clic para seleccionar",

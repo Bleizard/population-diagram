@@ -2,7 +2,9 @@
   "app": {
     "title": "Bevölkerungspyramide",
     "subtitle": "Visualisierung der Alters- und Geschlechtsstruktur",
-    "footer": "Bevölkerungspyramiden-Generator"
+    "footer": "Bevölkerungspyramiden-Generator",
+    "footerFreeToUse": "Kostenlos für private und kommerzielle Nutzung",
+    "footerSourceCode": "Quellcode auf GitHub"
   },
   "upload": {
     "dropzone": "Datei hierher ziehen oder klicken zum Auswählen",

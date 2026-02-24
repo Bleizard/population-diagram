@@ -2,7 +2,9 @@
   "app": {
     "title": "Population Pyramid",
     "subtitle": "Population age-sex structure visualization",
-    "footer": "Population Pyramid Builder"
+    "footer": "Population Pyramid Builder",
+    "footerFreeToUse": "Free to use for personal and commercial purposes",
+    "footerSourceCode": "Source code on GitHub"
   },
   "upload": {
     "dropzone": "Drop file here or click to browse",

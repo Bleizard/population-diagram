@@ -16,7 +16,16 @@ export function AppFooter() {
           Aleksandr Iarkeev
         </a>
       </p>
+      <p className={styles.sub}>
+        {t.app.footerFreeToUse} •{' '}
+        <a
+          href="https://github.com/bleizard/population-diagram"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t.app.footerSourceCode}
+        </a>
+      </p>
     </footer>
   );
 }
-
