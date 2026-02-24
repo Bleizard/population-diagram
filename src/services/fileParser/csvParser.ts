@@ -121,7 +121,7 @@ function normalizeTotalOnlyColumnNames(
     const yearAliases = ['year', 'Year', 'YEAR', 'год', 'Год'];
     const year = findColumnValue(row, yearAliases);
     if (year !== undefined) {
-      (result as Record<string, unknown>)['year'] = Number(year);
+      (result as unknown as Record<string, unknown>)['year'] = Number(year);
     }
 
     return result;

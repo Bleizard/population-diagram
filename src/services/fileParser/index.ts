@@ -300,7 +300,7 @@ function transformTimeSeriesTotalOnlyData(rawData: RawTotalOnlyRow[], fileName: 
     // year может быть в поле row, нужно извлечь из raw данных
     // parseTotalOnlyCSV возвращает RawTotalOnlyRow, но для timeseries у нас есть year в исходных данных
     // Здесь row может содержать year как дополнительное поле (из CSV парсера с dynamicTyping)
-    const year = (row as Record<string, unknown>)['year'] as number;
+    const year = (row as unknown as Record<string, unknown>)['year'] as number;
     if (year != null) {
       if (!yearMap[year]) yearMap[year] = [];
       yearMap[year].push(row);

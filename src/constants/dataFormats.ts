@@ -43,6 +43,32 @@ export const DATA_FORMATS: Record<Exclude<DataFormat, 'unknown'>, DataFormatInfo
       ['...', '...', '...', '...', '...', '...', '...'],
     ],
   },
+  'simple-total': {
+    format: 'simple-total',
+    name: 'Simple (total)',
+    description: 'Basic format with age and total population',
+    requiredColumns: ['age', 'total'],
+    exampleRows: [
+      ['age', 'total'],
+      ['0', '880000'],
+      ['1', '890000'],
+      ['2', '900000'],
+      ['...', '...'],
+    ],
+  },
+  'timeseries-total': {
+    format: 'timeseries-total',
+    name: 'Time Series (total)',
+    description: 'Total population data across multiple years',
+    requiredColumns: ['year', 'age', 'total'],
+    exampleRows: [
+      ['year', 'age', 'total'],
+      ['2020', '0', '880000'],
+      ['2020', '1', '890000'],
+      ['2021', '0', '876000'],
+      ['...', '...', '...'],
+    ],
+  },
 };
 
 /**
@@ -50,8 +76,10 @@ export const DATA_FORMATS: Record<Exclude<DataFormat, 'unknown'>, DataFormatInfo
  */
 export const FORMAT_ORDER: Array<Exclude<DataFormat, 'unknown'>> = [
   'simple',
-  'timeseries', 
+  'timeseries',
   'eurostat',
+  'simple-total',
+  'timeseries-total',
 ];
 
 /**
