@@ -6,6 +6,7 @@ import { FileUpload, ErrorBoundary } from './components/common';
 import { AppHeader, AppFooter } from './components/layout';
 import { CountryBrowser } from './components/features';
 import { CountriesPage, CountryPage, DemoPage } from './pages';
+import { COUNTRIES } from './data/countries';
 import styles from './App.module.css';
 
 // Lazy load тяжёлого компонента с графиками (включает ECharts)
@@ -114,9 +115,15 @@ function App() {
       const dataTitle = initialData.title || 'Population Data';
       document.title = `${dataTitle} - ${baseTitle}`;
     } else if (location.pathname === '/countries') {
-      document.title = `Browse Countries - ${baseTitle}`;
+      document.title = `Browse European Countries - ${baseTitle}`;
     } else if (location.pathname === '/demo') {
-      document.title = `Demo - ${baseTitle}`;
+      document.title = `Demo: Spain Population Pyramid 1975-2024 - ${baseTitle}`;
+    } else if (location.pathname.startsWith('/country/')) {
+      const code = location.pathname.split('/')[2]?.toUpperCase();
+      const country = COUNTRIES.find(c => c.code === code);
+      if (country) {
+        document.title = `${country.name} Population Pyramid - ${baseTitle}`;
+      }
     } else {
       document.title = `${baseTitle} - Visualize Age-Sex Structure from CSV/Excel`;
     }

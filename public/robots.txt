@@ -3,9 +3,8 @@
 User-agent: *
 Allow: /
 
-# Disallow admin or private areas (if any)
-# Disallow: /admin/
+# Data files — no need to index raw JSON
+Disallow: /data/
 
 # Sitemap location
 Sitemap: https://bleizard.github.io/population-diagram/sitemap.xml
-
