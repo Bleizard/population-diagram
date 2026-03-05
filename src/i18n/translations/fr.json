@@ -5,14 +5,18 @@
     "footer": "Constructeur de pyramides des âges",
     "footerFreeToUse": "Gratuit pour un usage personnel et commercial",
     "footerSourceCode": "Code source sur GitHub",
-    "eurostatAttribution": "Données préchargées : Eurostat (demo_pjan) \u2014"
+    "dataAttribution": "Données : Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 3.0 AU)"
   },
   "nav": {
     "demo": "Démo",
     "countries": "Pays"
   },
   "countryBrowser": {
-    "title": "Données Eurostat",
+    "title": "Parcourir les pays",
+    "northAmerica": "Amérique du Nord",
+    "other": "Autres",
+    "dataUnavailable": "Données non disponibles pour ce pays",
+    "backToCatalog": "Retour au catalogue",
     "search": "Rechercher des pays...",
     "all": "Tous",
     "eu": "UE",

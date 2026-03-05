@@ -116,7 +116,7 @@ function App() {
       const dataTitle = initialData.title || 'Population Data';
       document.title = `${dataTitle} - ${baseTitle}`;
     } else if (location.pathname === '/countries') {
-      document.title = `Browse European Countries - ${baseTitle}`;
+      document.title = `Browse Countries - ${baseTitle}`;
     } else if (location.pathname === '/demo') {
       document.title = `Demo: Spain Population Pyramid 1975-2024 - ${baseTitle}`;
     } else if (location.pathname.startsWith('/country/')) {
@@ -175,7 +175,7 @@ function App() {
               <DemoPage {...chartProps} loadDemo={loadDemo} />
             } />
             <Route path="/country/:code" element={
-              <CountryPage {...chartProps} loadPreloaded={loadPreloaded} />
+              <CountryPage {...chartProps} error={error} loadPreloaded={loadPreloaded} />
             } />
             <Route path="/countries" element={
               <CountriesPage isLoading={isLoading} />

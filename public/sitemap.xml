@@ -218,6 +218,32 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Other -->
+  <url>
+    <loc>https://bleizard.github.io/population-diagram/country/US</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bleizard.github.io/population-diagram/country/CA</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bleizard.github.io/population-diagram/country/JP</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://bleizard.github.io/population-diagram/country/AU</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- EU Candidates -->
   <url>
     <loc>https://bleizard.github.io/population-diagram/country/AL</loc>

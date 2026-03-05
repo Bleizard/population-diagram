@@ -1,5 +1,5 @@
 import { useEffect, useRef, lazy, Suspense, useMemo } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { COUNTRIES } from '../data/countries';
 import { getLocalizedCountryName } from '../utils/localizedCountryName';
@@ -20,12 +20,26 @@ function LoadingFallback({ text }: { text: string }) {
   );
 }
 
+function DataUnavailable({ flag, name, message, backLabel }: { flag: string; name: string; message: string; backLabel: string }) {
+  return (
+    <div className={styles.loadingFallback}>
+      <p style={{ fontSize: '2.5rem', margin: 0 }}>{flag}</p>
+      <p style={{ fontWeight: 600, fontSize: '1.1rem', margin: 0 }}>{name}</p>
+      <p>{message}</p>
+      <Link to="/countries" style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}>
+        {backLabel}
+      </Link>
+    </div>
+  );
+}
+
 interface CountryPageProps {
   initialData: ReturnType<typeof usePopulationData>['data'];
   timeSeriesData: ReturnType<typeof usePopulationData>['timeSeriesData'];
   detectedFormat: ReturnType<typeof usePopulationData>['detectedFormat'];
   initialSelectedYear: ReturnType<typeof usePopulationData>['selectedYear'];
   isLoading: boolean;
+  error: string | null | undefined;
   theme: Theme;
   loadPreloaded: (code: string) => void;
   onClearData: () => void;
@@ -33,7 +47,7 @@ interface CountryPageProps {
 
 export function CountryPage({
   initialData, timeSeriesData, detectedFormat, initialSelectedYear,
-  isLoading, theme, loadPreloaded, onClearData,
+  isLoading, error, theme, loadPreloaded, onClearData,
 }: CountryPageProps) {
   const { code } = useParams<{ code: string }>();
   const { t, language } = useI18n();
@@ -60,6 +74,18 @@ export function CountryPage({
   }
 
   const loadingText = `${country.flag} ${t.countryBrowser.loadingCountry.replace('{country}', localizedName)}`;
+
+  // Show error state when loading failed (data unavailable)
+  if (!initialData && !isLoading && error) {
+    return (
+      <DataUnavailable
+        flag={country.flag}
+        name={localizedName}
+        message={t.countryBrowser.dataUnavailable}
+        backLabel={t.countryBrowser.backToCatalog}
+      />
+    );
+  }
 
   if (!initialData) {
     return <LoadingFallback text={loadingText} />;

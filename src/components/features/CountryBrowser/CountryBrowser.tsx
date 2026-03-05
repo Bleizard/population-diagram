@@ -6,7 +6,7 @@ import { getLocalizedCountryName } from '../../../utils/localizedCountryName';
 import { fetchCountryIndex, type CountryIndexEntry } from '../../../services/countryDataLoader';
 import styles from './CountryBrowser.module.css';
 
-type RegionFilter = 'All' | 'EU' | 'EFTA' | 'Candidate';
+type RegionFilter = 'All' | 'EU' | 'EFTA' | 'Candidate' | 'NorthAmerica' | 'Other';
 
 interface CountryBrowserProps {
   isLoading: boolean;
@@ -19,6 +19,8 @@ const REGION_COUNTS: Record<RegionFilter, number> = {
   EU: COUNTRIES.filter(c => c.region === 'EU').length,
   EFTA: COUNTRIES.filter(c => c.region === 'EFTA').length,
   Candidate: COUNTRIES.filter(c => c.region === 'Candidate').length,
+  NorthAmerica: COUNTRIES.filter(c => c.region === 'NorthAmerica').length,
+  Other: COUNTRIES.filter(c => c.region === 'Other').length,
 };
 
 export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
@@ -73,6 +75,8 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
     { key: 'EU', label: `${t.countryBrowser.eu} (${REGION_COUNTS.EU})` },
     { key: 'EFTA', label: `${t.countryBrowser.efta} (${REGION_COUNTS.EFTA})` },
     { key: 'Candidate', label: `${euCandidatesLabel} (${REGION_COUNTS.Candidate})` },
+    { key: 'NorthAmerica', label: `${t.countryBrowser.northAmerica} (${REGION_COUNTS.NorthAmerica})` },
+    { key: 'Other', label: `${t.countryBrowser.other} (${REGION_COUNTS.Other})` },
   ];
 
   function formatYearRange(entry: CountryIndexEntry | undefined): string | null {

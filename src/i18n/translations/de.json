@@ -5,14 +5,18 @@
     "footer": "Bevölkerungspyramiden-Generator",
     "footerFreeToUse": "Kostenlos für private und kommerzielle Nutzung",
     "footerSourceCode": "Quellcode auf GitHub",
-    "eurostatAttribution": "Vorgeladene Daten: Eurostat (demo_pjan) \u2014"
+    "dataAttribution": "Daten: Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 3.0 AU)"
   },
   "nav": {
     "demo": "Demo",
     "countries": "Länder"
   },
   "countryBrowser": {
-    "title": "Eurostat-Daten",
+    "title": "Länder durchsuchen",
+    "northAmerica": "Nordamerika",
+    "other": "Andere",
+    "dataUnavailable": "Daten für dieses Land nicht verfügbar",
+    "backToCatalog": "Zurück zum Katalog",
     "search": "Länder suchen...",
     "all": "Alle",
     "eu": "EU",

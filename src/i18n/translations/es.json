@@ -5,14 +5,18 @@
     "footer": "Constructor de pirámides poblacionales",
     "footerFreeToUse": "Gratis para uso personal y comercial",
     "footerSourceCode": "Código fuente en GitHub",
-    "eurostatAttribution": "Datos precargados: Eurostat (demo_pjan) \u2014"
+    "dataAttribution": "Datos: Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 3.0 AU)"
   },
   "nav": {
     "demo": "Demo",
     "countries": "Países"
   },
   "countryBrowser": {
-    "title": "Datos de Eurostat",
+    "title": "Explorar países",
+    "northAmerica": "Norteamérica",
+    "other": "Otros",
+    "dataUnavailable": "Datos no disponibles para este país",
+    "backToCatalog": "Volver al catálogo",
     "search": "Buscar países...",
     "all": "Todos",
     "eu": "UE",
