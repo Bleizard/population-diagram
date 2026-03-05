@@ -23,7 +23,8 @@
     "compare": "Comparar",
     "years": "años",
     "noResults": "No se encontraron países",
-    "loadingCountry": "Cargando datos del país..."
+    "loadingCountry": "Cargando {country}...",
+    "loadingDemo": "Cargando datos de demostración..."
   },
   "comparison": {
     "title": "Comparación",

@@ -7,6 +7,7 @@ import { AppHeader, AppFooter } from './components/layout';
 import { CountryBrowser } from './components/features';
 import { CountriesPage, CountryPage, DemoPage } from './pages';
 import { COUNTRIES } from './data/countries';
+import { getLocalizedCountryName } from './utils/localizedCountryName';
 import styles from './App.module.css';
 
 // Lazy load тяжёлого компонента с графиками (включает ECharts)
@@ -122,12 +123,13 @@ function App() {
       const code = location.pathname.split('/')[2]?.toUpperCase();
       const country = COUNTRIES.find(c => c.code === code);
       if (country) {
-        document.title = `${country.name} Population Pyramid - ${baseTitle}`;
+        const localName = getLocalizedCountryName(country.code, language, country.name);
+        document.title = `${localName} Population Pyramid - ${baseTitle}`;
       }
     } else {
       document.title = `${baseTitle} - Visualize Age-Sex Structure from CSV/Excel`;
     }
-  }, [initialData, location.pathname]);
+  }, [initialData, location.pathname, language]);
 
   // Shared props for chart-displaying routes
   const chartProps = {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, lazy, Suspense } from 'react';
+import { useI18n } from '../i18n';
 import type { usePopulationData } from '../hooks';
 import type { Theme } from '../hooks';
 import styles from '../App.module.css';
@@ -7,11 +8,11 @@ const ChartWorkspace = lazy(() =>
   import('../components/features/ChartWorkspace').then(m => ({ default: m.ChartWorkspace }))
 );
 
-function LoadingFallback() {
+function LoadingFallback({ text }: { text: string }) {
   return (
     <div className={styles.loadingFallback}>
       <div className={styles.loadingSpinner} />
-      <p>Loading demo data...</p>
+      <p>{text}</p>
     </div>
   );
 }
@@ -31,6 +32,7 @@ export function DemoPage({
   initialData, timeSeriesData, detectedFormat, initialSelectedYear,
   isLoading, theme, loadDemo, onClearData,
 }: DemoPageProps) {
+  const { t } = useI18n();
   // Ref persists across re-renders (including when clearData nullifies initialData)
   // because this component stays mounted — no conditional swap in the route.
   const loadTriggered = useRef(false);
@@ -42,12 +44,14 @@ export function DemoPage({
     }
   }, [initialData, loadDemo, isLoading]);
 
+  const loadingText = t.countryBrowser.loadingDemo;
+
   if (!initialData) {
-    return <LoadingFallback />;
+    return <LoadingFallback text={loadingText} />;
   }
 
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<LoadingFallback text={loadingText} />}>
       <ChartWorkspace
         initialData={initialData}
         timeSeriesData={timeSeriesData}

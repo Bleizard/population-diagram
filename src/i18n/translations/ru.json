@@ -23,7 +23,8 @@
     "compare": "Сравнить",
     "years": "лет",
     "noResults": "Страны не найдены",
-    "loadingCountry": "Загрузка данных страны..."
+    "loadingCountry": "Загрузка {country}...",
+    "loadingDemo": "Загрузка демо-данных..."
   },
   "comparison": {
     "title": "Сравнение",

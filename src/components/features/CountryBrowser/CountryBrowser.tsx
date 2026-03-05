@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import { COUNTRIES, type CountryMeta } from '../../../data/countries';
+import { getLocalizedCountryName } from '../../../utils/localizedCountryName';
 import { fetchCountryIndex, type CountryIndexEntry } from '../../../services/countryDataLoader';
 import styles from './CountryBrowser.module.css';
 
@@ -21,7 +22,7 @@ const REGION_COUNTS: Record<RegionFilter, number> = {
 };
 
 export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [search, setSearch] = useState('');
   const [regionFilter, setRegionFilter] = useState<RegionFilter>('All');
   const [countryIndex, setCountryIndex] = useState<CountryIndexEntry[]>([]);
@@ -40,14 +41,28 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
     return map;
   }, [countryIndex]);
 
+  // Localized country names map
+  const localizedNames = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of COUNTRIES) {
+      map.set(c.code, getLocalizedCountryName(c.code, language, c.name));
+    }
+    return map;
+  }, [language]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return COUNTRIES.filter((c: CountryMeta) => {
       if (regionFilter !== 'All' && c.region !== regionFilter) return false;
-      if (q && !c.name.toLowerCase().includes(q) && !c.code.toLowerCase().includes(q)) return false;
+      if (q) {
+        const locName = localizedNames.get(c.code) ?? c.name;
+        if (!c.name.toLowerCase().includes(q)
+          && !locName.toLowerCase().includes(q)
+          && !c.code.toLowerCase().includes(q)) return false;
+      }
       return true;
     });
-  }, [search, regionFilter]);
+  }, [search, regionFilter, localizedNames]);
 
   const tAny = t as Record<string, unknown>;
   const euCandidatesLabel = (tAny.countryBrowser as Record<string, string>)?.euCandidates
@@ -104,7 +119,7 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
               <div key={country.code} className={styles.card}>
                 <span className={styles.cardFlag}>{country.flag}</span>
                 <div className={styles.cardInfo}>
-                  <p className={styles.cardName}>{country.name}</p>
+                  <p className={styles.cardName}>{localizedNames.get(country.code) ?? country.name}</p>
                   {yearRange && <p className={styles.cardYears}>{yearRange}</p>}
                 </div>
                 <Link

@@ -1,6 +1,8 @@
-import { useEffect, useRef, lazy, Suspense } from 'react';
+import { useEffect, useRef, lazy, Suspense, useMemo } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import { useI18n } from '../i18n';
 import { COUNTRIES } from '../data/countries';
+import { getLocalizedCountryName } from '../utils/localizedCountryName';
 import type { usePopulationData } from '../hooks';
 import type { Theme } from '../hooks';
 import styles from '../App.module.css';
@@ -34,8 +36,14 @@ export function CountryPage({
   isLoading, theme, loadPreloaded, onClearData,
 }: CountryPageProps) {
   const { code } = useParams<{ code: string }>();
+  const { t, language } = useI18n();
   const upperCode = code?.toUpperCase() ?? '';
   const country = COUNTRIES.find(c => c.code === upperCode);
+
+  const localizedName = useMemo(
+    () => country ? getLocalizedCountryName(country.code, language, country.name) : '',
+    [country, language],
+  );
 
   // Ref persists across re-renders — prevents re-triggering after clearData
   const loadTriggered = useRef(false);
@@ -51,12 +59,14 @@ export function CountryPage({
     return <Navigate to="/countries" replace />;
   }
 
+  const loadingText = `${country.flag} ${t.countryBrowser.loadingCountry.replace('{country}', localizedName)}`;
+
   if (!initialData) {
-    return <LoadingFallback text={`${country.flag} Loading ${country.name}...`} />;
+    return <LoadingFallback text={loadingText} />;
   }
 
   return (
-    <Suspense fallback={<LoadingFallback text={`${country.flag} Loading ${country.name}...`} />}>
+    <Suspense fallback={<LoadingFallback text={loadingText} />}>
       <ChartWorkspace
         initialData={initialData}
         timeSeriesData={timeSeriesData}
