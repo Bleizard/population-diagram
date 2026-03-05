@@ -1,4 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { resolve } from 'path'
 import react from '@vitejs/plugin-react'
 
 // Определяем base path
@@ -38,6 +40,21 @@ const htmlBasePathPlugin = (): Plugin => {
   };
 };
 
+// Плагин для SPA fallback на GitHub Pages: копирует index.html → 404.html
+const spaFallbackPlugin = (): Plugin => {
+  return {
+    name: 'spa-fallback-404',
+    closeBundle() {
+      const outDir = resolve(__dirname, 'dist');
+      const indexPath = resolve(outDir, 'index.html');
+      const fallbackPath = resolve(outDir, '404.html');
+      if (existsSync(indexPath)) {
+        writeFileSync(fallbackPath, readFileSync(indexPath, 'utf-8'));
+      }
+    },
+  };
+};
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -49,6 +66,7 @@ export default defineConfig({
       },
     }),
     htmlBasePathPlugin(),
+    spaFallbackPlugin(),
   ],
   // Base path для GitHub Pages
   base: basePath,

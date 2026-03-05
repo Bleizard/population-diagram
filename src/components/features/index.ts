@@ -8,6 +8,7 @@ export {
   ChartActionsMenu 
 } from './ChartSettingsPanel';
 export { ChartWorkspace } from './ChartWorkspace';
+export { CountryBrowser } from './CountryBrowser';
 export { FullscreenChart } from './FullscreenChart';
 export { PopulationPyramid } from './PopulationPyramid';
 export type { PopulationPyramidRef } from './PopulationPyramid';

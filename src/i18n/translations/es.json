@@ -4,7 +4,35 @@
     "subtitle": "Visualización de la estructura por edad y sexo",
     "footer": "Constructor de pirámides poblacionales",
     "footerFreeToUse": "Gratis para uso personal y comercial",
-    "footerSourceCode": "Código fuente en GitHub"
+    "footerSourceCode": "Código fuente en GitHub",
+    "eurostatAttribution": "Datos precargados: Eurostat (demo_pjan) \u2014"
+  },
+  "nav": {
+    "demo": "Demo",
+    "countries": "Países"
+  },
+  "countryBrowser": {
+    "title": "Datos de Eurostat",
+    "search": "Buscar países...",
+    "all": "Todos",
+    "eu": "UE",
+    "efta": "AELC",
+    "candidates": "Candidatos",
+    "euCandidates": "Candidatos UE",
+    "view": "Ver",
+    "compare": "Comparar",
+    "years": "años",
+    "noResults": "No se encontraron países",
+    "loadingCountry": "Cargando datos del país..."
+  },
+  "comparison": {
+    "title": "Comparación",
+    "left": "Izquierda",
+    "right": "Derecha",
+    "syncYear": "Sincronizar años",
+    "exit": "Salir de comparación",
+    "selectCountry": "Selecciona un país o sube un archivo",
+    "year": "Año"
   },
   "upload": {
     "dropzone": "Arrastra el archivo aquí o haz clic para seleccionar",

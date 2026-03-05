@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, useEffect, type ReactElement } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import type { ProcessingState, DataFormat } from '../../../types';
 import styles from './FileUpload.module.css';
@@ -8,17 +9,10 @@ import styles from './FileUpload.module.css';
 type FormatTab = 'simple' | 'timeseries' | 'eurostat' | 'simple-total';
 
 interface FileUploadProps {
-  /** Callback при выборе файла */
   onFileSelect: (file: File) => void;
-  /** Callback для загрузки демо */
-  onLoadDemo?: () => void;
-  /** Принимаемые форматы файлов */
   acceptedFormats?: string[];
-  /** Состояние загрузки */
   isLoading?: boolean;
-  /** Текст ошибки */
   error?: string | null;
-  /** Состояние обработки файла */
   processingState?: ProcessingState;
 }
 
@@ -69,47 +63,17 @@ const STEP_ICONS: Record<string, ReactElement> = {
 
 export function FileUpload({
   onFileSelect,
-  onLoadDemo,
   acceptedFormats = DEFAULT_FORMATS,
   isLoading = false,
   error = null,
   processingState,
 }: FileUploadProps) {
   const { t } = useI18n();
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [, setIsDragOver] = useState(false);
   const [isGlobalDrag, setIsGlobalDrag] = useState(false);
   const [activeTab, setActiveTab] = useState<FormatTab>('simple');
   const inputRef = useRef<HTMLInputElement>(null);
   const dragCounterRef = useRef(0);
-
-  // Обработчики для dropzone
-  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragOver(false);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragOver(false);
-      setIsGlobalDrag(false);
-      dragCounterRef.current = 0;
-
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        onFileSelect(files[0]);
-      }
-    },
-    [onFileSelect]
-  );
 
   // Глобальный drag and drop на всю страницу
   useEffect(() => {
@@ -118,8 +82,6 @@ export function FileUpload({
     const handleGlobalDragEnter = (e: globalThis.DragEvent) => {
       e.preventDefault();
       dragCounterRef.current++;
-      
-      // Проверяем, есть ли файлы
       if (e.dataTransfer?.types.includes('Files')) {
         setIsGlobalDrag(true);
       }
@@ -135,7 +97,6 @@ export function FileUpload({
     const handleGlobalDragLeave = (e: globalThis.DragEvent) => {
       e.preventDefault();
       dragCounterRef.current--;
-      
       if (dragCounterRef.current === 0) {
         setIsGlobalDrag(false);
       }
@@ -146,7 +107,6 @@ export function FileUpload({
       setIsGlobalDrag(false);
       setIsDragOver(false);
       dragCounterRef.current = 0;
-
       const files = e.dataTransfer?.files;
       if (files && files.length > 0) {
         onFileSelect(files[0]);
@@ -172,7 +132,6 @@ export function FileUpload({
       if (files && files.length > 0) {
         onFileSelect(files[0]);
       }
-      // Сбрасываем input для возможности повторной загрузки того же файла
       if (inputRef.current) {
         inputRef.current.value = '';
       }
@@ -184,24 +143,12 @@ export function FileUpload({
     inputRef.current?.click();
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleClick();
-      }
-    },
-    [handleClick]
-  );
-
   // Глобальный обработчик paste для всей страницы (Ctrl+V / Cmd+V)
   useEffect(() => {
     const handleGlobalPaste = (e: globalThis.ClipboardEvent) => {
       if (isLoading) return;
-      
       const items = e.clipboardData?.items;
       if (!items) return;
-
       for (const item of items) {
         if (item.kind === 'file') {
           const file = item.getAsFile();
@@ -213,26 +160,23 @@ export function FileUpload({
         }
       }
     };
-
     document.addEventListener('paste', handleGlobalPaste);
     return () => document.removeEventListener('paste', handleGlobalPaste);
   }, [onFileSelect, isLoading]);
 
-  // Получить локализованное название формата
   const getFormatName = (format: DataFormat): string => {
     const formatInfo = (t.dataFormats as Record<string, { name: string }>)[format];
     return formatInfo?.name || format;
   };
 
-  // Показываем прогресс обработки
   const showProcessing = isLoading && processingState && processingState.step !== 'idle';
 
   // Глобальный overlay для drag and drop
   const globalDropOverlay = isGlobalDrag && !isLoading && createPortal(
-    <div 
+    <div
       className={styles.globalDropOverlay}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
+      onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
+      onDrop={(e: DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         setIsGlobalDrag(false);
         setIsDragOver(false);
@@ -245,17 +189,7 @@ export function FileUpload({
     >
       <div className={styles.globalDropContent}>
         <div className={styles.globalDropIcon}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="64"
-            height="64"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="17,8 12,3 7,8" />
             <line x1="12" y1="3" x2="12" y2="15" />
@@ -271,39 +205,26 @@ export function FileUpload({
   return (
     <div className={styles.container}>
       {globalDropOverlay}
-      <div
-        className={`${styles.dropzone} ${isDragOver ? styles.dragOver : ''} ${
-          error ? styles.hasError : ''
-        } ${isLoading ? styles.loading : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={isLoading ? undefined : handleClick}
-        onKeyDown={isLoading ? undefined : handleKeyDown}
-        role="button"
-        tabIndex={isLoading ? -1 : 0}
-        aria-label="Upload file"
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept={acceptedFormats.join(',')}
-          onChange={handleFileChange}
-          className={styles.hiddenInput}
-          disabled={isLoading}
-        />
 
-        {showProcessing && processingState ? (
+      <input
+        ref={inputRef}
+        type="file"
+        accept={acceptedFormats.join(',')}
+        onChange={handleFileChange}
+        className={styles.hiddenInput}
+        disabled={isLoading}
+      />
+
+      {/* Processing state */}
+      {showProcessing && processingState ? (
+        <div className={styles.card}>
           <div className={styles.processingContent}>
-            {/* Прогресс-бар */}
             <div className={styles.progressContainer}>
-              <div 
+              <div
                 className={styles.progressBar}
                 style={{ width: `${processingState.progress}%` }}
               />
             </div>
-
-            {/* Текущий этап */}
             <div className={styles.currentStep}>
               <span className={`${styles.stepIcon} ${styles[processingState.step]}`}>
                 {STEP_ICONS[processingState.step]}
@@ -312,8 +233,6 @@ export function FileUpload({
                 {processingState.message || t.upload.loading}
               </span>
             </div>
-
-            {/* Определённый формат */}
             {processingState.detectedFormat && processingState.step !== 'reading' && (
               <div className={styles.detectedFormat}>
                 <span className={styles.formatLabel}>{t.processing.formatDetected}</span>
@@ -322,8 +241,6 @@ export function FileUpload({
                 </span>
               </div>
             )}
-
-            {/* Этапы */}
             <div className={styles.steps}>
               {(['reading', 'detecting', 'validating', 'building', 'done'] as const).map((step, index) => {
                 const currentIndex = ['reading', 'detecting', 'validating', 'building', 'done'].indexOf(processingState.step);
@@ -331,9 +248,8 @@ export function FileUpload({
                 const isCompleted = stepIndex < currentIndex;
                 const isCurrent = step === processingState.step;
                 const isPending = stepIndex > currentIndex;
-
                 return (
-                  <div 
+                  <div
                     key={step}
                     className={`${styles.stepItem} ${isCompleted ? styles.completed : ''} ${isCurrent ? styles.current : ''} ${isPending ? styles.pending : ''}`}
                   >
@@ -346,169 +262,152 @@ export function FileUpload({
               })}
             </div>
           </div>
-        ) : isLoading ? (
+        </div>
+      ) : isLoading ? (
+        <div className={styles.card}>
           <div className={styles.loadingContent}>
             <div className={styles.spinner} />
             <p className={styles.loadingText}>{t.upload.loading}</p>
           </div>
-        ) : (
-          <div className={styles.content}>
-            <div className={styles.icon}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17,8 12,3 7,8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-            </div>
-            <p className={styles.mainText}>
-              {t.upload.dropzone}
-            </p>
-            <p className={styles.subText}>
-              {t.upload.formats}
-            </p>
-            <p className={styles.pasteHint}>
-              <kbd>Ctrl</kbd>+<kbd>V</kbd> {t.upload.pasteHint}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {error && <p className={styles.error}>{error}</p>}
-
-      {!isLoading && onLoadDemo && (
-        <div className={styles.demoSection}>
-          <span className={styles.demoOr}>{t.upload.or}</span>
-          <button
-            type="button"
-            className={styles.demoButton}
-            onClick={onLoadDemo}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="5,3 19,12 5,21 5,3" />
-            </svg>
-            {t.upload.tryDemo}
-          </button>
-          <span className={styles.demoHint}>{t.upload.demoHint}</span>
         </div>
-      )}
+      ) : (
+        <div className={styles.card}>
+          {/* Buttons row */}
+          <div className={styles.buttonsRow}>
+            <button
+              type="button"
+              className={styles.uploadButton}
+              onClick={handleClick}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9,15 12,12 15,15"/>
+              </svg>
+              {t.upload.dropzone.split(' ').slice(0, 2).join(' ') === t.upload.dropzone.split(' ').slice(0, 2).join(' ')
+                ? (() => {
+                    // Use a short label: just "Upload File" / localized equivalent
+                    const text = t.upload.dropzone;
+                    // Take first meaningful part before "or" / "или" / etc.
+                    const orWord = t.upload.or;
+                    const idx = text.toLowerCase().indexOf(` ${orWord.toLowerCase()} `);
+                    return idx > 0 ? text.slice(0, idx) : text;
+                  })()
+                : t.upload.dropzone
+              }
+            </button>
+            <Link to="/demo" className={styles.demoButton}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5,3 19,12 5,21 5,3" />
+              </svg>
+              {t.upload.tryDemo}
+            </Link>
+          </div>
 
-      {!isLoading && (
-        <div className={styles.formatsContainer}>
-          <h4 className={styles.formatsTitle}>{t.upload.supportedFormats}</h4>
-          
-          {/* Tabs */}
-          <div className={styles.tabsContainer}>
-            <div className={styles.tabs}>
-              <button
-                type="button"
-                className={`${styles.tab} ${activeTab === 'simple' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('simple')}
-              >
-                {t.upload.simpleFormat}
-              </button>
-              <button
-                type="button"
-                className={`${styles.tab} ${activeTab === 'timeseries' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('timeseries')}
-              >
-                {t.upload.timeseriesFormat}
-              </button>
-              <button
-                type="button"
-                className={`${styles.tab} ${activeTab === 'eurostat' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('eurostat')}
-              >
-                {t.upload.eurostatFormat}
-              </button>
-              <button
-                type="button"
-                className={`${styles.tab} ${activeTab === 'simple-total' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('simple-total')}
-              >
-                {t.upload.totalOnlyFormat}
-              </button>
-            </div>
+          {/* Hints */}
+          <div className={styles.hintsRow}>
+            <span className={styles.hintText}>{t.upload.formats}</span>
+            <span className={styles.hintSep}>·</span>
+            <span className={styles.pasteHint}>
+              <kbd>Ctrl</kbd>+<kbd>V</kbd> {t.upload.pasteHint}
+            </span>
+          </div>
 
-            {/* Tab content */}
-            <div className={styles.tabContent}>
-              {activeTab === 'simple' && (
-                <>
-                  <p className={styles.formatDesc}>
-                    {t.upload.simpleFormatDesc} <code>age</code>, <code>male</code>, <code>female</code>
-                  </p>
-                  <pre className={styles.example}>
+          {error && <p className={styles.error}>{error}</p>}
+
+          {/* Formats tabs */}
+          <div className={styles.formatsSection}>
+            <h4 className={styles.formatsTitle}>{t.upload.supportedFormats}</h4>
+            <div className={styles.tabsContainer}>
+              <div className={styles.tabs}>
+                <button
+                  type="button"
+                  className={`${styles.tab} ${activeTab === 'simple' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('simple')}
+                >
+                  {t.upload.simpleFormat}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tab} ${activeTab === 'timeseries' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('timeseries')}
+                >
+                  {t.upload.timeseriesFormat}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tab} ${activeTab === 'eurostat' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('eurostat')}
+                >
+                  {t.upload.eurostatFormat}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tab} ${activeTab === 'simple-total' ? styles.tabActive : ''}`}
+                  onClick={() => setActiveTab('simple-total')}
+                >
+                  {t.upload.totalOnlyFormat}
+                </button>
+              </div>
+
+              <div className={styles.tabContent}>
+                {activeTab === 'simple' && (
+                  <>
+                    <p className={styles.formatDesc}>
+                      {t.upload.simpleFormatDesc} <code>age</code>, <code>male</code>, <code>female</code>
+                    </p>
+                    <pre className={styles.example}>
 {`age,male,female
 0,893000,847000
 1,889000,845000
 ...`}
-                  </pre>
-                </>
-              )}
-
-              {activeTab === 'timeseries' && (
-                <>
-                  <p className={styles.formatDesc}>
-                    {t.upload.timeseriesFormatDesc} <code>year</code>, <code>age</code>, <code>male</code>, <code>female</code>
-                  </p>
-                  <pre className={styles.example}>
+                    </pre>
+                  </>
+                )}
+                {activeTab === 'timeseries' && (
+                  <>
+                    <p className={styles.formatDesc}>
+                      {t.upload.timeseriesFormatDesc} <code>year</code>, <code>age</code>, <code>male</code>, <code>female</code>
+                    </p>
+                    <pre className={styles.example}>
 {`year,age,male,female
 2020,0,410000,390000
 2020,1,415000,395000
 2021,0,405000,385000
 ...`}
-                  </pre>
-                </>
-              )}
-
-              {activeTab === 'eurostat' && (
-                <>
-                  <p className={styles.formatDesc}>
-                    {t.upload.eurostatFormatDesc} <code>age</code>, <code>sex</code>, <code>geo</code>, <code>TIME_PERIOD</code>, <code>OBS_VALUE</code>
-                  </p>
-                  <pre className={styles.example}>
+                    </pre>
+                  </>
+                )}
+                {activeTab === 'eurostat' && (
+                  <>
+                    <p className={styles.formatDesc}>
+                      {t.upload.eurostatFormatDesc} <code>age</code>, <code>sex</code>, <code>geo</code>, <code>TIME_PERIOD</code>, <code>OBS_VALUE</code>
+                    </p>
+                    <pre className={styles.example}>
 {`age,sex,geo,TIME_PERIOD,OBS_VALUE
 Y0,M,FR,2020,367500
 Y0,F,FR,2020,351200
 Y1,M,FR,2020,372800
 ...`}
-                  </pre>
-                </>
-              )}
-
-              {activeTab === 'simple-total' && (
-                <>
-                  <p className={styles.formatDesc}>
-                    {t.upload.totalOnlyFormatDesc} <code>age</code>, <code>total</code> / <code>population</code> / <code>value</code>
-                  </p>
-                  <pre className={styles.example}>
+                    </pre>
+                  </>
+                )}
+                {activeTab === 'simple-total' && (
+                  <>
+                    <p className={styles.formatDesc}>
+                      {t.upload.totalOnlyFormatDesc} <code>age</code>, <code>total</code> / <code>population</code> / <code>value</code>
+                    </p>
+                    <pre className={styles.example}>
 {`age,total
 0,1740000
 1,1734000
 2,1721000
 ...`}
-                  </pre>
-                </>
-              )}
+                    </pre>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

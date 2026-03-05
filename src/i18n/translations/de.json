@@ -4,7 +4,35 @@
     "subtitle": "Visualisierung der Alters- und Geschlechtsstruktur",
     "footer": "Bevölkerungspyramiden-Generator",
     "footerFreeToUse": "Kostenlos für private und kommerzielle Nutzung",
-    "footerSourceCode": "Quellcode auf GitHub"
+    "footerSourceCode": "Quellcode auf GitHub",
+    "eurostatAttribution": "Vorgeladene Daten: Eurostat (demo_pjan) \u2014"
+  },
+  "nav": {
+    "demo": "Demo",
+    "countries": "Länder"
+  },
+  "countryBrowser": {
+    "title": "Eurostat-Daten",
+    "search": "Länder suchen...",
+    "all": "Alle",
+    "eu": "EU",
+    "efta": "EFTA",
+    "candidates": "Kandidaten",
+    "euCandidates": "EU-Kandidaten",
+    "view": "Ansehen",
+    "compare": "Vergleichen",
+    "years": "Jahre",
+    "noResults": "Keine Länder gefunden",
+    "loadingCountry": "Länderdaten werden geladen..."
+  },
+  "comparison": {
+    "title": "Vergleich",
+    "left": "Links",
+    "right": "Rechts",
+    "syncYear": "Jahre synchronisieren",
+    "exit": "Vergleich beenden",
+    "selectCountry": "Wählen Sie ein Land oder laden Sie eine Datei hoch",
+    "year": "Jahr"
   },
   "upload": {
     "dropzone": "Datei hierher ziehen oder klicken zum Auswählen",

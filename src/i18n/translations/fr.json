@@ -4,7 +4,35 @@
     "subtitle": "Visualisation de la structure par âge et sexe",
     "footer": "Constructeur de pyramides des âges",
     "footerFreeToUse": "Gratuit pour un usage personnel et commercial",
-    "footerSourceCode": "Code source sur GitHub"
+    "footerSourceCode": "Code source sur GitHub",
+    "eurostatAttribution": "Données préchargées : Eurostat (demo_pjan) \u2014"
+  },
+  "nav": {
+    "demo": "Démo",
+    "countries": "Pays"
+  },
+  "countryBrowser": {
+    "title": "Données Eurostat",
+    "search": "Rechercher des pays...",
+    "all": "Tous",
+    "eu": "UE",
+    "efta": "AELE",
+    "candidates": "Candidats",
+    "euCandidates": "Candidats UE",
+    "view": "Voir",
+    "compare": "Comparer",
+    "years": "années",
+    "noResults": "Aucun pays trouvé",
+    "loadingCountry": "Chargement des données du pays..."
+  },
+  "comparison": {
+    "title": "Comparaison",
+    "left": "Gauche",
+    "right": "Droite",
+    "syncYear": "Synchroniser les années",
+    "exit": "Quitter la comparaison",
+    "selectCountry": "Sélectionnez un pays ou téléchargez un fichier",
+    "year": "Année"
   },
   "upload": {
     "dropzone": "Déposez le fichier ici ou cliquez pour sélectionner",

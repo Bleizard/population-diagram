@@ -1,12 +1,15 @@
 import { useCallback, lazy, Suspense, useEffect } from 'react';
-import { usePopulationData, useTheme, useLanguage } from './hooks';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { usePopulationData, useTheme, useLanguage, type Theme } from './hooks';
 import { I18nContext } from './i18n';
 import { FileUpload, ErrorBoundary } from './components/common';
 import { AppHeader, AppFooter } from './components/layout';
+import { CountryBrowser } from './components/features';
+import { CountriesPage, CountryPage, DemoPage } from './pages';
 import styles from './App.module.css';
 
 // Lazy load тяжёлого компонента с графиками (включает ECharts)
-const ChartWorkspace = lazy(() => 
+const ChartWorkspace = lazy(() =>
   import('./components/features/ChartWorkspace').then(m => ({ default: m.ChartWorkspace }))
 );
 
@@ -20,26 +23,80 @@ function ChartLoadingFallback() {
   );
 }
 
+function HomePage({
+  initialData, timeSeriesData, detectedFormat, initialSelectedYear,
+  isLoading, error, theme, loadFile, onClearData,
+  processingState
+}: {
+  initialData: ReturnType<typeof usePopulationData>['data'];
+  timeSeriesData: ReturnType<typeof usePopulationData>['timeSeriesData'];
+  detectedFormat: ReturnType<typeof usePopulationData>['detectedFormat'];
+  initialSelectedYear: ReturnType<typeof usePopulationData>['selectedYear'];
+  isLoading: boolean;
+  error: string | null | undefined;
+  theme: Theme;
+  loadFile: (file: File) => void;
+  onClearData: () => void;
+  processingState: ReturnType<typeof usePopulationData>['processingState'];
+}) {
+  return (
+    <>
+      {!initialData ? (
+        <section className={styles.uploadSection}>
+          <FileUpload
+            onFileSelect={loadFile}
+            isLoading={isLoading}
+            error={error}
+            processingState={processingState}
+          />
+          <CountryBrowser
+            isLoading={isLoading}
+          />
+        </section>
+      ) : (
+        <Suspense fallback={<ChartLoadingFallback />}>
+          <ChartWorkspace
+            initialData={initialData}
+            timeSeriesData={timeSeriesData}
+            detectedFormat={detectedFormat}
+            initialSelectedYear={initialSelectedYear}
+            theme={theme}
+            onClearData={onClearData}
+          />
+        </Suspense>
+      )}
+    </>
+  );
+}
+
 function App() {
   const { theme, toggleTheme } = useTheme();
   const { language, t, setLanguage } = useLanguage();
-  
-  const { 
-    data: initialData, 
-    timeSeriesData, 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {
+    data: initialData,
+    timeSeriesData,
     detectedFormat,
     selectedYear: initialSelectedYear,
-    isLoading, 
-    error, 
-    loadFile, 
+    isLoading,
+    error,
+    loadFile,
+    loadPreloaded,
     clearData,
     processingState,
   } = usePopulationData({ t });
 
+  // Clear data + navigate to home
+  const handleClearData = useCallback(() => {
+    clearData();
+    navigate('/');
+  }, [clearData, navigate]);
+
   // Загрузка демо-файла
   const loadDemo = useCallback(async () => {
     try {
-      // Используем import.meta.env.BASE_URL для корректной работы на GitHub Pages
       const baseUrl = import.meta.env.BASE_URL;
       const response = await fetch(`${baseUrl}examples/spain-1975-2024.csv`);
       const blob = await response.blob();
@@ -56,17 +113,32 @@ function App() {
     if (initialData) {
       const dataTitle = initialData.title || 'Population Data';
       document.title = `${dataTitle} - ${baseTitle}`;
+    } else if (location.pathname === '/countries') {
+      document.title = `Browse Countries - ${baseTitle}`;
+    } else if (location.pathname === '/demo') {
+      document.title = `Demo - ${baseTitle}`;
     } else {
       document.title = `${baseTitle} - Visualize Age-Sex Structure from CSV/Excel`;
     }
-  }, [initialData]);
+  }, [initialData, location.pathname]);
+
+  // Shared props for chart-displaying routes
+  const chartProps = {
+    initialData,
+    timeSeriesData,
+    detectedFormat,
+    initialSelectedYear,
+    isLoading,
+    theme,
+    onClearData: handleClearData,
+  };
 
   return (
     <ErrorBoundary>
       <I18nContext.Provider value={{ language, t, setLanguage }}>
         <div className={styles.app}>
         <div className={styles.backgroundPattern} aria-hidden="true" />
-        
+
         <AppHeader
           theme={theme}
           onToggleTheme={toggleTheme}
@@ -75,28 +147,31 @@ function App() {
         />
 
         <main className={styles.main}>
-          {!initialData ? (
-            <section className={styles.uploadSection}>
-              <FileUpload
-                onFileSelect={loadFile}
-                onLoadDemo={loadDemo}
-                isLoading={isLoading}
-                error={error}
-                processingState={processingState}
-              />
-            </section>
-          ) : (
-            <Suspense fallback={<ChartLoadingFallback />}>
-              <ChartWorkspace
+          <Routes>
+            <Route path="/" element={
+              <HomePage
                 initialData={initialData}
                 timeSeriesData={timeSeriesData}
                 detectedFormat={detectedFormat}
                 initialSelectedYear={initialSelectedYear}
+                isLoading={isLoading}
+                error={error}
                 theme={theme}
-                onClearData={clearData}
+                loadFile={loadFile}
+                onClearData={handleClearData}
+                processingState={processingState}
               />
-            </Suspense>
-          )}
+            } />
+            <Route path="/demo" element={
+              <DemoPage {...chartProps} loadDemo={loadDemo} />
+            } />
+            <Route path="/country/:code" element={
+              <CountryPage {...chartProps} loadPreloaded={loadPreloaded} />
+            } />
+            <Route path="/countries" element={
+              <CountriesPage isLoading={isLoading} />
+            } />
+          </Routes>
         </main>
 
         <AppFooter />

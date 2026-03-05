@@ -4,7 +4,35 @@
     "subtitle": "Visualização da estrutura etária e por sexo",
     "footer": "Construtor de pirâmides populacionais",
     "footerFreeToUse": "Gratuito para uso pessoal e comercial",
-    "footerSourceCode": "Código-fonte no GitHub"
+    "footerSourceCode": "Código-fonte no GitHub",
+    "eurostatAttribution": "Dados pré-carregados: Eurostat (demo_pjan) \u2014"
+  },
+  "nav": {
+    "demo": "Demo",
+    "countries": "Países"
+  },
+  "countryBrowser": {
+    "title": "Dados do Eurostat",
+    "search": "Pesquisar países...",
+    "all": "Todos",
+    "eu": "UE",
+    "efta": "EFTA",
+    "candidates": "Candidatos",
+    "euCandidates": "Candidatos UE",
+    "view": "Ver",
+    "compare": "Comparar",
+    "years": "anos",
+    "noResults": "Nenhum país encontrado",
+    "loadingCountry": "Carregando dados do país..."
+  },
+  "comparison": {
+    "title": "Comparação",
+    "left": "Esquerda",
+    "right": "Direita",
+    "syncYear": "Sincronizar anos",
+    "exit": "Sair da comparação",
+    "selectCountry": "Selecione um país ou carregue um arquivo",
+    "year": "Ano"
   },
   "upload": {
     "dropzone": "Arraste o arquivo aqui ou clique para selecionar",

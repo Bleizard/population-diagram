@@ -4,80 +4,113 @@
   margin: 0 auto;
 }
 
-.dropzone {
-  border: 2px dashed var(--color-border);
-  border-radius: 16px;
-  padding: 48px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: 
-    border-color var(--transition-normal),
-    background-color var(--transition-normal),
-    transform var(--transition-fast);
-  background: var(--color-bg-card);
-}
-
-.dropzone:hover {
-  border-color: var(--color-text-muted);
-  background: var(--color-bg-hover);
-}
-
-.dropzone:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-.dragOver {
-  border-color: var(--color-primary);
-  background: var(--color-selection-bg);
-  transform: scale(1.01);
-}
-
-.hasError {
-  border-color: var(--color-error);
-  background: var(--color-error-bg);
-}
-
-.loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
-
 .hiddenInput {
   display: none;
 }
 
-.content {
+/* Card container */
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 14px;
+  padding: 20px;
+  transition:
+    background-color var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+/* Buttons row */
+.buttonsRow {
   display: flex;
-  flex-direction: column;
+  gap: 10px;
+}
+
+.uploadButton {
+  flex: 1;
+  display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.icon {
-  color: var(--color-text-muted);
-  margin-bottom: 8px;
-  transition: color var(--transition-normal);
-}
-
-.dragOver .icon {
-  color: var(--color-primary);
-}
-
-.mainText {
-  font-size: 1.125rem;
-  font-weight: 500;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--color-text);
-  margin: 0;
+  background: var(--color-bg-hover);
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.uploadButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-selection-bg);
+}
+
+.uploadButton:active {
+  transform: scale(0.98);
+}
+
+.uploadButton svg {
+  flex-shrink: 0;
+}
+
+.demoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primary), #6366f1);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  white-space: nowrap;
+}
+
+.demoButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.demoButton:active {
+  transform: translateY(0);
+}
+
+.demoButton svg {
+  flex-shrink: 0;
+}
+
+/* Hints row */
+.hintsRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.hintText {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
   transition: color var(--transition-normal);
 }
 
-.subText {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-  margin: 0;
-  transition: color var(--transition-normal);
+.hintSep {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
 }
 
 .pasteHint {
@@ -86,86 +119,55 @@
   gap: 4px;
   font-size: 0.75rem;
   color: var(--color-text-muted);
-  margin: 8px 0 0 0;
-  padding: 6px 12px;
-  background: var(--color-bg-hover);
-  border-radius: 6px;
-  transition: 
-    color var(--transition-normal),
-    background-color var(--transition-normal);
+  transition: color var(--transition-normal);
 }
 
 .pasteHint kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
   font-family: inherit;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 600;
   color: var(--color-text);
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  box-shadow: 
+  border-radius: 3px;
+  box-shadow:
     0 1px 0 1px var(--color-border),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: 
+  transition:
     background-color var(--transition-normal),
     border-color var(--transition-normal),
     color var(--transition-normal);
 }
 
-.loadingContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.loadingText {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  margin: 0;
-  transition: color var(--transition-normal);
-}
-
+/* Error */
 .error {
   color: var(--color-error);
-  font-size: 0.875rem;
-  margin-top: 12px;
-  padding: 12px 16px;
+  font-size: 0.8125rem;
+  margin: 12px 0 0 0;
+  padding: 10px 14px;
   background: var(--color-error-bg);
   border-radius: 8px;
   border: 1px solid currentColor;
-  transition: 
+  transition:
     background-color var(--transition-normal),
     color var(--transition-normal);
 }
 
-.formatsContainer {
-  margin-top: 24px;
+/* Formats section */
+.formatsSection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .formatsTitle {
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-text-secondary);
@@ -175,10 +177,10 @@
 /* Tabs */
 .tabsContainer {
   background: var(--color-bg-hover);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--color-border-light);
   overflow: hidden;
-  transition: 
+  transition:
     background-color var(--transition-normal),
     border-color var(--transition-normal);
 }
@@ -187,21 +189,21 @@
   display: flex;
   border-bottom: 1px solid var(--color-border-light);
   background: var(--color-bg-card);
-  transition: 
+  transition:
     background-color var(--transition-normal),
     border-color var(--transition-normal);
 }
 
 .tab {
   flex: 1;
-  padding: 12px 16px;
+  padding: 10px 12px;
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: 
+  transition:
     color var(--transition-fast),
     background-color var(--transition-fast);
   position: relative;
@@ -233,11 +235,11 @@
 }
 
 .tabContent {
-  padding: 16px;
+  padding: 14px;
 }
 
 .formatDesc {
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
   line-height: 1.5;
@@ -251,7 +253,7 @@
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   font-size: 0.75rem;
   color: var(--color-text);
-  transition: 
+  transition:
     background-color var(--transition-normal),
     color var(--transition-normal);
 }
@@ -261,7 +263,7 @@
   font-size: 0.75rem;
   background: #1e293b;
   color: #94a3b8;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 8px;
   white-space: pre;
   overflow-x: auto;
@@ -274,9 +276,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
-  padding: 12px 0;
+  padding: 8px 0;
 }
 
 .progressContainer {
@@ -363,7 +365,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .stepItem {
@@ -410,69 +412,40 @@
   .stepName {
     display: inline;
   }
-  
+
   .steps {
     gap: 16px;
   }
 }
 
-/* Demo section */
-.demoSection {
+/* Loading */
+.loadingContent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-top: 24px;
-  padding: 20px;
-  background: var(--color-bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--color-border-light);
-  transition: 
-    background-color var(--transition-normal),
-    border-color var(--transition-normal);
+  gap: 16px;
 }
 
-.demoOr {
-  font-size: 0.8125rem;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.demoButton {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 28px;
-  background: linear-gradient(135deg, var(--color-primary), #6366f1);
-  color: white;
-  border: none;
-  border-radius: 10px;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
   font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-}
-
-.demoButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
-}
-
-.demoButton:active {
-  transform: translateY(0);
-}
-
-.demoButton svg {
-  flex-shrink: 0;
-}
-
-.demoHint {
-  font-size: 0.8125rem;
   color: var(--color-text-secondary);
-  text-align: center;
-  max-width: 300px;
+  margin: 0;
+  transition: color var(--transition-normal);
 }
 
 /* Global drop overlay */
@@ -489,12 +462,8 @@
 }
 
 @keyframes overlayFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .globalDropContent {
@@ -530,12 +499,8 @@
 }
 
 @keyframes iconFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .globalDropText {
@@ -549,4 +514,28 @@
   margin: 0;
   font-size: 0.9rem;
   color: var(--color-text-secondary);
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .buttonsRow {
+    flex-direction: column;
+  }
+
+  .hintsRow {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .hintSep {
+    display: none;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    flex: 1 1 45%;
+  }
 }

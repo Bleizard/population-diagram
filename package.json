@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "build:gh-pages": "GITHUB_PAGES=true npm run build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fetch-eurostat": "npx tsx scripts/fetch-eurostat.ts"
   },
   "dependencies": {
     "@types/gif.js": "^0.2.5",
@@ -18,6 +19,7 @@
     "papaparse": "^5.5.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.1",
     "recharts": "^3.6.0",
     "xlsx": "^0.18.5"
   },

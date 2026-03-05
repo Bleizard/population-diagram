@@ -4,7 +4,35 @@
     "subtitle": "Population age-sex structure visualization",
     "footer": "Population Pyramid Builder",
     "footerFreeToUse": "Free to use for personal and commercial purposes",
-    "footerSourceCode": "Source code on GitHub"
+    "footerSourceCode": "Source code on GitHub",
+    "eurostatAttribution": "Preloaded data: Eurostat (demo_pjan) \u2014"
+  },
+  "nav": {
+    "demo": "Demo",
+    "countries": "Countries"
+  },
+  "countryBrowser": {
+    "title": "Browse Eurostat Data",
+    "search": "Search countries...",
+    "all": "All",
+    "eu": "EU",
+    "efta": "EFTA",
+    "candidates": "Candidates",
+    "euCandidates": "EU Candidates",
+    "view": "View",
+    "compare": "Compare",
+    "years": "years",
+    "noResults": "No countries found",
+    "loadingCountry": "Loading country data..."
+  },
+  "comparison": {
+    "title": "Comparison",
+    "left": "Left",
+    "right": "Right",
+    "syncYear": "Sync years",
+    "exit": "Exit comparison",
+    "selectCountry": "Select a country or upload a file",
+    "year": "Year"
   },
   "upload": {
     "dropzone": "Drop file here or click to browse",
