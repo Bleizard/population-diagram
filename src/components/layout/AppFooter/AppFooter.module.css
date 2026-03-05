@@ -31,3 +31,25 @@
   text-decoration: underline;
 }
 
+.coffeeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff !important;
+  background: linear-gradient(135deg, #ff813f, #ff5f00);
+  border-radius: 8px;
+  text-decoration: none !important;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(255, 95, 0, 0.3);
+}
+
+.coffeeLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 95, 0, 0.4);
+  text-decoration: none !important;
+}
+
