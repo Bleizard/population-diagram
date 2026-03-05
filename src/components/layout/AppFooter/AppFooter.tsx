@@ -26,6 +26,16 @@ export function AppFooter() {
           {t.app.footerSourceCode}
         </a>
       </p>
+      <p className={styles.sub}>
+        {t.app.eurostatAttribution}{' '}
+        <a
+          href="https://creativecommons.org/licenses/by/4.0/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          CC BY 4.0
+        </a>
+      </p>
     </footer>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { PopulationData, ParseResult, TimeSeriesPopulationData, DataFormat, ProcessingState, ProcessingStep } from '../types';
 import { parsePopulationFile, detectDataFormat, ERROR_CODES } from '../services/fileParser';
+import { fetchCountryData } from '../services/countryDataLoader';
 import type { Translations } from '../i18n';
 import { getStepDelay, delay } from '../config';
 
@@ -22,6 +23,8 @@ interface UsePopulationDataReturn {
   error: string | null;
   /** Функция загрузки файла */
   loadFile: (file: File) => Promise<void>;
+  /** Загрузить предзагруженные данные страны по коду */
+  loadPreloaded: (code: string) => Promise<void>;
   /** Функция очистки данных */
   clearData: () => void;
   /** Выбрать год из временного ряда */
@@ -182,6 +185,46 @@ export function usePopulationData({ t }: UsePopulationDataProps): UsePopulationD
     }
   }, [t, updateStep]);
 
+  const loadPreloaded = useCallback(async (code: string) => {
+    setIsLoading(true);
+    setError(null);
+    setProcessingState(INITIAL_PROCESSING_STATE);
+
+    try {
+      updateStep('reading', { message: t.processing.reading });
+
+      const tsData = await fetchCountryData(code);
+
+      setTimeSeriesData(tsData);
+      setDetectedFormat('eurostat');
+
+      const lastYear = tsData.years[tsData.years.length - 1];
+      setSelectedYear(lastYear);
+
+      const yearData = tsData.dataByYear[lastYear];
+      if (yearData) {
+        setData({
+          title: tsData.title,
+          date: String(lastYear),
+          source: tsData.source,
+          ageGroups: yearData,
+        });
+      }
+
+      updateStep('done', { message: t.processing.done, detectedFormat: 'eurostat' });
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : t.errors.fileLoadError;
+      updateStep('error', { message: errorMsg, error: errorMsg });
+      setError(errorMsg);
+      setData(null);
+      setTimeSeriesData(null);
+      setDetectedFormat(null);
+      setSelectedYear(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [t, updateStep]);
+
   const selectYear = useCallback((year: number) => {
     if (!timeSeriesData || !timeSeriesData.years.includes(year)) {
       return;
@@ -222,6 +265,7 @@ export function usePopulationData({ t }: UsePopulationDataProps): UsePopulationD
     isLoading,
     error,
     loadFile,
+    loadPreloaded,
     clearData,
     selectYear,
     processingState,
