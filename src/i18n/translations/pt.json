@@ -36,8 +36,12 @@
     "right": "Direita",
     "syncYear": "Sincronizar anos",
     "exit": "Sair da comparação",
-    "selectCountry": "Selecione um país ou carregue um arquivo",
-    "year": "Ano"
+    "selectCountry": "Selecione um país",
+    "year": "Ano",
+    "sideBySide": "Lado a lado",
+    "overlay": "Sobreposição",
+    "matchScale": "Igualar escala",
+    "compareWith": "Comparar com"
   },
   "upload": {
     "dropzone": "Arraste o arquivo aqui ou clique para selecionar",

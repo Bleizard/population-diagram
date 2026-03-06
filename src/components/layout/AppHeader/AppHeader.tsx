@@ -11,13 +11,15 @@ interface AppHeaderProps {
   onToggleTheme: () => void;
   language: Language;
   onLanguageChange: (lang: Language) => void;
+  onLogoClick?: () => void;
 }
 
 export function AppHeader({
   theme,
   onToggleTheme,
   language,
-  onLanguageChange
+  onLanguageChange,
+  onLogoClick,
 }: AppHeaderProps) {
   const { t } = useI18n();
 
@@ -26,7 +28,7 @@ export function AppHeader({
       <div className={styles.content}>
         <div className={styles.titleBlock}>
           <div className={styles.titleRow}>
-            <Link to="/" className={styles.logoLink} aria-label="Home">
+            <Link to="/" className={styles.logoLink} aria-label="Home" onClick={onLogoClick}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="28"
@@ -54,6 +56,9 @@ export function AppHeader({
           </Link>
           <Link to="/countries" className={styles.navLink}>
             {t.nav.countries}
+          </Link>
+          <Link to="/compare" className={styles.navLink}>
+            {t.comparison.title}
           </Link>
           <LanguageSelector currentLanguage={language} onChange={onLanguageChange} />
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />

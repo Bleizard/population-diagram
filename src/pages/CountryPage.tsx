@@ -92,15 +92,38 @@ export function CountryPage({
   }
 
   return (
-    <Suspense fallback={<LoadingFallback text={loadingText} />}>
-      <ChartWorkspace
-        initialData={initialData}
-        timeSeriesData={timeSeriesData}
-        detectedFormat={detectedFormat}
-        initialSelectedYear={initialSelectedYear}
-        theme={theme}
-        onClearData={onClearData}
-      />
-    </Suspense>
+    <>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px', marginBottom: 8 }}>
+        <Link
+          to={`/compare/${upperCode}`}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 14px',
+            fontFamily: "'DM Sans', -apple-system, sans-serif",
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            color: 'var(--color-text-secondary)',
+            background: 'transparent',
+            border: '1px solid var(--color-border)',
+            borderRadius: 8,
+            textDecoration: 'none',
+          }}
+        >
+          {t.countryBrowser.compare}
+        </Link>
+      </div>
+      <Suspense fallback={<LoadingFallback text={loadingText} />}>
+        <ChartWorkspace
+          initialData={initialData}
+          timeSeriesData={timeSeriesData}
+          detectedFormat={detectedFormat}
+          initialSelectedYear={initialSelectedYear}
+          theme={theme}
+          onClearData={onClearData}
+        />
+      </Suspense>
+    </>
   );
 }

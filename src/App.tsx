@@ -5,7 +5,7 @@ import { I18nContext } from './i18n';
 import { FileUpload, ErrorBoundary } from './components/common';
 import { AppHeader, AppFooter } from './components/layout';
 import { CountryBrowser } from './components/features';
-import { CountriesPage, CountryPage, DemoPage } from './pages';
+import { CountriesPage, ComparePage, CountryPage, DemoPage } from './pages';
 import { COUNTRIES } from './data/countries';
 import { getLocalizedCountryName } from './utils/localizedCountryName';
 import styles from './App.module.css';
@@ -119,6 +119,8 @@ function App() {
       document.title = `Browse Countries - ${baseTitle}`;
     } else if (location.pathname === '/demo') {
       document.title = `Demo: Spain Population Pyramid 1975-2024 - ${baseTitle}`;
+    } else if (location.pathname.startsWith('/compare')) {
+      document.title = `Compare Population Pyramids - ${baseTitle}`;
     } else if (location.pathname.startsWith('/country/')) {
       const code = location.pathname.split('/')[2]?.toUpperCase();
       const country = COUNTRIES.find(c => c.code === code);
@@ -153,6 +155,7 @@ function App() {
           onToggleTheme={toggleTheme}
           language={language}
           onLanguageChange={setLanguage}
+          onLogoClick={handleClearData}
         />
 
         <main className={styles.main}>
@@ -176,6 +179,15 @@ function App() {
             } />
             <Route path="/country/:code" element={
               <CountryPage {...chartProps} error={error} loadPreloaded={loadPreloaded} />
+            } />
+            <Route path="/compare" element={
+              <ComparePage theme={theme} />
+            } />
+            <Route path="/compare/:left" element={
+              <ComparePage theme={theme} />
+            } />
+            <Route path="/compare/:left/:right" element={
+              <ComparePage theme={theme} />
             } />
             <Route path="/countries" element={
               <CountriesPage isLoading={isLoading} />

@@ -99,9 +99,9 @@
 /* Card */
 .card {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-light);
   border-radius: 10px;
@@ -116,15 +116,17 @@
   box-shadow: var(--shadow-sm);
 }
 
-.cardFlag {
-  font-size: 1.75rem;
-  line-height: 1;
-  flex-shrink: 0;
+/* Row 1: flag + name */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.cardInfo {
-  flex: 1;
-  min-width: 0;
+.cardFlag {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .cardName {
@@ -139,18 +141,28 @@
   transition: color var(--transition-normal);
 }
 
+/* Row 2: data description */
 .cardYears {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.75rem;
   color: var(--color-text-muted);
-  margin: 2px 0 0;
+  margin: 0;
   transition: color var(--transition-normal);
 }
 
-.viewButton {
+/* Row 3: buttons */
+.cardActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.cardButton {
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  justify-content: center;
+  flex: 1;
+  padding: 6px 12px;
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -159,7 +171,6 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  flex-shrink: 0;
   text-decoration: none;
   transition:
     background-color var(--transition-fast),
@@ -167,16 +178,16 @@
     transform var(--transition-fast);
 }
 
-.viewButton:hover {
+.cardButton:hover {
   background: var(--color-primary);
   color: #fff;
 }
 
-.viewButton:active {
+.cardButton:active {
   transform: scale(0.96);
 }
 
-.viewButtonDisabled {
+.cardButtonDisabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

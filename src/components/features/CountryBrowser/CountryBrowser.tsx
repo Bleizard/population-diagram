@@ -63,8 +63,12 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
           && !c.code.toLowerCase().includes(q)) return false;
       }
       return true;
+    }).sort((a, b) => {
+      const nameA = localizedNames.get(a.code) ?? a.name;
+      const nameB = localizedNames.get(b.code) ?? b.name;
+      return nameA.localeCompare(nameB, language);
     });
-  }, [search, regionFilter, localizedNames]);
+  }, [search, regionFilter, localizedNames, language]);
 
   const tAny = t as Record<string, unknown>;
   const euCandidatesLabel = (tAny.countryBrowser as Record<string, string>)?.euCandidates
@@ -121,18 +125,27 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
             const yearRange = formatYearRange(idx);
             return (
               <div key={country.code} className={styles.card}>
-                <span className={styles.cardFlag}>{country.flag}</span>
-                <div className={styles.cardInfo}>
+                <div className={styles.cardHeader}>
+                  <span className={styles.cardFlag}>{country.flag}</span>
                   <p className={styles.cardName}>{localizedNames.get(country.code) ?? country.name}</p>
-                  {yearRange && <p className={styles.cardYears}>{yearRange}</p>}
                 </div>
-                <Link
-                  className={`${styles.viewButton} ${isLoading ? styles.viewButtonDisabled : ''}`}
-                  to={`/country/${country.code}`}
-                  onClick={isLoading ? (e) => e.preventDefault() : undefined}
-                >
-                  {t.countryBrowser.view}
-                </Link>
+                {yearRange && <p className={styles.cardYears}>{yearRange}</p>}
+                <div className={styles.cardActions}>
+                  <Link
+                    className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
+                    to={`/country/${country.code}`}
+                    onClick={isLoading ? (e) => e.preventDefault() : undefined}
+                  >
+                    {t.countryBrowser.view}
+                  </Link>
+                  <Link
+                    className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
+                    to={`/compare/${country.code}`}
+                    onClick={isLoading ? (e) => e.preventDefault() : undefined}
+                  >
+                    {t.countryBrowser.compare}
+                  </Link>
+                </div>
               </div>
             );
           })

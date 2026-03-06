@@ -28,6 +28,14 @@
     <priority>0.9</priority>
   </url>
 
+  <!-- Compare -->
+  <url>
+    <loc>https://bleizard.github.io/population-diagram/compare</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Individual countries — EU-27 -->
   <url>
     <loc>https://bleizard.github.io/population-diagram/country/AT</loc>

@@ -1,0 +1,223 @@
+.page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.exitButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.exitButton:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Mode toggle */
+.modeToggle {
+  display: flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.modeButton {
+  padding: 6px 14px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.modeButton:hover {
+  color: var(--color-primary);
+}
+
+.modeButtonActive {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.modeButtonActive:hover {
+  color: #fff;
+}
+
+/* Toggles */
+.toggles {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Country selectors row */
+.selectors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Side-by-side panels */
+.sideBySide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+/* Overlay container */
+.overlayContainer {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 16px;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.overlayYears {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.overlayYearItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.overlayYearLabel {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* States */
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 300px;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 300px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  padding: 16px;
+  text-align: center;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  font-size: 0.875rem;
+  color: var(--color-error, #ef4444);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toggles {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .selectors {
+    grid-template-columns: 1fr;
+  }
+
+  .sideBySide {
+    grid-template-columns: 1fr;
+  }
+
+  .overlayYears {
+    grid-template-columns: 1fr;
+  }
+}
