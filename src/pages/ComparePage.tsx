@@ -30,6 +30,7 @@ export function ComparePage({ theme }: ComparePageProps) {
     setLeftCode, setRightCode,
     setLeftCustomData, setRightCustomData,
     setLeftYear, setRightYear,
+    swap, reset,
     syncYears, setSyncYears,
     matchScale, setMatchScale,
     commonYears,
@@ -37,7 +38,7 @@ export function ComparePage({ theme }: ComparePageProps) {
     sharedMaxScale,
   } = useComparisonData();
 
-  // Sync URL params → state (on mount / param change)
+  // Sync URL params -> state (on mount / param change)
   useEffect(() => {
     const lCode = leftParam?.toUpperCase() ?? null;
     const rCode = rightParam?.toUpperCase() ?? null;
@@ -49,7 +50,7 @@ export function ComparePage({ theme }: ComparePageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leftParam, rightParam]);
 
-  // Sync state → URL
+  // Sync state -> URL
   const updateUrl = (lCode: string | null, rCode: string | null) => {
     if (lCode && rCode) {
       navigate(`/compare/${lCode}/${rCode}`, { replace: true });
@@ -72,6 +73,16 @@ export function ComparePage({ theme }: ComparePageProps) {
     updateUrl(left.code, code);
   };
 
+  const handleSwap = () => {
+    swap();
+    updateUrl(right.code, left.code);
+  };
+
+  const handleReset = () => {
+    reset();
+    navigate('/compare', { replace: true });
+  };
+
   // File upload handlers
   const handleLeftFile = useCallback(async (file: File) => {
     try {
@@ -82,11 +93,10 @@ export function ComparePage({ theme }: ComparePageProps) {
         } else if (result.data) {
           setLeftCustomData(result.data);
         }
-        // Clear code from URL since it's a custom file
         updateUrl(null, right.code);
       }
     } catch {
-      // Parse error — silently ignore, user will see no data
+      // Parse error
     }
   }, [setLeftCustomData, right.code]);
 
@@ -116,16 +126,13 @@ export function ComparePage({ theme }: ComparePageProps) {
   const leftName = left.code ? getCountryName(left.code) : (left.customLabel || '');
   const rightName = right.code ? getCountryName(right.code) : (right.customLabel || '');
 
-  const yearsForSelector = syncYears && commonYears.length > 0 ? commonYears : undefined;
+  const hasAnyData = left.data || right.data || left.customLabel || right.customLabel;
+  const yearsForSync = syncYears && commonYears.length > 0 ? commonYears : undefined;
 
   return (
     <div className={styles.page}>
       {/* Toolbar */}
       <div className={styles.toolbar}>
-        <Link to="/countries" className={styles.exitButton}>
-          {t.comparison.exit}
-        </Link>
-
         <div className={styles.modeToggle}>
           <button
             className={`${styles.modeButton} ${viewMode === 'side-by-side' ? styles.modeButtonActive : ''}`}
@@ -162,6 +169,39 @@ export function ComparePage({ theme }: ComparePageProps) {
             <span>{t.comparison.matchScale}</span>
           </label>
         </div>
+
+        {/* Swap button */}
+        <button
+          className={styles.iconButton}
+          onClick={handleSwap}
+          type="button"
+          title={t.comparison.swap ?? 'Swap'}
+          disabled={!hasAnyData}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+            <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </button>
+
+        {/* Reset button */}
+        <button
+          className={styles.iconButton}
+          onClick={handleReset}
+          type="button"
+          title={t.comparison.reset ?? 'Reset'}
+          disabled={!hasAnyData}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+        </button>
+
+        {/* Exit — pushed to the right */}
+        <Link to="/countries" className={styles.exitButton}>
+          {t.comparison.exit}
+        </Link>
       </div>
 
       {/* Country selectors */}
@@ -186,57 +226,77 @@ export function ComparePage({ theme }: ComparePageProps) {
 
       {/* Content area */}
       {viewMode === 'side-by-side' ? (
-        <div className={styles.sideBySide}>
-          {/* Left panel */}
-          <div className={styles.panel}>
-            {left.loading && <div className={styles.loading}><div className={styles.spinner} /></div>}
-            {left.error && <div className={styles.error}>{left.error}</div>}
-            {leftPopulationData && left.data && (
-              <>
-                <PopulationPyramid
-                  data={leftPopulationData}
-                  theme={theme}
-                  customTitle={leftName}
-                  maxScale={sharedMaxScale}
-                />
-                <YearSelector
-                  years={yearsForSelector ?? left.data.years}
-                  selectedYear={left.year}
-                  onYearChange={setLeftYear}
-                  compact
-                />
-              </>
-            )}
-            {!left.code && !left.customLabel && !left.loading && (
-              <div className={styles.placeholder}>{t.comparison.selectCountry}</div>
-            )}
+        <>
+          <div className={styles.sideBySide}>
+            {/* Left panel */}
+            <div className={styles.panel}>
+              {left.loading && <div className={styles.loading}><div className={styles.spinner} /></div>}
+              {left.error && <div className={styles.error}>{left.error}</div>}
+              {leftPopulationData && left.data && (
+                <>
+                  <PopulationPyramid
+                    data={leftPopulationData}
+                    theme={theme}
+                    customTitle={leftName}
+                    maxScale={sharedMaxScale}
+                  />
+                  {/* Individual year selector only when NOT synced */}
+                  {!yearsForSync && (
+                    <YearSelector
+                      years={left.data.years}
+                      selectedYear={left.year}
+                      onYearChange={setLeftYear}
+                      compact
+                    />
+                  )}
+                </>
+              )}
+              {!left.code && !left.customLabel && !left.loading && (
+                <div className={styles.placeholder}>{t.comparison.selectCountry}</div>
+              )}
+            </div>
+
+            {/* Right panel */}
+            <div className={styles.panel}>
+              {right.loading && <div className={styles.loading}><div className={styles.spinner} /></div>}
+              {right.error && <div className={styles.error}>{right.error}</div>}
+              {rightPopulationData && right.data && (
+                <>
+                  <PopulationPyramid
+                    data={rightPopulationData}
+                    theme={theme}
+                    customTitle={rightName}
+                    maxScale={sharedMaxScale}
+                  />
+                  {/* Individual year selector only when NOT synced */}
+                  {!yearsForSync && (
+                    <YearSelector
+                      years={right.data.years}
+                      selectedYear={right.year}
+                      onYearChange={setRightYear}
+                      compact
+                    />
+                  )}
+                </>
+              )}
+              {!right.code && !right.customLabel && !right.loading && (
+                <div className={styles.placeholder}>{t.comparison.selectCountry}</div>
+              )}
+            </div>
           </div>
 
-          {/* Right panel */}
-          <div className={styles.panel}>
-            {right.loading && <div className={styles.loading}><div className={styles.spinner} /></div>}
-            {right.error && <div className={styles.error}>{right.error}</div>}
-            {rightPopulationData && right.data && (
-              <>
-                <PopulationPyramid
-                  data={rightPopulationData}
-                  theme={theme}
-                  customTitle={rightName}
-                  maxScale={sharedMaxScale}
-                />
-                <YearSelector
-                  years={yearsForSelector ?? right.data.years}
-                  selectedYear={right.year}
-                  onYearChange={setRightYear}
-                  compact
-                />
-              </>
-            )}
-            {!right.code && !right.customLabel && !right.loading && (
-              <div className={styles.placeholder}>{t.comparison.selectCountry}</div>
-            )}
-          </div>
-        </div>
+          {/* Shared year selector when synced */}
+          {yearsForSync && (
+            <div className={styles.sharedTimeline}>
+              <YearSelector
+                years={yearsForSync}
+                selectedYear={left.year}
+                onYearChange={setLeftYear}
+                compact
+              />
+            </div>
+          )}
+        </>
       ) : (
         /* Overlay mode */
         <div className={styles.overlayContainer}>
@@ -253,9 +313,9 @@ export function ComparePage({ theme }: ComparePageProps) {
                 maxScale={sharedMaxScale}
               />
               {/* Shared year selector when synced, or two selectors */}
-              {syncYears && commonYears.length > 0 ? (
+              {yearsForSync ? (
                 <YearSelector
-                  years={commonYears}
+                  years={yearsForSync}
                   selectedYear={left.year}
                   onYearChange={setLeftYear}
                   compact

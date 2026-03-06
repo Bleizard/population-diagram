@@ -41,7 +41,9 @@
     "sideBySide": "Side by side",
     "overlay": "Overlay",
     "matchScale": "Match scale",
-    "compareWith": "Compare with"
+    "compareWith": "Compare with",
+    "swap": "Swap sides",
+    "reset": "Reset"
   },
   "upload": {
     "dropzone": "Drop file here or click to browse",

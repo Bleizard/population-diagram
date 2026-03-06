@@ -24,19 +24,25 @@ interface OverlayPyramidProps {
   maxScale?: number;
 }
 
-// Overlay colors with alpha
+// Left country: filled bars (standard blue/pink)
+// Right country: outlined bars (orange/teal) — clearly distinct silhouette
 const OVERLAY_COLORS = {
-  leftMale: 'rgba(59, 130, 246, 0.55)',    // blue
-  leftFemale: 'rgba(244, 114, 182, 0.55)',  // pink
-  rightMale: 'rgba(16, 185, 129, 0.55)',    // green
-  rightFemale: 'rgba(245, 158, 11, 0.55)',  // amber
+  leftMale: 'rgba(59, 130, 246, 0.5)',      // blue filled
+  leftFemale: 'rgba(251, 113, 133, 0.5)',   // rose filled
+  rightMale: 'rgba(0, 0, 0, 0)',             // transparent fill (outline only)
+  rightFemale: 'rgba(0, 0, 0, 0)',           // transparent fill (outline only)
+} as const;
+
+const OVERLAY_BORDER_COLORS = {
+  rightMale: '#f97316',    // orange outline
+  rightFemale: '#14b8a6',  // teal outline
 } as const;
 
 const OVERLAY_SOLID_COLORS = {
   leftMale: '#3b82f6',
-  leftFemale: '#f472b6',
-  rightMale: '#10b981',
-  rightFemale: '#f59e0b',
+  leftFemale: '#fb7185',
+  rightMale: '#f97316',
+  rightFemale: '#14b8a6',
 } as const;
 
 export function OverlayPyramid({
@@ -164,8 +170,13 @@ export function OverlayPyramid({
           data: rightMaleValues,
           barWidth,
           barGap: '-100%',
-          itemStyle: { color: OVERLAY_COLORS.rightMale, borderRadius: [2, 0, 0, 2] },
-          emphasis: { itemStyle: { color: OVERLAY_SOLID_COLORS.rightMale } },
+          itemStyle: {
+            color: OVERLAY_COLORS.rightMale,
+            borderColor: OVERLAY_BORDER_COLORS.rightMale,
+            borderWidth: 1.5,
+            borderRadius: [2, 0, 0, 2],
+          },
+          emphasis: { itemStyle: { color: 'rgba(249, 115, 22, 0.25)', borderColor: OVERLAY_BORDER_COLORS.rightMale } },
         },
         {
           name: `${rightName} ${t.common.females}`,
@@ -173,8 +184,13 @@ export function OverlayPyramid({
           data: rightFemaleValues,
           barWidth,
           barGap: '-100%',
-          itemStyle: { color: OVERLAY_COLORS.rightFemale, borderRadius: [0, 2, 2, 0] },
-          emphasis: { itemStyle: { color: OVERLAY_SOLID_COLORS.rightFemale } },
+          itemStyle: {
+            color: OVERLAY_COLORS.rightFemale,
+            borderColor: OVERLAY_BORDER_COLORS.rightFemale,
+            borderWidth: 1.5,
+            borderRadius: [0, 2, 2, 0],
+          },
+          emphasis: { itemStyle: { color: 'rgba(20, 184, 166, 0.25)', borderColor: OVERLAY_BORDER_COLORS.rightFemale } },
         },
       ],
       _chartHeight: chartHeight,

@@ -22,6 +22,8 @@ interface UseComparisonDataReturn {
   setRightCustomData: (data: TimeSeriesPopulationData | PopulationData) => void;
   setLeftYear: (year: number) => void;
   setRightYear: (year: number) => void;
+  swap: () => void;
+  reset: () => void;
   syncYears: boolean;
   setSyncYears: (v: boolean) => void;
   matchScale: boolean;
@@ -202,6 +204,35 @@ export function useComparisonData(): UseComparisonDataReturn {
     return Math.ceil(raw / magnitude) * magnitude;
   }, [matchScale, leftPopulationData, rightPopulationData]);
 
+  // Swap left ↔ right
+  const swap = useCallback(() => {
+    const tmpCode = leftCode, tmpLabel = leftCustomLabel, tmpData = leftData, tmpYear = leftYear, tmpErr = leftError;
+    setLeftCodeRaw(rightCode);
+    setLeftCustomLabel(rightCustomLabel);
+    setLeftData(rightData);
+    setLeftYearRaw(rightYear);
+    setLeftError(rightError);
+    setRightCodeRaw(tmpCode);
+    setRightCustomLabel(tmpLabel);
+    setRightData(tmpData);
+    setRightYearRaw(tmpYear);
+    setRightError(tmpErr);
+  }, [leftCode, leftCustomLabel, leftData, leftYear, leftError, rightCode, rightCustomLabel, rightData, rightYear, rightError]);
+
+  // Reset both sides
+  const reset = useCallback(() => {
+    setLeftCodeRaw(null);
+    setLeftCustomLabel(null);
+    setLeftData(null);
+    setLeftYearRaw(0);
+    setLeftError(null);
+    setRightCodeRaw(null);
+    setRightCustomLabel(null);
+    setRightData(null);
+    setRightYearRaw(0);
+    setRightError(null);
+  }, []);
+
   return {
     left: { code: leftCode, customLabel: leftCustomLabel, data: leftData, year: leftYear, loading: leftLoading, error: leftError },
     right: { code: rightCode, customLabel: rightCustomLabel, data: rightData, year: rightYear, loading: rightLoading, error: rightError },
@@ -211,6 +242,8 @@ export function useComparisonData(): UseComparisonDataReturn {
     setRightCustomData,
     setLeftYear,
     setRightYear,
+    swap,
+    reset,
     syncYears,
     setSyncYears,
     matchScale,

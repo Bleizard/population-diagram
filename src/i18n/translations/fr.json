@@ -41,7 +41,9 @@
     "sideBySide": "Côte à côte",
     "overlay": "Superposition",
     "matchScale": "Échelle identique",
-    "compareWith": "Comparer avec"
+    "compareWith": "Comparer avec",
+    "swap": "Inverser",
+    "reset": "Réinitialiser"
   },
   "upload": {
     "dropzone": "Déposez le fichier ici ou cliquez pour sélectionner",
