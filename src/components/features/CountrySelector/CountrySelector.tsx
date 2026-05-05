@@ -13,9 +13,11 @@ interface CountrySelectorProps {
   customLabel?: string | null;
   /** Callback when user uploads a file */
   onFileUpload?: (file: File) => void;
+  /** Callback to reset this selector (clear country/file) */
+  onReset?: () => void;
 }
 
-export function CountrySelector({ value, onChange, excludeCode, label, customLabel, onFileUpload }: CountrySelectorProps) {
+export function CountrySelector({ value, onChange, excludeCode, label, customLabel, onFileUpload, onReset }: CountrySelectorProps) {
   const { t, language } = useI18n();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -124,6 +126,19 @@ export function CountrySelector({ value, onChange, excludeCode, label, customLab
               </svg>
             </button>
           </>
+        )}
+        {onReset && (value || customLabel) && (
+          <button
+            type="button"
+            className={styles.resetButton}
+            onClick={onReset}
+            title={t.comparison.reset ?? 'Reset'}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+          </button>
         )}
       </div>
 

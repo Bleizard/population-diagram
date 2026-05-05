@@ -15,6 +15,13 @@ import { calculateChartHeight } from '../PopulationPyramid/chartCalculations';
 import { formatPopulation } from '../../../utils';
 import styles from './OverlayPyramid.module.css';
 
+interface OverlayCustomColors {
+  leftMaleColor?: string;
+  leftFemaleColor?: string;
+  rightMaleColor?: string;
+  rightFemaleColor?: string;
+}
+
 interface OverlayPyramidProps {
   leftData: PopulationData;
   rightData: PopulationData;
@@ -22,21 +29,11 @@ interface OverlayPyramidProps {
   rightName: string;
   theme?: Theme;
   maxScale?: number;
+  showAsPercentage?: boolean;
+  customColors?: OverlayCustomColors;
+  yAxisInterval?: number | 'auto' | ((index: number, value: string) => boolean);
+  xAxisSplitCount?: number;
 }
-
-// Left country: filled bars (standard blue/pink)
-// Right country: outlined bars (orange/teal) — clearly distinct silhouette
-const OVERLAY_COLORS = {
-  leftMale: 'rgba(59, 130, 246, 0.5)',      // blue filled
-  leftFemale: 'rgba(251, 113, 133, 0.5)',   // rose filled
-  rightMale: 'rgba(0, 0, 0, 0)',             // transparent fill (outline only)
-  rightFemale: 'rgba(0, 0, 0, 0)',           // transparent fill (outline only)
-} as const;
-
-const OVERLAY_BORDER_COLORS = {
-  rightMale: '#f97316',    // orange outline
-  rightFemale: '#14b8a6',  // teal outline
-} as const;
 
 const OVERLAY_SOLID_COLORS = {
   leftMale: '#3b82f6',
@@ -45,6 +42,16 @@ const OVERLAY_SOLID_COLORS = {
   rightFemale: '#14b8a6',
 } as const;
 
+/** Convert a hex color to rgba with given alpha */
+function withAlpha(hex: string, alpha: number): string {
+  // If already rgba, return as-is
+  if (hex.startsWith('rgba')) return hex;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export function OverlayPyramid({
   leftData,
   rightData,
@@ -52,41 +59,75 @@ export function OverlayPyramid({
   rightName,
   theme = 'light',
   maxScale: externalMaxScale,
+  showAsPercentage = false,
+  customColors,
+  yAxisInterval: externalYAxisInterval,
+  xAxisSplitCount = 5,
 }: OverlayPyramidProps) {
   const { t } = useI18n();
   const themeColors = THEME_COLORS[theme];
 
+  // Resolve custom colors with fallbacks
+  const resolvedColors = {
+    leftMale: customColors?.leftMaleColor ?? OVERLAY_SOLID_COLORS.leftMale,
+    leftFemale: customColors?.leftFemaleColor ?? OVERLAY_SOLID_COLORS.leftFemale,
+    rightMale: customColors?.rightMaleColor ?? OVERLAY_SOLID_COLORS.rightMale,
+    rightFemale: customColors?.rightFemaleColor ?? OVERLAY_SOLID_COLORS.rightFemale,
+  };
+
   // Build a ChartColors-compatible object for helpers that require it
   const colors: ChartColors = {
     ...themeColors,
-    male: OVERLAY_SOLID_COLORS.leftMale,
-    maleSurplus: OVERLAY_SOLID_COLORS.leftMale,
-    female: OVERLAY_SOLID_COLORS.leftFemale,
-    femaleSurplus: OVERLAY_SOLID_COLORS.leftFemale,
-    total: OVERLAY_SOLID_COLORS.leftMale,
-    totalGradientStart: OVERLAY_SOLID_COLORS.leftMale,
-    totalGradientEnd: OVERLAY_SOLID_COLORS.leftMale,
+    male: resolvedColors.leftMale,
+    maleSurplus: resolvedColors.leftMale,
+    female: resolvedColors.leftFemale,
+    femaleSurplus: resolvedColors.leftFemale,
+    total: resolvedColors.leftMale,
+    totalGradientStart: resolvedColors.leftMale,
+    totalGradientEnd: resolvedColors.leftMale,
   };
 
   const option = useMemo(() => {
     const ageLabels = leftData.ageGroups.map(g => g.age);
-    const leftMaleValues = leftData.ageGroups.map(g => -g.male);
-    const leftFemaleValues = leftData.ageGroups.map(g => g.female);
-    const rightMaleValues = rightData.ageGroups.map(g => -g.male);
-    const rightFemaleValues = rightData.ageGroups.map(g => g.female);
+
+    // Total populations for percentage conversion
+    const leftTotal = leftData.ageGroups.reduce((s, g) => s + g.male + g.female, 0);
+    const rightTotal = rightData.ageGroups.reduce((s, g) => s + g.male + g.female, 0);
+
+    const toPercent = (val: number, total: number) => total > 0 ? (val / total) * 100 : 0;
+
+    const leftMaleValues = leftData.ageGroups.map(g => {
+      const v = showAsPercentage ? toPercent(g.male, leftTotal) : g.male;
+      return -v;
+    });
+    const leftFemaleValues = leftData.ageGroups.map(g =>
+      showAsPercentage ? toPercent(g.female, leftTotal) : g.female
+    );
+    const rightMaleValues = rightData.ageGroups.map(g => {
+      const v = showAsPercentage ? toPercent(g.male, rightTotal) : g.male;
+      return -v;
+    });
+    const rightFemaleValues = rightData.ageGroups.map(g =>
+      showAsPercentage ? toPercent(g.female, rightTotal) : g.female
+    );
 
     // Calculate max scale
     let maxVal = 0;
-    for (const g of leftData.ageGroups) {
-      if (g.male > maxVal) maxVal = g.male;
-      if (g.female > maxVal) maxVal = g.female;
+    const allValues = [...leftMaleValues, ...leftFemaleValues, ...rightMaleValues, ...rightFemaleValues];
+    for (const v of allValues) {
+      const abs = Math.abs(v);
+      if (abs > maxVal) maxVal = abs;
     }
-    for (const g of rightData.ageGroups) {
-      if (g.male > maxVal) maxVal = g.male;
-      if (g.female > maxVal) maxVal = g.female;
+
+    let scaleMax: number;
+    if (externalMaxScale && !showAsPercentage) {
+      scaleMax = externalMaxScale;
+    } else if (showAsPercentage) {
+      scaleMax = Math.ceil(maxVal * 10) / 10;
+    } else {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(maxVal || 1)));
+      scaleMax = Math.ceil(maxVal / magnitude) * magnitude;
     }
-    const magnitude = Math.pow(10, Math.floor(Math.log10(maxVal || 1)));
-    const scaleMax = externalMaxScale ?? Math.ceil(maxVal / magnitude) * magnitude;
 
     const groupCount = leftData.ageGroups.length;
     const chartHeight = calculateChartHeight(groupCount);
@@ -95,15 +136,20 @@ export function OverlayPyramid({
     const xAxis = createXAxisConfig(
       colors,
       scaleMax,
-      5,
-      false,
+      xAxisSplitCount,
+      showAsPercentage,
       t.common.population,
       true,
     );
+
+    const yAxisIntervalFn = externalYAxisInterval !== undefined
+      ? externalYAxisInterval
+      : ((index: number) => index % 5 === 0);
+
     const yAxis = createYAxisConfig(
       ageLabels,
       colors,
-      (index: number) => index % 5 === 0,
+      yAxisIntervalFn,
       t.common.age,
       true,
     );
@@ -122,7 +168,9 @@ export function OverlayPyramid({
           const age = (params[0] as unknown as { axisValue: string }).axisValue;
           let html = `<b>${t.common.age}: ${age}</b><br/>`;
           for (const p of params) {
-            html += `${p.marker} ${p.seriesName}: ${formatPopulation(Math.abs(p.value))}<br/>`;
+            const absVal = Math.abs(p.value);
+            const formatted = showAsPercentage ? `${absVal.toFixed(2)}%` : formatPopulation(absVal);
+            html += `${p.marker} ${p.seriesName}: ${formatted}<br/>`;
           }
           return html;
         },
@@ -152,8 +200,8 @@ export function OverlayPyramid({
           data: leftMaleValues,
           barWidth,
           barGap: '-100%',
-          itemStyle: { color: OVERLAY_COLORS.leftMale, borderRadius: [2, 0, 0, 2] },
-          emphasis: { itemStyle: { color: OVERLAY_SOLID_COLORS.leftMale } },
+          itemStyle: { color: withAlpha(resolvedColors.leftMale, 0.5), borderRadius: [2, 0, 0, 2] },
+          emphasis: { itemStyle: { color: resolvedColors.leftMale } },
         },
         {
           name: `${leftName} ${t.common.females}`,
@@ -161,8 +209,8 @@ export function OverlayPyramid({
           data: leftFemaleValues,
           barWidth,
           barGap: '-100%',
-          itemStyle: { color: OVERLAY_COLORS.leftFemale, borderRadius: [0, 2, 2, 0] },
-          emphasis: { itemStyle: { color: OVERLAY_SOLID_COLORS.leftFemale } },
+          itemStyle: { color: withAlpha(resolvedColors.leftFemale, 0.5), borderRadius: [0, 2, 2, 0] },
+          emphasis: { itemStyle: { color: resolvedColors.leftFemale } },
         },
         {
           name: `${rightName} ${t.common.males}`,
@@ -171,12 +219,12 @@ export function OverlayPyramid({
           barWidth,
           barGap: '-100%',
           itemStyle: {
-            color: OVERLAY_COLORS.rightMale,
-            borderColor: OVERLAY_BORDER_COLORS.rightMale,
+            color: 'rgba(0, 0, 0, 0)',
+            borderColor: resolvedColors.rightMale,
             borderWidth: 1.5,
             borderRadius: [2, 0, 0, 2],
           },
-          emphasis: { itemStyle: { color: 'rgba(249, 115, 22, 0.25)', borderColor: OVERLAY_BORDER_COLORS.rightMale } },
+          emphasis: { itemStyle: { color: withAlpha(resolvedColors.rightMale, 0.25), borderColor: resolvedColors.rightMale } },
         },
         {
           name: `${rightName} ${t.common.females}`,
@@ -185,17 +233,17 @@ export function OverlayPyramid({
           barWidth,
           barGap: '-100%',
           itemStyle: {
-            color: OVERLAY_COLORS.rightFemale,
-            borderColor: OVERLAY_BORDER_COLORS.rightFemale,
+            color: 'rgba(0, 0, 0, 0)',
+            borderColor: resolvedColors.rightFemale,
             borderWidth: 1.5,
             borderRadius: [0, 2, 2, 0],
           },
-          emphasis: { itemStyle: { color: 'rgba(20, 184, 166, 0.25)', borderColor: OVERLAY_BORDER_COLORS.rightFemale } },
+          emphasis: { itemStyle: { color: withAlpha(resolvedColors.rightFemale, 0.25), borderColor: resolvedColors.rightFemale } },
         },
       ],
       _chartHeight: chartHeight,
     };
-  }, [leftData, rightData, leftName, rightName, theme, themeColors, colors, t, externalMaxScale]);
+  }, [leftData, rightData, leftName, rightName, theme, themeColors, colors, t, externalMaxScale, showAsPercentage, resolvedColors, externalYAxisInterval, xAxisSplitCount]);
 
   const chartHeight = (option as unknown as { _chartHeight: number })._chartHeight;
 

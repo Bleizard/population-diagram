@@ -3,12 +3,23 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { useComparisonData } from '../hooks/useComparisonData';
+import { useComparisonSettings } from '../hooks/useComparisonSettings';
 import { COUNTRIES } from '../data/countries';
 import { getLocalizedCountryName } from '../utils/localizedCountryName';
 import { CountrySelector } from '../components/features/CountrySelector';
 import { PopulationPyramid } from '../components/features/PopulationPyramid/PopulationPyramid';
 import { OverlayPyramid } from '../components/features/OverlayPyramid';
-import { YearSelector } from '../components/common/YearSelector';
+import { ChartSettingsPanel, SettingsSection, SettingsButton } from '../components/features/ChartSettingsPanel';
+import {
+  YearSelector,
+  ViewModeToggle,
+  ColorProfileSelector,
+  ToggleSetting,
+  YAxisLabelConfig,
+  XAxisSplitConfig,
+  getYAxisInterval,
+} from '../components/common';
+import { OverlayColorPicker } from '../components/common/OverlayColorPicker';
 import { parsePopulationFile } from '../services/fileParser';
 import type { Theme } from '../hooks';
 import styles from './ComparePage.module.css';
@@ -24,13 +35,15 @@ export function ComparePage({ theme }: ComparePageProps) {
   const navigate = useNavigate();
   const { t, language } = useI18n();
   const [viewMode, setViewMode] = useState<ViewMode>('side-by-side');
+  const [showAsPercentage, setShowAsPercentage] = useState(false);
+  const compSettings = useComparisonSettings();
 
   const {
     left, right,
     setLeftCode, setRightCode,
     setLeftCustomData, setRightCustomData,
     setLeftYear, setRightYear,
-    swap, reset,
+    swap, clearLeft, clearRight,
     syncYears, setSyncYears,
     matchScale, setMatchScale,
     commonYears,
@@ -78,9 +91,14 @@ export function ComparePage({ theme }: ComparePageProps) {
     updateUrl(right.code, left.code);
   };
 
-  const handleReset = () => {
-    reset();
-    navigate('/compare', { replace: true });
+  const handleLeftReset = () => {
+    clearLeft();
+    updateUrl(null, right.code);
+  };
+
+  const handleRightReset = () => {
+    clearRight();
+    updateUrl(left.code, null);
   };
 
   // File upload handlers
@@ -168,6 +186,14 @@ export function ComparePage({ theme }: ComparePageProps) {
             />
             <span>{t.comparison.matchScale}</span>
           </label>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              checked={showAsPercentage}
+              onChange={e => setShowAsPercentage(e.target.checked)}
+            />
+            <span>%</span>
+          </label>
         </div>
 
         {/* Swap button */}
@@ -179,22 +205,8 @@ export function ComparePage({ theme }: ComparePageProps) {
           disabled={!hasAnyData}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 16V4m0 0L3 8m4-4l4 4" />
-            <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
-          </svg>
-        </button>
-
-        {/* Reset button */}
-        <button
-          className={styles.iconButton}
-          onClick={handleReset}
-          type="button"
-          title={t.comparison.reset ?? 'Reset'}
-          disabled={!hasAnyData}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
+            <path d="M16 7H4m0 0l4-4m-4 4l4 4" />
+            <path d="M8 17h12m0 0l-4-4m4 4l-4 4" />
           </svg>
         </button>
 
@@ -213,6 +225,7 @@ export function ComparePage({ theme }: ComparePageProps) {
           label={t.comparison.left}
           customLabel={left.customLabel}
           onFileUpload={handleLeftFile}
+          onReset={handleLeftReset}
         />
         <CountrySelector
           value={right.code}
@@ -221,6 +234,7 @@ export function ComparePage({ theme }: ComparePageProps) {
           label={t.comparison.right}
           customLabel={right.customLabel}
           onFileUpload={handleRightFile}
+          onReset={handleRightReset}
         />
       </div>
 
@@ -230,6 +244,11 @@ export function ComparePage({ theme }: ComparePageProps) {
           <div className={styles.sideBySide}>
             {/* Left panel */}
             <div className={styles.panel}>
+              {leftPopulationData && left.data && (
+                <div className={styles.panelToolbar}>
+                  <SettingsButton onClick={() => compSettings.openSettings('left')} />
+                </div>
+              )}
               {left.loading && <div className={styles.loading}><div className={styles.spinner} /></div>}
               {left.error && <div className={styles.error}>{left.error}</div>}
               {leftPopulationData && left.data && (
@@ -239,8 +258,15 @@ export function ComparePage({ theme }: ComparePageProps) {
                     theme={theme}
                     customTitle={leftName}
                     maxScale={sharedMaxScale}
+                    showAsPercentage={showAsPercentage || compSettings.left.showAsPercentage}
+                    viewMode={compSettings.left.viewMode}
+                    colorProfile={compSettings.left.colorProfile}
+                    showMedianLine={compSettings.left.showMedianLine}
+                    showBarLabels={compSettings.left.showBarLabels}
+                    showTotal={compSettings.left.showTotal}
+                    yAxisInterval={getYAxisInterval(compSettings.left.yAxisLabelMode)}
+                    xAxisSplitCount={compSettings.left.xAxisSplitCount}
                   />
-                  {/* Individual year selector only when NOT synced */}
                   {!yearsForSync && (
                     <YearSelector
                       years={left.data.years}
@@ -258,6 +284,11 @@ export function ComparePage({ theme }: ComparePageProps) {
 
             {/* Right panel */}
             <div className={styles.panel}>
+              {rightPopulationData && right.data && (
+                <div className={styles.panelToolbar}>
+                  <SettingsButton onClick={() => compSettings.openSettings('right')} />
+                </div>
+              )}
               {right.loading && <div className={styles.loading}><div className={styles.spinner} /></div>}
               {right.error && <div className={styles.error}>{right.error}</div>}
               {rightPopulationData && right.data && (
@@ -267,8 +298,15 @@ export function ComparePage({ theme }: ComparePageProps) {
                     theme={theme}
                     customTitle={rightName}
                     maxScale={sharedMaxScale}
+                    showAsPercentage={showAsPercentage || compSettings.right.showAsPercentage}
+                    viewMode={compSettings.right.viewMode}
+                    colorProfile={compSettings.right.colorProfile}
+                    showMedianLine={compSettings.right.showMedianLine}
+                    showBarLabels={compSettings.right.showBarLabels}
+                    showTotal={compSettings.right.showTotal}
+                    yAxisInterval={getYAxisInterval(compSettings.right.yAxisLabelMode)}
+                    xAxisSplitCount={compSettings.right.xAxisSplitCount}
                   />
-                  {/* Individual year selector only when NOT synced */}
                   {!yearsForSync && (
                     <YearSelector
                       years={right.data.years}
@@ -284,6 +322,112 @@ export function ComparePage({ theme }: ComparePageProps) {
               )}
             </div>
           </div>
+
+          {/* Left settings panel */}
+          <ChartSettingsPanel
+            isOpen={compSettings.settingsOpenFor === 'left'}
+            onClose={compSettings.closeSettings}
+          >
+            <SettingsSection title={t.settings.displayFormat}>
+              <ViewModeToggle
+                mode={compSettings.left.viewMode}
+                onChange={mode => compSettings.updateLeft({ viewMode: mode })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.colorProfile}>
+              <ColorProfileSelector
+                value={compSettings.left.colorProfile}
+                onChange={colorProfile => compSettings.updateLeft({ colorProfile })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.additional}>
+              <ToggleSetting
+                label={t.settings.showMedianLine}
+                checked={compSettings.left.showMedianLine}
+                onChange={showMedianLine => compSettings.updateLeft({ showMedianLine })}
+              />
+              <ToggleSetting
+                label={t.settings.barLabels}
+                checked={compSettings.left.showBarLabels}
+                onChange={showBarLabels => compSettings.updateLeft({ showBarLabels })}
+              />
+              <ToggleSetting
+                label={t.settings.showTotal}
+                checked={compSettings.left.showTotal}
+                onChange={showTotal => compSettings.updateLeft({ showTotal })}
+              />
+              <ToggleSetting
+                label={t.settings.showAsPercentage}
+                checked={compSettings.left.showAsPercentage}
+                onChange={showAsPercentage => compSettings.updateLeft({ showAsPercentage })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.yAxisLabels}>
+              <YAxisLabelConfig
+                mode={compSettings.left.yAxisLabelMode}
+                onChange={yAxisLabelMode => compSettings.updateLeft({ yAxisLabelMode })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.xAxisDivisions}>
+              <XAxisSplitConfig
+                value={compSettings.left.xAxisSplitCount}
+                onChange={xAxisSplitCount => compSettings.updateLeft({ xAxisSplitCount })}
+              />
+            </SettingsSection>
+          </ChartSettingsPanel>
+
+          {/* Right settings panel */}
+          <ChartSettingsPanel
+            isOpen={compSettings.settingsOpenFor === 'right'}
+            onClose={compSettings.closeSettings}
+          >
+            <SettingsSection title={t.settings.displayFormat}>
+              <ViewModeToggle
+                mode={compSettings.right.viewMode}
+                onChange={mode => compSettings.updateRight({ viewMode: mode })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.colorProfile}>
+              <ColorProfileSelector
+                value={compSettings.right.colorProfile}
+                onChange={colorProfile => compSettings.updateRight({ colorProfile })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.additional}>
+              <ToggleSetting
+                label={t.settings.showMedianLine}
+                checked={compSettings.right.showMedianLine}
+                onChange={showMedianLine => compSettings.updateRight({ showMedianLine })}
+              />
+              <ToggleSetting
+                label={t.settings.barLabels}
+                checked={compSettings.right.showBarLabels}
+                onChange={showBarLabels => compSettings.updateRight({ showBarLabels })}
+              />
+              <ToggleSetting
+                label={t.settings.showTotal}
+                checked={compSettings.right.showTotal}
+                onChange={showTotal => compSettings.updateRight({ showTotal })}
+              />
+              <ToggleSetting
+                label={t.settings.showAsPercentage}
+                checked={compSettings.right.showAsPercentage}
+                onChange={showAsPercentage => compSettings.updateRight({ showAsPercentage })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.yAxisLabels}>
+              <YAxisLabelConfig
+                mode={compSettings.right.yAxisLabelMode}
+                onChange={yAxisLabelMode => compSettings.updateRight({ yAxisLabelMode })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.xAxisDivisions}>
+              <XAxisSplitConfig
+                value={compSettings.right.xAxisSplitCount}
+                onChange={xAxisSplitCount => compSettings.updateRight({ xAxisSplitCount })}
+              />
+            </SettingsSection>
+          </ChartSettingsPanel>
 
           {/* Shared year selector when synced */}
           {yearsForSync && (
@@ -304,6 +448,9 @@ export function ComparePage({ theme }: ComparePageProps) {
             <div className={styles.loading}><div className={styles.spinner} /></div>
           ) : leftPopulationData && rightPopulationData ? (
             <>
+              <div className={styles.panelToolbar}>
+                <SettingsButton onClick={() => compSettings.openSettings('overlay')} />
+              </div>
               <OverlayPyramid
                 leftData={leftPopulationData}
                 rightData={rightPopulationData}
@@ -311,6 +458,10 @@ export function ComparePage({ theme }: ComparePageProps) {
                 rightName={rightName}
                 theme={theme}
                 maxScale={sharedMaxScale}
+                showAsPercentage={showAsPercentage}
+                customColors={compSettings.overlay.colors}
+                yAxisInterval={getYAxisInterval(compSettings.overlay.yAxisLabelMode)}
+                xAxisSplitCount={compSettings.overlay.xAxisSplitCount}
               />
               {/* Shared year selector when synced, or two selectors */}
               {yearsForSync ? (
@@ -352,6 +503,39 @@ export function ComparePage({ theme }: ComparePageProps) {
               {t.comparison.selectCountry}
             </div>
           )}
+
+          {/* Overlay settings panel */}
+          <ChartSettingsPanel
+            isOpen={compSettings.settingsOpenFor === 'overlay'}
+            onClose={compSettings.closeSettings}
+          >
+            <SettingsSection title={t.settings.colorProfile}>
+              <OverlayColorPicker
+                leftMaleColor={compSettings.overlay.colors.leftMaleColor}
+                leftFemaleColor={compSettings.overlay.colors.leftFemaleColor}
+                rightMaleColor={compSettings.overlay.colors.rightMaleColor}
+                rightFemaleColor={compSettings.overlay.colors.rightFemaleColor}
+                leftName={leftName || t.comparison.left}
+                rightName={rightName || t.comparison.right}
+                onChangeLeftMale={c => compSettings.updateOverlayColors({ leftMaleColor: c })}
+                onChangeLeftFemale={c => compSettings.updateOverlayColors({ leftFemaleColor: c })}
+                onChangeRightMale={c => compSettings.updateOverlayColors({ rightMaleColor: c })}
+                onChangeRightFemale={c => compSettings.updateOverlayColors({ rightFemaleColor: c })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.yAxisLabels}>
+              <YAxisLabelConfig
+                mode={compSettings.overlay.yAxisLabelMode}
+                onChange={yAxisLabelMode => compSettings.updateOverlay({ yAxisLabelMode })}
+              />
+            </SettingsSection>
+            <SettingsSection title={t.settings.xAxisDivisions}>
+              <XAxisSplitConfig
+                value={compSettings.overlay.xAxisSplitCount}
+                onChange={xAxisSplitCount => compSettings.updateOverlay({ xAxisSplitCount })}
+              />
+            </SettingsSection>
+          </ChartSettingsPanel>
         </div>
       )}
     </div>

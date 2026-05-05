@@ -44,6 +44,27 @@
   background: var(--color-selection-bg);
 }
 
+.resetButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.resetButton:hover {
+  color: var(--color-error, #ef4444);
+  border-color: var(--color-error, #ef4444);
+  background: var(--color-selection-bg);
+}
+
 .trigger {
   display: flex;
   align-items: center;

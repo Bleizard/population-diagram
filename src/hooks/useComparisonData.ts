@@ -24,6 +24,8 @@ interface UseComparisonDataReturn {
   setRightYear: (year: number) => void;
   swap: () => void;
   reset: () => void;
+  clearLeft: () => void;
+  clearRight: () => void;
   syncYears: boolean;
   setSyncYears: (v: boolean) => void;
   matchScale: boolean;
@@ -233,6 +235,24 @@ export function useComparisonData(): UseComparisonDataReturn {
     setRightError(null);
   }, []);
 
+  // Clear left side only
+  const clearLeft = useCallback(() => {
+    setLeftCodeRaw(null);
+    setLeftCustomLabel(null);
+    setLeftData(null);
+    setLeftYearRaw(0);
+    setLeftError(null);
+  }, []);
+
+  // Clear right side only
+  const clearRight = useCallback(() => {
+    setRightCodeRaw(null);
+    setRightCustomLabel(null);
+    setRightData(null);
+    setRightYearRaw(0);
+    setRightError(null);
+  }, []);
+
   return {
     left: { code: leftCode, customLabel: leftCustomLabel, data: leftData, year: leftYear, loading: leftLoading, error: leftError },
     right: { code: rightCode, customLabel: rightCustomLabel, data: rightData, year: rightYear, loading: rightLoading, error: rightError },
@@ -244,6 +264,8 @@ export function useComparisonData(): UseComparisonDataReturn {
     setRightYear,
     swap,
     reset,
+    clearLeft,
+    clearRight,
     syncYears,
     setSyncYears,
     matchScale,

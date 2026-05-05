@@ -150,7 +150,14 @@
   min-height: 400px;
   display: flex;
   flex-direction: column;
+  position: relative;
   transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.panelToolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
 }
 
 /* Shared timeline (below both panels when sync is on) */
