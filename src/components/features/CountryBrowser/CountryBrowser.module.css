@@ -8,6 +8,10 @@
   max-width: 100%;
 }
 
+.mapMode {
+  max-width: 1240px;
+}
+
 .title {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.125rem;
@@ -16,6 +20,45 @@
   margin: 0 0 16px;
   text-align: center;
   transition: color var(--transition-normal);
+}
+
+.viewModeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 14px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 14px;
+}
+
+.viewModeButton {
+  padding: 7px 14px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.viewModeButton:hover {
+  color: var(--color-primary);
+}
+
+.viewModeButtonActive {
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.viewModeButtonActive:hover {
+  color: #fff;
 }
 
 /* Search */
@@ -206,6 +249,14 @@
 @media (max-width: 640px) {
   .container {
     margin-top: 24px;
+  }
+
+  .viewModeToggle {
+    width: 100%;
+  }
+
+  .viewModeButton {
+    flex: 1;
   }
 
   .grid {

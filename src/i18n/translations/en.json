@@ -28,7 +28,14 @@
     "years": "years",
     "noResults": "No countries found",
     "loadingCountry": "Loading {country}...",
-    "loadingDemo": "Loading demo data..."
+    "loadingDemo": "Loading demo data...",
+    "listMode": "List",
+    "mapMode": "Map",
+    "mapLoading": "Loading map...",
+    "mapUnavailable": "Map is temporarily unavailable",
+    "mapPrompt": "Click a country on the map to open its population pyramid",
+    "mapHoverHint": "is ready to open",
+    "mapHint": "Flags and labels are shown directly on the country polygons when space allows"
   },
   "comparison": {
     "title": "Comparison",

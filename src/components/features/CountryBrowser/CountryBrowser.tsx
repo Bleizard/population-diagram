@@ -1,17 +1,26 @@
-import { useState, useEffect, useMemo } from 'react';
+import { lazy, Suspense, useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import { COUNTRIES, type CountryMeta } from '../../../data/countries';
 import { getLocalizedCountryName } from '../../../utils/localizedCountryName';
 import { fetchCountryIndex, type CountryIndexEntry } from '../../../services/countryDataLoader';
+import type { Theme } from '../../../hooks';
 import styles from './CountryBrowser.module.css';
 
 type RegionFilter = 'All' | 'EU' | 'EFTA' | 'Candidate' | 'NorthAmerica' | 'Other';
+type BrowserMode = 'list' | 'map';
 
 interface CountryBrowserProps {
   isLoading: boolean;
   fullWidth?: boolean;
+  theme: Theme;
 }
+
+const BROWSER_MODE_STORAGE_KEY = 'population-country-browser-mode';
+
+const CountryMapBrowser = lazy(() =>
+  import('../CountryMapBrowser').then((module) => ({ default: module.CountryMapBrowser }))
+);
 
 // Pre-compute counts
 const REGION_COUNTS: Record<RegionFilter, number> = {
@@ -23,17 +32,28 @@ const REGION_COUNTS: Record<RegionFilter, number> = {
   Other: COUNTRIES.filter(c => c.region === 'Other').length,
 };
 
-export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
+export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserProps) {
   const { t, language } = useI18n();
   const [search, setSearch] = useState('');
   const [regionFilter, setRegionFilter] = useState<RegionFilter>('All');
   const [countryIndex, setCountryIndex] = useState<CountryIndexEntry[]>([]);
+  const [browserMode, setBrowserMode] = useState<BrowserMode>(() => {
+    if (typeof window === 'undefined') return 'list';
+    const saved = window.localStorage.getItem(BROWSER_MODE_STORAGE_KEY);
+    return saved === 'map' ? 'map' : 'list';
+  });
 
   useEffect(() => {
     fetchCountryIndex()
       .then(setCountryIndex)
       .catch(() => {/* index load failed — cards will show without year info */});
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(BROWSER_MODE_STORAGE_KEY, browserMode);
+    }
+  }, [browserMode]);
 
   const indexMap = useMemo(() => {
     const map = new Map<string, CountryIndexEntry>();
@@ -91,8 +111,25 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
   }
 
   return (
-    <div className={`${styles.container} ${fullWidth ? styles.fullWidth : ''}`}>
+    <div className={`${styles.container} ${fullWidth ? styles.fullWidth : ''} ${browserMode === 'map' ? styles.mapMode : ''}`}>
       <h2 className={styles.title}>{t.countryBrowser.title}</h2>
+
+      <div className={styles.viewModeToggle}>
+        <button
+          type="button"
+          className={`${styles.viewModeButton} ${browserMode === 'list' ? styles.viewModeButtonActive : ''}`}
+          onClick={() => setBrowserMode('list')}
+        >
+          {t.countryBrowser.listMode}
+        </button>
+        <button
+          type="button"
+          className={`${styles.viewModeButton} ${browserMode === 'map' ? styles.viewModeButtonActive : ''}`}
+          onClick={() => setBrowserMode('map')}
+        >
+          {t.countryBrowser.mapMode}
+        </button>
+      </div>
 
       <div className={styles.searchWrapper}>
         <input
@@ -116,41 +153,56 @@ export function CountryBrowser({ isLoading, fullWidth }: CountryBrowserProps) {
         ))}
       </div>
 
-      <div className={styles.grid}>
-        {filtered.length === 0 ? (
+      {browserMode === 'map' ? (
+        filtered.length === 0 ? (
           <div className={styles.noResults}>{t.countryBrowser.noResults}</div>
         ) : (
-          filtered.map(country => {
-            const idx = indexMap.get(country.code);
-            const yearRange = formatYearRange(idx);
-            return (
-              <div key={country.code} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <span className={styles.cardFlag}>{country.flag}</span>
-                  <p className={styles.cardName}>{localizedNames.get(country.code) ?? country.name}</p>
+          <Suspense fallback={<div className={styles.noResults}>{t.countryBrowser.mapLoading}</div>}>
+            <CountryMapBrowser
+              countries={filtered}
+              localizedNames={localizedNames}
+              isLoading={isLoading}
+              theme={theme}
+            />
+          </Suspense>
+        )
+      ) : (
+        <div className={styles.grid}>
+          {filtered.length === 0 ? (
+            <div className={styles.noResults}>{t.countryBrowser.noResults}</div>
+          ) : (
+            filtered.map(country => {
+              const idx = indexMap.get(country.code);
+              const yearRange = formatYearRange(idx);
+              return (
+                <div key={country.code} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <span className={styles.cardFlag}>{country.flag}</span>
+                    <p className={styles.cardName}>{localizedNames.get(country.code) ?? country.name}</p>
+                  </div>
+                  {yearRange && <p className={styles.cardYears}>{yearRange}</p>}
+                  <div className={styles.cardActions}>
+                    <Link
+                      className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
+                      to={`/country/${country.code}`}
+                      onClick={isLoading ? (e) => e.preventDefault() : undefined}
+                    >
+                      {t.countryBrowser.view}
+                    </Link>
+                    <Link
+                      className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
+                      to={`/compare/${country.code}`}
+                      onClick={isLoading ? (e) => e.preventDefault() : undefined}
+                    >
+                      {t.countryBrowser.compare}
+                    </Link>
+                  </div>
                 </div>
-                {yearRange && <p className={styles.cardYears}>{yearRange}</p>}
-                <div className={styles.cardActions}>
-                  <Link
-                    className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
-                    to={`/country/${country.code}`}
-                    onClick={isLoading ? (e) => e.preventDefault() : undefined}
-                  >
-                    {t.countryBrowser.view}
-                  </Link>
-                  <Link
-                    className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
-                    to={`/compare/${country.code}`}
-                    onClick={isLoading ? (e) => e.preventDefault() : undefined}
-                  >
-                    {t.countryBrowser.compare}
-                  </Link>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

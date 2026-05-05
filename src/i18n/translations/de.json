@@ -28,7 +28,14 @@
     "years": "Jahre",
     "noResults": "Keine Länder gefunden",
     "loadingCountry": "{country} wird geladen...",
-    "loadingDemo": "Demo-Daten werden geladen..."
+    "loadingDemo": "Demo-Daten werden geladen...",
+    "listMode": "Liste",
+    "mapMode": "Karte",
+    "mapLoading": "Karte wird geladen...",
+    "mapUnavailable": "Die Karte ist vorübergehend nicht verfügbar",
+    "mapPrompt": "Klicke auf ein Land auf der Karte, um seine Bevölkerungspyramide zu öffnen",
+    "mapHoverHint": "kann jetzt geöffnet werden",
+    "mapHint": "Flaggen und Namen werden direkt auf den Länderpolygonen angezeigt, wenn genug Platz vorhanden ist"
   },
   "comparison": {
     "title": "Vergleich",

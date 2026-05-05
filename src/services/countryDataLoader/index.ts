@@ -1,4 +1,5 @@
 import type { PopulationAgeGroup, TimeSeriesPopulationData } from '../../types';
+import { calculatePopulationSummary, type PopulationSummaryMetrics } from '../../utils/populationSummary';
 
 // ─── Типы ────────────────────────────────────────────────
 
@@ -21,9 +22,15 @@ interface CompactCountryData {
   data: Record<number, { m: number[]; f: number[] }>;
 }
 
+export interface CountrySummaryEntry {
+  year: number | null;
+  metrics: PopulationSummaryMetrics;
+}
+
 // ─── Кэш ─────────────────────────────────────────────────
 
 const countryDataCache = new Map<string, TimeSeriesPopulationData>();
+const countrySummaryCache = new Map<string, CountrySummaryEntry>();
 let indexCache: CountryIndexEntry[] | null = null;
 
 // ─── Функции ─────────────────────────────────────────────
@@ -91,4 +98,21 @@ export async function fetchCountryData(code: string): Promise<TimeSeriesPopulati
 
   countryDataCache.set(code, result);
   return result;
+}
+
+export async function fetchCountrySummary(code: string): Promise<CountrySummaryEntry> {
+  const cached = countrySummaryCache.get(code);
+  if (cached) return cached;
+
+  const data = await fetchCountryData(code);
+  const latestYear = [...data.years].reverse().find((year) => Array.isArray(data.dataByYear[year])) ?? null;
+  const ageGroups = latestYear !== null ? data.dataByYear[latestYear] : [];
+
+  const summary: CountrySummaryEntry = {
+    year: latestYear,
+    metrics: calculatePopulationSummary(ageGroups, data.hasGenderData !== false),
+  };
+
+  countrySummaryCache.set(code, summary);
+  return summary;
 }

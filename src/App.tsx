@@ -53,6 +53,7 @@ function HomePage({
           />
           <CountryBrowser
             isLoading={isLoading}
+            theme={theme}
           />
         </section>
       ) : (
@@ -190,7 +191,7 @@ function App() {
               <ComparePage theme={theme} />
             } />
             <Route path="/countries" element={
-              <CountriesPage isLoading={isLoading} />
+              <CountriesPage isLoading={isLoading} theme={theme} />
             } />
           </Routes>
         </main>

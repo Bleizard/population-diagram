@@ -6,6 +6,7 @@ import type { ViewMode } from '../../common/ViewModeToggle';
 import { transformToChartData, extractChartMetadata } from '../../../services/dataTransformer';
 import { useI18n } from '../../../i18n';
 import { formatPopulation } from '../../../utils';
+import { calculatePopulationSummary } from '../../../utils/populationSummary';
 
 // Локальные модули
 import { getChartColors } from './chartColors';
@@ -87,6 +88,16 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
   }, ref) {
     const { t } = useI18n();
     const chartRef = useRef<ReactECharts>(null);
+    const summaryText = t.summary ?? {
+      totalPopulation: 'Total population',
+      childrenShare: 'Age 0-14',
+      workingAgeShare: 'Age 15-64',
+      seniorShare: 'Age 65+',
+      dependencyRatio: 'Dependency ratio',
+      sexRatio: 'Sex ratio',
+      sexRatioHint: 'males per 100 females',
+      notAvailable: 'N/A',
+    };
     
     // Экспорт (SVG, canvas)
     const { exportToSvg, getCanvas } = useChartExport(chartRef, theme);
@@ -107,7 +118,6 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     // Расчёты
     const totals = useMemo(() => calculateTotals(data.ageGroups), [data.ageGroups]);
     const summaryAgeGroups = sourceDataForMedian?.ageGroups ?? data.ageGroups;
-    const summaryTotals = useMemo(() => calculateTotals(summaryAgeGroups), [summaryAgeGroups]);
     
     const medianAge = useMemo(() => {
       return calculateMedianAge(summaryAgeGroups);
@@ -132,38 +142,27 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     const hasGenderBreakdown = (sourceDataForMedian?.hasGenderData ?? data.hasGenderData) !== false;
 
     const summaryMetrics = useMemo(() => {
-      const youngPopulation = summaryAgeGroups.reduce((sum, group) => (
-        group.ageNumeric <= 14 ? sum + group.male + group.female : sum
-      ), 0);
-      const workingPopulation = summaryAgeGroups.reduce((sum, group) => (
-        group.ageNumeric >= 15 && group.ageNumeric <= 64 ? sum + group.male + group.female : sum
-      ), 0);
-      const seniorPopulation = summaryAgeGroups.reduce((sum, group) => (
-        group.ageNumeric >= 65 ? sum + group.male + group.female : sum
-      ), 0);
-
-      const toShare = (value: number) => (
-        summaryTotals.total > 0 ? `${((value / summaryTotals.total) * 100).toFixed(1)}%` : t.summary.notAvailable
+      const summary = calculatePopulationSummary(summaryAgeGroups, hasGenderBreakdown);
+      const toShare = (value: number | null) => (
+        value !== null ? `${value.toFixed(1)}%` : summaryText.notAvailable
       );
-
-      const dependencyRatio = workingPopulation > 0
-        ? `${(((youngPopulation + seniorPopulation) / workingPopulation) * 100).toFixed(1)}%`
-        : t.summary.notAvailable;
-
-      const sexRatio = hasGenderBreakdown && summaryTotals.female > 0
-        ? `${((summaryTotals.male / summaryTotals.female) * 100).toFixed(1)}`
-        : t.summary.notAvailable;
+      const dependencyRatio = summary.dependencyRatio !== null
+        ? `${summary.dependencyRatio.toFixed(1)}%`
+        : summaryText.notAvailable;
+      const sexRatio = summary.sexRatio !== null
+        ? `${summary.sexRatio.toFixed(1)}`
+        : summaryText.notAvailable;
 
       return [
-        { id: 'total', label: t.summary.totalPopulation, value: formatPopulation(summaryTotals.total) },
-        { id: 'median', label: t.common.median, value: `${medianAge}` },
-        { id: 'young', label: t.summary.childrenShare, value: toShare(youngPopulation) },
-        { id: 'working', label: t.summary.workingAgeShare, value: toShare(workingPopulation) },
-        { id: 'senior', label: t.summary.seniorShare, value: toShare(seniorPopulation) },
-        { id: 'dependency', label: t.summary.dependencyRatio, value: dependencyRatio },
-        { id: 'sexRatio', label: t.summary.sexRatio, value: sexRatio, hint: t.summary.sexRatioHint },
+        { id: 'total', label: summaryText.totalPopulation, value: formatPopulation(summary.totalPopulation) },
+        { id: 'median', label: t.common.median, value: summary.medianAge !== null ? `${summary.medianAge}` : summaryText.notAvailable },
+        { id: 'young', label: summaryText.childrenShare, value: toShare(summary.youngShare) },
+        { id: 'working', label: summaryText.workingAgeShare, value: toShare(summary.workingAgeShare) },
+        { id: 'senior', label: summaryText.seniorShare, value: toShare(summary.seniorShare) },
+        { id: 'dependency', label: summaryText.dependencyRatio, value: dependencyRatio },
+        { id: 'sexRatio', label: summaryText.sexRatio, value: sexRatio, hint: summaryText.sexRatioHint },
       ];
-    }, [hasGenderBreakdown, medianAge, summaryAgeGroups, summaryTotals, t]);
+    }, [hasGenderBreakdown, summaryAgeGroups, summaryText, t.common.median]);
 
     // Опции для режимов
     const splitOption = useSplitChartOption({

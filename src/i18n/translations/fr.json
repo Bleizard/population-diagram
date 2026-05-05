@@ -28,7 +28,14 @@
     "years": "années",
     "noResults": "Aucun pays trouvé",
     "loadingCountry": "Chargement de {country}...",
-    "loadingDemo": "Chargement des données de démonstration..."
+    "loadingDemo": "Chargement des données de démonstration...",
+    "listMode": "Liste",
+    "mapMode": "Carte",
+    "mapLoading": "Chargement de la carte...",
+    "mapUnavailable": "La carte est temporairement indisponible",
+    "mapPrompt": "Cliquez sur un pays de la carte pour ouvrir sa pyramide des âges",
+    "mapHoverHint": "est prêt à être ouvert",
+    "mapHint": "Les drapeaux et les noms s'affichent directement sur les polygones lorsque l'espace le permet"
   },
   "comparison": {
     "title": "Comparaison",

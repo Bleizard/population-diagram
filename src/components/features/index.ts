@@ -9,6 +9,7 @@ export {
 } from './ChartSettingsPanel';
 export { ChartWorkspace } from './ChartWorkspace';
 export { CountryBrowser } from './CountryBrowser';
+export { CountryMapBrowser } from './CountryMapBrowser';
 export { CountrySelector } from './CountrySelector';
 export { DifferencePyramid } from './DifferencePyramid';
 export { FullscreenChart } from './FullscreenChart';
