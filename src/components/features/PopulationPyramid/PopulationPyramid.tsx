@@ -57,6 +57,8 @@ interface PopulationPyramidProps {
   showMedianLine?: boolean;
   /** Отображать данные в процентах */
   showAsPercentage?: boolean;
+  /** Показывать summary-метрики над графиком */
+  showSummaryMetrics?: boolean;
   /** Дополнительный CSS класс */
   className?: string;
 }
@@ -80,6 +82,7 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     colorProfile = 'pale',
     showMedianLine = false,
     showAsPercentage = false,
+    showSummaryMetrics = true,
     className 
   }, ref) {
     const { t } = useI18n();
@@ -103,11 +106,12 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     
     // Расчёты
     const totals = useMemo(() => calculateTotals(data.ageGroups), [data.ageGroups]);
+    const summaryAgeGroups = sourceDataForMedian?.ageGroups ?? data.ageGroups;
+    const summaryTotals = useMemo(() => calculateTotals(summaryAgeGroups), [summaryAgeGroups]);
     
     const medianAge = useMemo(() => {
-      const ageGroups = sourceDataForMedian?.ageGroups ?? data.ageGroups;
-      return calculateMedianAge(ageGroups);
-    }, [data.ageGroups, sourceDataForMedian]);
+      return calculateMedianAge(summaryAgeGroups);
+    }, [summaryAgeGroups]);
     
     const medianAgeIndex = useMemo(
       () => findMedianAgeIndex(data.ageGroups, medianAge),
@@ -125,6 +129,41 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
     // Эффективные значения
     const effectiveTitle = customTitle?.trim() || metadata.title;
     const effectiveMaxScale = maxScale ?? metadata.maxValue;
+    const hasGenderBreakdown = (sourceDataForMedian?.hasGenderData ?? data.hasGenderData) !== false;
+
+    const summaryMetrics = useMemo(() => {
+      const youngPopulation = summaryAgeGroups.reduce((sum, group) => (
+        group.ageNumeric <= 14 ? sum + group.male + group.female : sum
+      ), 0);
+      const workingPopulation = summaryAgeGroups.reduce((sum, group) => (
+        group.ageNumeric >= 15 && group.ageNumeric <= 64 ? sum + group.male + group.female : sum
+      ), 0);
+      const seniorPopulation = summaryAgeGroups.reduce((sum, group) => (
+        group.ageNumeric >= 65 ? sum + group.male + group.female : sum
+      ), 0);
+
+      const toShare = (value: number) => (
+        summaryTotals.total > 0 ? `${((value / summaryTotals.total) * 100).toFixed(1)}%` : t.summary.notAvailable
+      );
+
+      const dependencyRatio = workingPopulation > 0
+        ? `${(((youngPopulation + seniorPopulation) / workingPopulation) * 100).toFixed(1)}%`
+        : t.summary.notAvailable;
+
+      const sexRatio = hasGenderBreakdown && summaryTotals.female > 0
+        ? `${((summaryTotals.male / summaryTotals.female) * 100).toFixed(1)}`
+        : t.summary.notAvailable;
+
+      return [
+        { id: 'total', label: t.summary.totalPopulation, value: formatPopulation(summaryTotals.total) },
+        { id: 'median', label: t.common.median, value: `${medianAge}` },
+        { id: 'young', label: t.summary.childrenShare, value: toShare(youngPopulation) },
+        { id: 'working', label: t.summary.workingAgeShare, value: toShare(workingPopulation) },
+        { id: 'senior', label: t.summary.seniorShare, value: toShare(seniorPopulation) },
+        { id: 'dependency', label: t.summary.dependencyRatio, value: dependencyRatio },
+        { id: 'sexRatio', label: t.summary.sexRatio, value: sexRatio, hint: t.summary.sexRatioHint },
+      ];
+    }, [hasGenderBreakdown, medianAge, summaryAgeGroups, summaryTotals, t]);
 
     // Опции для режимов
     const splitOption = useSplitChartOption({
@@ -172,6 +211,19 @@ export const PopulationPyramid = forwardRef<PopulationPyramidRef, PopulationPyra
 
     return (
       <div className={`${styles.container} ${className || ''}`}>
+        {showSummaryMetrics && (
+          <div className={styles.summary}>
+            {summaryMetrics.map((metric) => (
+              <div key={metric.id} className={styles.summaryCard}>
+                <div className={styles.summaryLabel}>{metric.label}</div>
+                <div className={styles.summaryValue}>{metric.value}</div>
+                {metric.hint && (
+                  <div className={styles.summaryHint}>{metric.hint}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
         <ReactECharts
           ref={chartRef}
           option={option}

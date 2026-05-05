@@ -9,6 +9,49 @@
     border-color var(--transition-normal);
 }
 
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 10px;
+  padding: 16px 24px 0;
+}
+
+.summaryCard {
+  min-height: 74px;
+  padding: 10px 12px;
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  transition:
+    background-color var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+.summaryLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: color var(--transition-normal);
+}
+
+.summaryValue {
+  margin-top: 6px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-text);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: color var(--transition-normal);
+}
+
+.summaryHint {
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: color var(--transition-normal);
+}
+
 /* Закругление нижних углов только если нет timeline после графика */
 .container:last-child {
   border-radius: 0 0 12px 12px;
@@ -71,4 +114,11 @@
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   margin-left: auto;
   transition: color var(--transition-normal);
+}
+
+@media (max-width: 768px) {
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 14px 14px 0;
+  }
 }

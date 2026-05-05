@@ -161,6 +161,16 @@
     "population": "Население",
     "median": "Медианный возраст"
   },
+  "summary": {
+    "totalPopulation": "Численность",
+    "childrenShare": "Возраст 0-14",
+    "workingAgeShare": "Возраст 15-64",
+    "seniorShare": "Возраст 65+",
+    "dependencyRatio": "Коэф. нагрузки",
+    "sexRatio": "Половой коэффициент",
+    "sexRatioHint": "мужчин на 100 женщин",
+    "notAvailable": "н/д"
+  },
   "errors": {
     "ageColumnNotFound": "Колонка возраста не найдена (age)",
     "maleColumnNotFound": "Колонка мужчин не найдена (male)",

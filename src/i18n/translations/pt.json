@@ -161,6 +161,16 @@
     "population": "População",
     "median": "Idade mediana"
   },
+  "summary": {
+    "totalPopulation": "População total",
+    "childrenShare": "Idade 0-14",
+    "workingAgeShare": "Idade 15-64",
+    "seniorShare": "Idade 65+",
+    "dependencyRatio": "Razão de dependência",
+    "sexRatio": "Razão por sexo",
+    "sexRatioHint": "homens por 100 mulheres",
+    "notAvailable": "N/D"
+  },
   "errors": {
     "ageColumnNotFound": "Coluna de idade não encontrada (age)",
     "maleColumnNotFound": "Coluna de homens não encontrada (male)",

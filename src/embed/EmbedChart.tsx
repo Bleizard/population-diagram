@@ -98,6 +98,7 @@ export function EmbedChart({
           colorProfile={colorProfile}
           showMedianLine={showMedianLine}
           showAsPercentage={showAsPercentage}
+          showSummaryMetrics={false}
         />
       </div>
       {timeSeriesData && currentYear && onYearChange && (
@@ -114,4 +115,3 @@ export function EmbedChart({
     </div>
   );
 }
-

@@ -161,6 +161,16 @@
     "population": "Bevölkerung",
     "median": "Medianalter"
   },
+  "summary": {
+    "totalPopulation": "Gesamtbevölkerung",
+    "childrenShare": "Alter 0-14",
+    "workingAgeShare": "Alter 15-64",
+    "seniorShare": "Alter 65+",
+    "dependencyRatio": "Abhängigkeitsquote",
+    "sexRatio": "Geschlechterverhältnis",
+    "sexRatioHint": "Männer pro 100 Frauen",
+    "notAvailable": "k. A."
+  },
   "errors": {
     "ageColumnNotFound": "Altersspalte nicht gefunden (age)",
     "maleColumnNotFound": "Männerspalte nicht gefunden (male)",

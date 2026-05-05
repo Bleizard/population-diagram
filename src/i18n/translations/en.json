@@ -161,6 +161,16 @@
     "population": "Population",
     "median": "Median age"
   },
+  "summary": {
+    "totalPopulation": "Total population",
+    "childrenShare": "Age 0-14",
+    "workingAgeShare": "Age 15-64",
+    "seniorShare": "Age 65+",
+    "dependencyRatio": "Dependency ratio",
+    "sexRatio": "Sex ratio",
+    "sexRatioHint": "males per 100 females",
+    "notAvailable": "N/A"
+  },
   "errors": {
     "ageColumnNotFound": "Age column not found (age)",
     "maleColumnNotFound": "Male column not found (male)",
