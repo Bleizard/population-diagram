@@ -1,0 +1,8 @@
+.container {
+  width: 100%;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 16px;
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}

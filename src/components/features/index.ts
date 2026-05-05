@@ -10,8 +10,8 @@ export {
 export { ChartWorkspace } from './ChartWorkspace';
 export { CountryBrowser } from './CountryBrowser';
 export { CountrySelector } from './CountrySelector';
+export { DifferencePyramid } from './DifferencePyramid';
 export { FullscreenChart } from './FullscreenChart';
 export { OverlayPyramid } from './OverlayPyramid';
 export { PopulationPyramid } from './PopulationPyramid';
 export type { PopulationPyramidRef } from './PopulationPyramid';
-

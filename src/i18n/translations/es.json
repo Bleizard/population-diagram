@@ -40,6 +40,7 @@
     "year": "Año",
     "sideBySide": "Lado a lado",
     "overlay": "Superposición",
+    "difference": "Diferencia",
     "matchScale": "Igualar escala",
     "compareWith": "Comparar con",
     "swap": "Intercambiar lados",
@@ -226,4 +227,3 @@
     "exitFullscreen": "Salir de pantalla completa"
   }
 }
-

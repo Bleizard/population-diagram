@@ -9,6 +9,7 @@ import { getLocalizedCountryName } from '../utils/localizedCountryName';
 import { CountrySelector } from '../components/features/CountrySelector';
 import { PopulationPyramid } from '../components/features/PopulationPyramid/PopulationPyramid';
 import { OverlayPyramid } from '../components/features/OverlayPyramid';
+import { DifferencePyramid } from '../components/features/DifferencePyramid';
 import { ChartSettingsPanel, SettingsSection, SettingsButton } from '../components/features/ChartSettingsPanel';
 import {
   YearSelector,
@@ -24,7 +25,7 @@ import { parsePopulationFile } from '../services/fileParser';
 import type { Theme } from '../hooks';
 import styles from './ComparePage.module.css';
 
-type ViewMode = 'side-by-side' | 'overlay';
+type ViewMode = 'side-by-side' | 'overlay' | 'difference';
 
 interface ComparePageProps {
   theme: Theme;
@@ -165,6 +166,13 @@ export function ComparePage({ theme }: ComparePageProps) {
             type="button"
           >
             {t.comparison.overlay}
+          </button>
+          <button
+            className={`${styles.modeButton} ${viewMode === 'difference' ? styles.modeButtonActive : ''}`}
+            onClick={() => setViewMode('difference')}
+            type="button"
+          >
+            {t.comparison.difference}
           </button>
         </div>
 
@@ -442,7 +450,6 @@ export function ComparePage({ theme }: ComparePageProps) {
           )}
         </>
       ) : (
-        /* Overlay mode */
         <div className={styles.overlayContainer}>
           {left.loading || right.loading ? (
             <div className={styles.loading}><div className={styles.spinner} /></div>
@@ -451,18 +458,32 @@ export function ComparePage({ theme }: ComparePageProps) {
               <div className={styles.panelToolbar}>
                 <SettingsButton onClick={() => compSettings.openSettings('overlay')} />
               </div>
-              <OverlayPyramid
-                leftData={leftPopulationData}
-                rightData={rightPopulationData}
-                leftName={leftName}
-                rightName={rightName}
-                theme={theme}
-                maxScale={sharedMaxScale}
-                showAsPercentage={showAsPercentage}
-                customColors={compSettings.overlay.colors}
-                yAxisInterval={getYAxisInterval(compSettings.overlay.yAxisLabelMode)}
-                xAxisSplitCount={compSettings.overlay.xAxisSplitCount}
-              />
+              {viewMode === 'overlay' ? (
+                <OverlayPyramid
+                  leftData={leftPopulationData}
+                  rightData={rightPopulationData}
+                  leftName={leftName}
+                  rightName={rightName}
+                  theme={theme}
+                  maxScale={sharedMaxScale}
+                  showAsPercentage={showAsPercentage}
+                  customColors={compSettings.overlay.colors}
+                  yAxisInterval={getYAxisInterval(compSettings.overlay.yAxisLabelMode)}
+                  xAxisSplitCount={compSettings.overlay.xAxisSplitCount}
+                />
+              ) : (
+                <DifferencePyramid
+                  leftData={leftPopulationData}
+                  rightData={rightPopulationData}
+                  leftName={leftName}
+                  rightName={rightName}
+                  theme={theme}
+                  showAsPercentage={showAsPercentage}
+                  customColors={compSettings.overlay.colors}
+                  yAxisInterval={getYAxisInterval(compSettings.overlay.yAxisLabelMode)}
+                  xAxisSplitCount={compSettings.overlay.xAxisSplitCount}
+                />
+              )}
               {/* Shared year selector when synced, or two selectors */}
               {yearsForSync ? (
                 <YearSelector
