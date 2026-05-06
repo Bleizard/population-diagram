@@ -166,7 +166,7 @@ export function CountryPage({
         profile={demographyProfile}
         benchmarkProfile={euBenchmarkProfile}
       />
-      <CountryDemographyTrends profile={demographyProfile} />
+      <CountryDemographyTrends profile={demographyProfile} benchmarkProfile={euBenchmarkProfile} />
       <Suspense fallback={<LoadingFallback text={loadingText} />}>
         <ChartWorkspace
           initialData={initialData}
