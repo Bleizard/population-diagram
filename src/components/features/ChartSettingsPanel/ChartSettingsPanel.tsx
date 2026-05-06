@@ -267,7 +267,7 @@ export function ChartActionsMenu({ onExportSvg, onFullscreen, onGetEmbedCode }: 
                 <line x1="16" x2="8" y1="17" y2="17" />
                 <polyline points="10 9 9 9 8 9" />
               </svg>
-              Get Embed Code
+              {t.actions.embedCode}
             </button>
           )}
           <button
@@ -326,4 +326,3 @@ export function ChartActionsMenu({ onExportSvg, onFullscreen, onGetEmbedCode }: 
     </div>
   );
 }
-

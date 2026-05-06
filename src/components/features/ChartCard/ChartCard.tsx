@@ -46,6 +46,16 @@ interface ChartCardProps {
   onYearChange?: (year: number) => void;
   /** Функция получения canvas для GIF */
   getChartCanvas?: (year: number) => Promise<HTMLCanvasElement>;
+  /** Визуальный вариант */
+  variant?: 'default' | 'flat';
+  /** Показывать summary-метрики над графиком */
+  showSummaryMetrics?: boolean;
+  /** Показывать заголовок карточки */
+  showHeader?: boolean;
+  /** Показывать меню действий */
+  showActionsMenu?: boolean;
+  /** Показывать кнопку настроек */
+  showSettingsButton?: boolean;
 }
 
 /** Вычисляет максимальное значение из данных */
@@ -86,6 +96,11 @@ export const ChartCard = forwardRef<PopulationPyramidRef, ChartCardProps>(
       onRemove,
       onYearChange,
       getChartCanvas,
+      variant = 'default',
+      showSummaryMetrics = true,
+      showHeader = true,
+      showActionsMenu = true,
+      showSettingsButton = true,
     },
     ref
   ) {
@@ -96,45 +111,48 @@ export const ChartCard = forwardRef<PopulationPyramidRef, ChartCardProps>(
     const yAxisInterval = getYAxisInterval(settings.yAxisLabelMode);
 
     return (
-      <div className={styles.wrapper}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>
-            {groupConfig 
-              ? `${t.chart.grouping} ${groupConfig.map((g) => g.label).join(', ')}`
-              : title
-            }
-          </h2>
-          <div className={styles.actions}>
-            <ChartActionsMenu
-              onExportSvg={onExportSvg}
-              onFullscreen={onFullscreen}
-              onGetEmbedCode={onGetEmbedCode}
-            />
-            <SettingsButton onClick={onOpenSettings} />
-            {removable && onRemove && (
-              <button
-                className={styles.removeButton}
-                onClick={onRemove}
-                type="button"
-                aria-label={t.common.remove}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+      <div className={`${styles.wrapper} ${variant === 'flat' ? styles.wrapperFlat : ''}`}>
+        {showHeader && (
+          <div className={`${styles.header} ${variant === 'flat' ? styles.headerFlat : ''}`}>
+            <h2 className={styles.title}>
+              {groupConfig
+                ? `${t.chart.grouping} ${groupConfig.map((g) => g.label).join(', ')}`
+                : title}
+            </h2>
+            <div className={styles.actions}>
+              {showActionsMenu && (
+                <ChartActionsMenu
+                  onExportSvg={onExportSvg}
+                  onFullscreen={onFullscreen}
+                  onGetEmbedCode={onGetEmbedCode}
+                />
+              )}
+              {showSettingsButton && <SettingsButton onClick={onOpenSettings} />}
+              {removable && onRemove && (
+                <button
+                  className={styles.removeButton}
+                  onClick={onRemove}
+                  type="button"
+                  aria-label={t.common.remove}
                 >
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </button>
-            )}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <PopulationPyramid
           ref={ref}
@@ -151,6 +169,7 @@ export const ChartCard = forwardRef<PopulationPyramidRef, ChartCardProps>(
           colorProfile={settings.colorProfile}
           showMedianLine={settings.showMedianLine}
           showAsPercentage={settings.showAsPercentage}
+          showSummaryMetrics={showSummaryMetrics}
         />
 
         {timeSeriesData && currentYear && onYearChange && (

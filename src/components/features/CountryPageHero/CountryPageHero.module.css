@@ -1,0 +1,316 @@
+.hero {
+  margin-top: 28px;
+  margin-bottom: 0;
+  padding: 24px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-md);
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.titleWrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+  font-size: 2.3rem;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 0.95;
+  color: var(--color-text);
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  max-width: 680px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.98rem;
+  color: var(--color-text-secondary);
+}
+
+.compareButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-secondary);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sectionLabel {
+  margin-bottom: 10px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.insightsBlock {
+  margin-top: 18px;
+}
+
+.insightList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.insightChip {
+  padding: 10px 14px;
+  border: 1px solid rgba(59, 130, 246, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.84rem;
+  color: var(--color-text-secondary);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.summaryCard {
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.summaryLabel {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.79rem;
+  color: var(--color-text-muted);
+}
+
+.summaryValue {
+  margin-top: 8px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.summaryMeta {
+  margin-top: 10px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.77rem;
+  color: var(--color-text-secondary);
+}
+
+.benchmarkBlock {
+  margin-top: 20px;
+}
+
+.benchmarkGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.benchmarkCard {
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.benchmarkHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.benchmarkTone {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.benchmarkToneAbove {
+  background: rgba(5, 150, 105, 0.12);
+  color: rgb(5, 150, 105);
+}
+
+.benchmarkToneBelow {
+  background: rgba(234, 88, 12, 0.12);
+  color: rgb(194, 65, 12);
+}
+
+.benchmarkToneClose {
+  background: rgba(37, 99, 235, 0.12);
+  color: rgb(37, 99, 235);
+}
+
+.benchmarkValue {
+  margin-top: 10px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.5rem;
+  color: var(--color-text);
+}
+
+.benchmarkMeta {
+  margin-top: 8px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.79rem;
+  color: var(--color-text-secondary);
+}
+
+.detailsBlock {
+  margin-top: 20px;
+}
+
+.detailsGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.detailGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailGroupTitle {
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.detailCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.detailCard {
+  min-height: 122px;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.detailValue {
+  margin-top: 10px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.55rem;
+  line-height: 1.05;
+  color: var(--color-text);
+}
+
+.sourceMeta {
+  margin-top: 16px;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+[data-theme="dark"] .flag,
+[data-theme="dark"] .summaryCard,
+[data-theme="dark"] .compareButton,
+[data-theme="dark"] .insightChip,
+[data-theme="dark"] .benchmarkCard,
+[data-theme="dark"] .detailCard {
+  background: rgba(30, 41, 59, 0.72);
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme="dark"] .benchmarkToneAbove {
+  background: rgba(16, 185, 129, 0.16);
+  color: rgb(110, 231, 183);
+}
+
+[data-theme="dark"] .benchmarkToneBelow {
+  background: rgba(249, 115, 22, 0.16);
+  color: rgb(253, 186, 116);
+}
+
+[data-theme="dark"] .benchmarkToneClose {
+  background: rgba(96, 165, 250, 0.16);
+  color: rgb(147, 197, 253);
+}
+
+@media (max-width: 840px) {
+  .hero {
+    padding: 18px;
+  }
+
+  .topRow {
+    flex-direction: column;
+  }
+
+  .titleWrap {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .titleWrap {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .summaryGrid,
+  .benchmarkGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .detailCards {
+    grid-template-columns: 1fr;
+  }
+
+  .benchmarkHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

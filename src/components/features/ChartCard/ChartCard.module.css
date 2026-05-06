@@ -10,6 +10,11 @@
     box-shadow var(--transition-normal);
 }
 
+.wrapperFlat {
+  background: transparent;
+  box-shadow: none;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -20,6 +25,11 @@
   transition: 
     background-color var(--transition-normal),
     border-color var(--transition-normal);
+}
+
+.headerFlat {
+  padding: 8px 0 14px;
+  background: transparent;
 }
 
 .title {

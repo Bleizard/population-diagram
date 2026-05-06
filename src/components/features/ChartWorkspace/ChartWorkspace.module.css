@@ -1,12 +1,139 @@
 /* Стили унаследованы из App.module.css */
 .chartSection {
   width: 100%;
-  max-width: 900px;
   margin: 0 auto;
   padding: 0 16px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.chartSectionProfile {
+  margin-top: 28px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 2px;
+}
+
+.profileTitleRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profileTitle {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--color-text);
+}
+
+.profileModeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-card));
+  color: var(--color-primary);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.profileSubtitle {
+  margin: 6px 0 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.92rem;
+  color: var(--color-text-secondary);
+}
+
+.profileMenu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profileActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profileMenuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.profileMenuButton:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text);
+}
+
+.profileMenuDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 240px;
+  padding: 8px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 14px;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-md);
+  z-index: 20;
+}
+
+.profileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profileMenuItem:hover {
+  background: var(--color-bg-hover);
+}
+
+.workspaceStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profileShell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--color-border-light);
+  border-radius: 20px;
+  background: var(--color-bg-card);
+  box-shadow: var(--shadow-md);
 }
 
 .toolbar {
@@ -80,3 +207,12 @@
   border-radius: 8px;
 }
 
+@media (max-width: 720px) {
+  .profileHeader {
+    align-items: stretch;
+  }
+
+  .profileShell {
+    padding: 18px;
+  }
+}

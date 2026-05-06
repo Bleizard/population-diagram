@@ -34,7 +34,12 @@ interface UseChartSettingsReturn {
   handleYearChange: (chartId: string, year: number) => void;
   
   /** Создать агрегированный график */
-  createGroupedChart: (groups: AgeRangeConfig[], currentData: PopulationData | null, initialSelectedYear: number | null) => void;
+  createGroupedChart: (
+    groups: AgeRangeConfig[],
+    currentData: PopulationData | null,
+    initialSelectedYear: number | null,
+    options?: { replaceExisting?: boolean }
+  ) => void;
   /** Удалить агрегированный график */
   removeChart: (chartId: string) => void;
   /** Сбросить все настройки */
@@ -163,7 +168,8 @@ export function useChartSettings(): UseChartSettingsReturn {
   const createGroupedChart = useCallback((
     groups: AgeRangeConfig[], 
     currentData: PopulationData | null,
-    initialSelectedYear: number | null
+    initialSelectedYear: number | null,
+    options?: { replaceExisting?: boolean }
   ) => {
     if (!currentData) return;
 
@@ -178,10 +184,15 @@ export function useChartSettings(): UseChartSettingsReturn {
     
     const originalSettings = chartSettings[ORIGINAL_CHART_ID];
     const currentYear = originalSettings?.selectedYear ?? initialSelectedYear;
+    const replaceExisting = options?.replaceExisting === true;
 
-    setAdditionalCharts((prev) => [...prev, newChart]);
+    setAdditionalCharts((prev) => (replaceExisting ? [newChart] : [...prev, newChart]));
     setChartSettings((prev) => ({
-      ...prev,
+      ...(replaceExisting
+        ? {
+            [ORIGINAL_CHART_ID]: prev[ORIGINAL_CHART_ID] ?? { ...DEFAULT_CHART_SETTINGS },
+          }
+        : prev),
       [newChartId]: { ...DEFAULT_CHART_SETTINGS, selectedYear: currentYear ?? undefined },
     }));
   }, [chartSettings]);
@@ -280,4 +291,3 @@ export function useChartSettings(): UseChartSettingsReturn {
     createGetChartCanvas,
   };
 }
-

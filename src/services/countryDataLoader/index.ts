@@ -27,10 +27,38 @@ export interface CountrySummaryEntry {
   metrics: PopulationSummaryMetrics;
 }
 
+export type CountryDemographySeriesName =
+  | 'population'
+  | 'medianAge'
+  | 'oldAgeDependency'
+  | 'liveBirths'
+  | 'deaths'
+  | 'naturalChange'
+  | 'netMigration'
+  | 'fertilityRate'
+  | 'meanAgeAtChildbirth'
+  | 'lifeExpectancyBirth'
+  | 'lifeExpectancy65';
+
+export interface CountryDemographyPoint {
+  year: number;
+  value: number;
+}
+
+export interface CountryDemographyProfile {
+  geo: string;
+  name: string;
+  source: string;
+  license: string;
+  lastUpdated: string;
+  indicators: Record<CountryDemographySeriesName, CountryDemographyPoint[]>;
+}
+
 // ─── Кэш ─────────────────────────────────────────────────
 
 const countryDataCache = new Map<string, TimeSeriesPopulationData>();
 const countrySummaryCache = new Map<string, CountrySummaryEntry>();
+const countryDemographyCache = new Map<string, CountryDemographyProfile | null>();
 let indexCache: CountryIndexEntry[] | null = null;
 
 // ─── Функции ─────────────────────────────────────────────
@@ -115,4 +143,36 @@ export async function fetchCountrySummary(code: string): Promise<CountrySummaryE
 
   countrySummaryCache.set(code, summary);
   return summary;
+}
+
+export async function fetchCountryDemographyProfile(code: string): Promise<CountryDemographyProfile | null> {
+  if (countryDemographyCache.has(code)) {
+    return countryDemographyCache.get(code) ?? null;
+  }
+
+  const response = await fetch(`${getBaseUrl()}data/demography/${code}.json`);
+  if (response.status === 404) {
+    countryDemographyCache.set(code, null);
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to load demography profile for ${code}: ${response.status}`);
+  }
+
+  const raw = await response.json() as Omit<CountryDemographyProfile, 'indicators'> & {
+    indicators: Record<CountryDemographySeriesName, Array<[number, number]>>;
+  };
+
+  const profile: CountryDemographyProfile = {
+    ...raw,
+    indicators: Object.fromEntries(
+      Object.entries(raw.indicators).map(([key, series]) => [
+        key,
+        series.map(([year, value]) => ({ year, value })),
+      ])
+    ) as CountryDemographyProfile['indicators'],
+  };
+
+  countryDemographyCache.set(code, profile);
+  return profile;
 }

@@ -13,6 +13,12 @@ interface AgeGroupConfiguratorProps {
   onCreateChart: (groups: AgeRangeConfig[]) => void;
   /** Максимальный возраст в данных */
   maxAge?: number;
+  /** Визуальный вариант */
+  variant?: 'default' | 'flat';
+  /** Способ отображения */
+  displayMode?: 'inline' | 'embedded';
+  /** Вызывается после успешного создания */
+  onCreated?: () => void;
 }
 
 /**
@@ -21,6 +27,9 @@ interface AgeGroupConfiguratorProps {
 export function AgeGroupConfigurator({
   onCreateChart,
   maxAge = 100,
+  variant = 'default',
+  displayMode = 'inline',
+  onCreated,
 }: AgeGroupConfiguratorProps) {
   const { t } = useI18n();
   const [groups, setGroups] = useState<AgeRangeConfig[]>([
@@ -30,6 +39,7 @@ export function AgeGroupConfigurator({
   ]);
   const [errors, setErrors] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const isEmbedded = displayMode === 'embedded';
 
   const presets = getPresetOptions({
     preset3: t.groupConfig.preset3,
@@ -111,48 +121,53 @@ export function AgeGroupConfigurator({
     }
 
     onCreateChart(groups);
-    setIsExpanded(false);
-  }, [groups, maxAge, onCreateChart]);
+    if (!isEmbedded) {
+      setIsExpanded(false);
+    }
+    onCreated?.();
+  }, [groups, isEmbedded, maxAge, onCreateChart, onCreated]);
 
   return (
-    <div className={styles.container}>
-      <button
-        className={styles.toggleButton}
-        onClick={() => setIsExpanded(!isExpanded)}
-        type="button"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+    <div className={`${styles.container} ${variant === 'flat' ? styles.containerFlat : ''} ${isEmbedded ? styles.containerEmbedded : ''}`}>
+      {!isEmbedded && (
+        <button
+          className={`${styles.toggleButton} ${variant === 'flat' ? styles.toggleButtonFlat : ''}`}
+          onClick={() => setIsExpanded(!isExpanded)}
+          type="button"
         >
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-        {t.groupConfig.createGrouped}
-        <svg
-          className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          {t.groupConfig.createGrouped}
+          <svg
+            className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+      )}
 
-      {isExpanded && (
-        <div className={styles.panel}>
+      {(isEmbedded || isExpanded) && (
+        <div className={`${styles.panel} ${variant === 'flat' ? styles.panelFlat : ''} ${isEmbedded ? styles.panelEmbedded : ''}`}>
           <div className={styles.presets}>
             <span className={styles.presetsLabel}>{t.groupConfig.presets}</span>
             {presets.map((preset) => (
@@ -284,4 +299,3 @@ export function AgeGroupConfigurator({
     </div>
   );
 }
-

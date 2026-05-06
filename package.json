@@ -9,7 +9,8 @@
     "build:gh-pages": "GITHUB_PAGES=true npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "fetch-eurostat": "npx tsx scripts/fetch-eurostat.ts"
+    "fetch-eurostat": "npx tsx scripts/fetch-eurostat.ts",
+    "fetch-eurostat-demography": "npx tsx scripts/fetch-eurostat-demography.ts"
   },
   "dependencies": {
     "@geovis/renderer": "file:./vendor/geovis-renderer",

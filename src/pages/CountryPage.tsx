@@ -1,8 +1,16 @@
-import { useEffect, useRef, lazy, Suspense, useMemo } from 'react';
-import { useParams, Navigate, Link } from 'react-router-dom';
+import { useEffect, useRef, lazy, Suspense, useMemo, useState } from 'react';
+import { Link, useParams, Navigate } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { COUNTRIES } from '../data/countries';
 import { getLocalizedCountryName } from '../utils/localizedCountryName';
+import {
+  CountryDemographyTrends,
+  CountryPageHero,
+} from '../components/features';
+import {
+  fetchCountryDemographyProfile,
+  type CountryDemographyProfile as CountryDemographyProfileData,
+} from '../services/countryDataLoader';
 import type { usePopulationData } from '../hooks';
 import type { Theme } from '../hooks';
 import styles from '../App.module.css';
@@ -41,7 +49,7 @@ interface CountryPageProps {
   isLoading: boolean;
   error: string | null | undefined;
   theme: Theme;
-  loadPreloaded: (code: string) => void;
+  loadPreloaded: (code: string) => Promise<void>;
   onClearData: () => void;
 }
 
@@ -53,21 +61,78 @@ export function CountryPage({
   const { t, language } = useI18n();
   const upperCode = code?.toUpperCase() ?? '';
   const country = COUNTRIES.find(c => c.code === upperCode);
+  const [demographyProfile, setDemographyProfile] = useState<CountryDemographyProfileData | null>(null);
+  const [euBenchmarkProfile, setEuBenchmarkProfile] = useState<CountryDemographyProfileData | null>(null);
 
   const localizedName = useMemo(
     () => country ? getLocalizedCountryName(country.code, language, country.name) : '',
     [country, language],
   );
 
-  // Ref persists across re-renders — prevents re-triggering after clearData
-  const loadTriggered = useRef(false);
+  // Keep track of the country currently being requested to avoid duplicate fetches.
+  const pendingCountryCode = useRef<string | null>(null);
 
   useEffect(() => {
-    if (country && !initialData && !loadTriggered.current && !isLoading) {
-      loadTriggered.current = true;
-      loadPreloaded(upperCode);
+    if (!country || isLoading) return;
+
+    const loadedCode = timeSeriesData?.geoCode?.toUpperCase() ?? null;
+    if (loadedCode === upperCode) {
+      pendingCountryCode.current = null;
+      return;
     }
-  }, [country, upperCode, initialData, loadPreloaded, isLoading]);
+
+    if (pendingCountryCode.current === upperCode) return;
+
+    pendingCountryCode.current = upperCode;
+    Promise.resolve(loadPreloaded(upperCode)).finally(() => {
+      if (pendingCountryCode.current === upperCode) {
+        pendingCountryCode.current = null;
+      }
+    });
+  }, [country, upperCode, loadPreloaded, isLoading, timeSeriesData?.geoCode]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    setDemographyProfile(null);
+
+    if (!country) return;
+
+    fetchCountryDemographyProfile(upperCode)
+      .then((profile) => {
+        if (!isCancelled) {
+          setDemographyProfile(profile);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setDemographyProfile(null);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [country, upperCode]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    fetchCountryDemographyProfile('EU27_2020')
+      .then((profile) => {
+        if (!isCancelled) {
+          setEuBenchmarkProfile(profile);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setEuBenchmarkProfile(null);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   if (!country) {
     return <Navigate to="/countries" replace />;
@@ -93,27 +158,15 @@ export function CountryPage({
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 16px', marginBottom: 8 }}>
-        <Link
-          to={`/compare/${upperCode}`}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 14px',
-            fontFamily: "'DM Sans', -apple-system, sans-serif",
-            fontSize: '0.8125rem',
-            fontWeight: 600,
-            color: 'var(--color-text-secondary)',
-            background: 'transparent',
-            border: '1px solid var(--color-border)',
-            borderRadius: 8,
-            textDecoration: 'none',
-          }}
-        >
-          {t.countryBrowser.compare}
-        </Link>
-      </div>
+      <CountryPageHero
+        flag={country.flag}
+        name={localizedName}
+        compareLabel={t.countryBrowser.compare}
+        compareUrl={`/compare/${upperCode}`}
+        profile={demographyProfile}
+        benchmarkProfile={euBenchmarkProfile}
+      />
+      <CountryDemographyTrends profile={demographyProfile} />
       <Suspense fallback={<LoadingFallback text={loadingText} />}>
         <ChartWorkspace
           initialData={initialData}
@@ -122,6 +175,7 @@ export function CountryPage({
           initialSelectedYear={initialSelectedYear}
           theme={theme}
           onClearData={onClearData}
+          profileMode
         />
       </Suspense>
     </>
