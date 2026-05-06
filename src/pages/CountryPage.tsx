@@ -140,6 +140,7 @@ export function CountryPage({
   const upperCode = code?.toUpperCase() ?? '';
   const country = COUNTRIES.find(c => c.code === upperCode);
   const isAggregateProfile = country?.isAggregate === true;
+  const supportsPyramid = !isAggregateProfile || upperCode === 'EU';
   const [demographyProfile, setDemographyProfile] = useState<CountryDemographyProfileData | null>(null);
   const [euBenchmarkProfile, setEuBenchmarkProfile] = useState<CountryDemographyProfileData | null>(null);
   const [isDemographyLoaded, setIsDemographyLoaded] = useState(false);
@@ -157,7 +158,7 @@ export function CountryPage({
   const pendingCountryCode = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!country || isLoading || isAggregateProfile) return;
+    if (!country || isLoading || !supportsPyramid) return;
 
     const loadedCode = timeSeriesData?.geoCode?.toUpperCase() ?? null;
     if (loadedCode === upperCode) {
@@ -173,7 +174,7 @@ export function CountryPage({
         pendingCountryCode.current = null;
       }
     });
-  }, [country, upperCode, loadPreloaded, isAggregateProfile, isLoading, timeSeriesData?.geoCode]);
+  }, [country, upperCode, loadPreloaded, supportsPyramid, isLoading, timeSeriesData?.geoCode]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -261,7 +262,7 @@ export function CountryPage({
     );
   }
 
-  if (!initialData) {
+  if (supportsPyramid && !initialData) {
     return <LoadingFallback text={loadingText} />;
   }
 
@@ -277,7 +278,7 @@ export function CountryPage({
         benchmarkProfile={euBenchmarkProfile}
       />
       <CountryDemographyTrends profile={demographyProfile} benchmarkProfile={euBenchmarkProfile} />
-      {!isAggregateProfile && (
+      {supportsPyramid && initialData && (
         <Suspense fallback={<LoadingFallback text={loadingText} />}>
           <ChartWorkspace
             initialData={initialData}

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useMemo } from 'react';
+import { lazy, Suspense, useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import { COUNTRIES, type CountryMeta } from '../../../data/countries';
@@ -35,8 +35,10 @@ const REGION_COUNTS: Record<RegionFilter, number> = {
 export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserProps) {
   const { t, language } = useI18n();
   const [search, setSearch] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [regionFilter, setRegionFilter] = useState<RegionFilter>('All');
   const [countryIndex, setCountryIndex] = useState<CountryIndexEntry[]>([]);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [browserMode, setBrowserMode] = useState<BrowserMode>(() => {
     if (typeof window === 'undefined') return 'list';
     const saved = window.localStorage.getItem(BROWSER_MODE_STORAGE_KEY);
@@ -54,6 +56,11 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
       window.localStorage.setItem(BROWSER_MODE_STORAGE_KEY, browserMode);
     }
   }, [browserMode]);
+
+  useEffect(() => {
+    if (!isSearchExpanded) return;
+    searchInputRef.current?.focus();
+  }, [isSearchExpanded]);
 
   const indexMap = useMemo(() => {
     const map = new Map<string, CountryIndexEntry>();
@@ -115,48 +122,86 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
     return `${first}–${last} (${entry.years.length} ${t.countryBrowser.years})`;
   }
 
+  function closeSearch() {
+    setSearch('');
+    setIsSearchExpanded(false);
+  }
+
   return (
     <div className={`${styles.container} ${fullWidth ? styles.fullWidth : ''} ${browserMode === 'map' ? styles.mapMode : ''}`}>
-      <h2 className={styles.title}>{t.countryBrowser.title}</h2>
+      <div className={styles.headerRow}>
+        <h2 className={styles.title}>{t.countryBrowser.title}</h2>
 
-      <div className={styles.viewModeToggle}>
-        <button
-          type="button"
-          className={`${styles.viewModeButton} ${browserMode === 'list' ? styles.viewModeButtonActive : ''}`}
-          onClick={() => setBrowserMode('list')}
-        >
-          {t.countryBrowser.listMode}
-        </button>
-        <button
-          type="button"
-          className={`${styles.viewModeButton} ${browserMode === 'map' ? styles.viewModeButtonActive : ''}`}
-          onClick={() => setBrowserMode('map')}
-        >
-          {t.countryBrowser.mapMode}
-        </button>
-      </div>
-
-      <div className={styles.searchWrapper}>
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder={t.countryBrowser.search}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
-
-      <div className={styles.regionTabs}>
-        {regions.map(r => (
+        <div className={styles.viewModeToggle}>
           <button
-            key={r.key}
-            className={`${styles.regionTab} ${regionFilter === r.key ? styles.regionTabActive : ''}`}
-            onClick={() => setRegionFilter(r.key)}
+            type="button"
+            className={`${styles.viewModeButton} ${browserMode === 'list' ? styles.viewModeButtonActive : ''}`}
+            onClick={() => setBrowserMode('list')}
           >
-            {r.label}
+            {t.countryBrowser.listMode}
           </button>
-        ))}
+          <button
+            type="button"
+            className={`${styles.viewModeButton} ${browserMode === 'map' ? styles.viewModeButtonActive : ''}`}
+            onClick={() => setBrowserMode('map')}
+          >
+            {t.countryBrowser.mapMode}
+          </button>
+        </div>
       </div>
+
+      {isSearchExpanded ? (
+        <div className={styles.searchExpandedRow}>
+          <input
+            ref={searchInputRef}
+            type="text"
+            className={styles.searchInput}
+            placeholder={t.countryBrowser.search}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                closeSearch();
+              }
+            }}
+          />
+          <button
+            type="button"
+            className={styles.searchCloseButton}
+            onClick={closeSearch}
+            aria-label={t.common.close}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      ) : (
+        <div className={styles.filterRow}>
+          <div className={styles.regionTabs}>
+            {regions.map(r => (
+              <button
+                key={r.key}
+                className={`${styles.regionTab} ${regionFilter === r.key ? styles.regionTabActive : ''}`}
+                onClick={() => setRegionFilter(r.key)}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className={styles.searchTrigger}
+            onClick={() => setIsSearchExpanded(true)}
+            aria-label={t.countryBrowser.search}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
+              <path d="M16 16L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {browserMode === 'map' ? (
         mapFiltered.length === 0 ? (

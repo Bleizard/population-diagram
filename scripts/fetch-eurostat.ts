@@ -7,7 +7,7 @@
  * Запуск: npx tsx scripts/fetch-eurostat.ts
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { COUNTRIES, type CountryMeta } from './countries';
 
@@ -31,6 +31,10 @@ interface CountryIndexEntry {
   lastUpdated: string;
 }
 
+interface FetchEntity extends CountryMeta {
+  fetchCode?: string;
+}
+
 // JSON-stat response types
 interface JsonStatResponse {
   id: string[];
@@ -50,6 +54,17 @@ const RATE_LIMIT_MS = 1500;
 const MAX_RETRIES = 3;
 const SOURCE = 'Eurostat (online data code: demo_pjan)';
 const LICENSE = 'CC BY 4.0';
+const INDEX_PATH = join(OUTPUT_DIR, 'index.json');
+const AGE_SEX_BENCHMARKS: FetchEntity[] = [
+  {
+    code: 'EU',
+    fetchCode: 'EU27_2020',
+    name: 'European Union',
+    region: 'EU',
+    flag: '\u{1F1EA}\u{1F1FA}',
+  },
+];
+const ALL_FETCH_ENTITIES: FetchEntity[] = [...COUNTRIES, ...AGE_SEX_BENCHMARKS];
 
 // Все возрасты Y0..Y99 + Y_GE100
 const AGE_CODES = Array.from({ length: 100 }, (_, i) => `Y${i}`).concat('Y_GE100');
@@ -74,17 +89,18 @@ function parseAgeCode(code: string): number {
  */
 async function fetchCountryData(country: CountryMeta): Promise<CompactCountryData | null> {
   const ageParams = AGE_CODES.map(a => `age=${a}`).join('&');
-  const url = `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_pjan?geo=${country.code}&sex=M&sex=F&${ageParams}&lang=en`;
+  const fetchCode = (country as FetchEntity).fetchCode ?? country.code;
+  const url = `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/demo_pjan?geo=${fetchCode}&sex=M&sex=F&${ageParams}&lang=en`;
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      console.log(`  Fetching ${country.code} (attempt ${attempt})...`);
+      console.log(`  Fetching ${fetchCode} for ${country.code} (attempt ${attempt})...`);
       const response = await fetch(url);
 
       if (!response.ok) {
         if (response.status === 404) {
-          console.warn(`  No data for ${country.code} (404)`);
+          console.warn(`  No data for ${fetchCode} (404)`);
           return null;
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -112,7 +128,7 @@ async function fetchCountryData(country: CountryMeta): Promise<CompactCountryDat
  * Индекс вычисляется как: sum over dims of (dimIndex * product of sizes of subsequent dims)
  * Измерения в порядке id[]: freq, unit, age, sex, geo, time
  */
-function parseJsonStat(json: JsonStatResponse, country: CountryMeta): CompactCountryData {
+function parseJsonStat(json: JsonStatResponse, country: FetchEntity): CompactCountryData {
   const { id: dimIds, size: dimSizes, dimension, value } = json;
 
   // Получаем индексы категорий для каждого измерения
@@ -212,20 +228,35 @@ function parseJsonStat(json: JsonStatResponse, country: CountryMeta): CompactCou
 
 // ─── Main ────────────────────────────────────────────────
 async function main() {
+  const onlyCodes = new Set(
+    (process.env.ONLY ?? '')
+      .split(',')
+      .map((code) => code.trim().toUpperCase())
+      .filter(Boolean)
+  );
+  const isFilteredRun = onlyCodes.size > 0;
+  const entities = isFilteredRun
+    ? ALL_FETCH_ENTITIES.filter((country) => onlyCodes.has(country.code) || (country.fetchCode ? onlyCodes.has(country.fetchCode) : false))
+    : ALL_FETCH_ENTITIES;
+
   console.log('Eurostat Data Fetcher (Statistics API)');
-  console.log(`Countries: ${COUNTRIES.length}`);
+  console.log(`Entities: ${entities.length}${isFilteredRun ? ` (filtered from ${ALL_FETCH_ENTITIES.length})` : ''}`);
   console.log(`Output: ${OUTPUT_DIR}\n`);
 
   if (!existsSync(OUTPUT_DIR)) {
     mkdirSync(OUTPUT_DIR, { recursive: true });
   }
 
-  const index: CountryIndexEntry[] = [];
+  const existingIndex: CountryIndexEntry[] =
+    isFilteredRun && existsSync(INDEX_PATH)
+      ? JSON.parse(readFileSync(INDEX_PATH, 'utf-8')) as CountryIndexEntry[]
+      : [];
+  const indexMap = new Map(existingIndex.map((entry) => [entry.code, entry]));
   let successCount = 0;
   let failCount = 0;
 
-  for (const country of COUNTRIES) {
-    console.log(`[${successCount + failCount + 1}/${COUNTRIES.length}] ${country.flag} ${country.name} (${country.code})`);
+  for (const country of entities) {
+    console.log(`[${successCount + failCount + 1}/${entities.length}] ${country.flag} ${country.name} (${country.code})`);
 
     const data = await fetchCountryData(country);
 
@@ -234,7 +265,7 @@ async function main() {
       writeFileSync(filePath, JSON.stringify(data));
       console.log(`  Saved: ${data.years.length} years (${data.years[0]}-${data.years[data.years.length - 1]})\n`);
 
-      index.push({
+      indexMap.set(country.code, {
         code: country.code,
         name: country.name,
         region: country.region,
@@ -245,6 +276,9 @@ async function main() {
       successCount++;
     } else {
       console.log(`  Skipped (no data)\n`);
+      if (!isFilteredRun) {
+        indexMap.delete(country.code);
+      }
       failCount++;
     }
 
@@ -253,12 +287,15 @@ async function main() {
   }
 
   // Записываем индекс
-  const indexPath = join(OUTPUT_DIR, 'index.json');
-  writeFileSync(indexPath, JSON.stringify(index, null, 2));
+  const order = new Map(ALL_FETCH_ENTITIES.map((country, index) => [country.code, index]));
+  const index = [...indexMap.values()].sort(
+    (left, right) => (order.get(left.code) ?? Number.MAX_SAFE_INTEGER) - (order.get(right.code) ?? Number.MAX_SAFE_INTEGER)
+  );
+  writeFileSync(INDEX_PATH, JSON.stringify(index, null, 2));
 
   console.log('─'.repeat(40));
   console.log(`Done! Success: ${successCount}, Failed: ${failCount}`);
-  console.log(`Index: ${indexPath}`);
+  console.log(`Index: ${INDEX_PATH}`);
 }
 
 main().catch(console.error);

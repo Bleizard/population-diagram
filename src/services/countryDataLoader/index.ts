@@ -61,6 +61,10 @@ const countrySummaryCache = new Map<string, CountrySummaryEntry>();
 const countryDemographyCache = new Map<string, CountryDemographyProfile | null>();
 let indexCache: CountryIndexEntry[] | null = null;
 
+const DEMOGRAPHY_PROFILE_ALIASES: Record<string, string> = {
+  EU: 'EU27_2020',
+};
+
 // ─── Функции ─────────────────────────────────────────────
 
 function getBaseUrl(): string {
@@ -150,7 +154,8 @@ export async function fetchCountryDemographyProfile(code: string): Promise<Count
     return countryDemographyCache.get(code) ?? null;
   }
 
-  const response = await fetch(`${getBaseUrl()}data/demography/${code}.json`);
+  const resolvedCode = DEMOGRAPHY_PROFILE_ALIASES[code] ?? code;
+  const response = await fetch(`${getBaseUrl()}data/demography/${resolvedCode}.json`);
   if (response.status === 404) {
     countryDemographyCache.set(code, null);
     return null;
@@ -174,5 +179,8 @@ export async function fetchCountryDemographyProfile(code: string): Promise<Count
   };
 
   countryDemographyCache.set(code, profile);
+  if (resolvedCode !== code) {
+    countryDemographyCache.set(resolvedCode, profile);
+  }
   return profile;
 }

@@ -30,6 +30,14 @@ interface CountryIndexEntry {
 }
 
 const DATA_DIR = join(import.meta.dirname, '..', 'public', 'data');
+const EXTRA_INDEX_ENTITIES = [
+  {
+    code: 'EU',
+    name: 'European Union',
+    region: 'EU',
+    flag: '\u{1F1EA}\u{1F1FA}',
+  },
+];
 
 function main() {
   console.log('Building index.json from country data files...');
@@ -41,7 +49,7 @@ function main() {
   }
 
   // Build a lookup from country code to metadata
-  const countryMeta = new Map(COUNTRIES.map(c => [c.code, c]));
+  const countryMeta = new Map([...COUNTRIES, ...EXTRA_INDEX_ENTITIES].map(c => [c.code, c]));
 
   // Find all JSON files (excluding index.json)
   const files = readdirSync(DATA_DIR)

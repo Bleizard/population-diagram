@@ -17,9 +17,17 @@
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text);
-  margin: 0 0 16px;
-  text-align: center;
+  margin: 0;
+  text-align: left;
   transition: color var(--transition-normal);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .viewModeToggle {
@@ -61,9 +69,13 @@
   color: #fff;
 }
 
-/* Search */
-.searchWrapper {
-  margin-bottom: 12px;
+/* Filters */
+.filterRow,
+.searchExpandedRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .searchInput {
@@ -96,8 +108,40 @@
 .regionTabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
+  flex: 1;
   flex-wrap: wrap;
+}
+
+.searchTrigger,
+.searchCloseButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.searchTrigger:hover,
+.searchCloseButton:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.searchTrigger:active,
+.searchCloseButton:active {
+  transform: scale(0.97);
 }
 
 .regionTab {
@@ -251,6 +295,13 @@
     margin-top: 24px;
   }
 
+  .headerRow,
+  .filterRow,
+  .searchExpandedRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .viewModeToggle {
     width: 100%;
   }
@@ -265,5 +316,14 @@
 
   .regionTabs {
     justify-content: center;
+  }
+
+  .searchWrapper {
+    width: 100%;
+  }
+
+  .searchTrigger,
+  .searchCloseButton {
+    width: 100%;
   }
 }
