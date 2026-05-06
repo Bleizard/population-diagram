@@ -36,6 +36,9 @@ const FALLBACK_TEXT = {
   trendsExpandedSubtitle: 'A closer view of the full time series for the selected indicator',
   trendsPeriod: 'Period',
   trendsComparedWith: 'Compared with',
+  trendsBenchmarkValue: 'Benchmark value',
+  euAggregate: 'EU aggregate',
+  netMigrationMethodNote: 'net migration plus statistical adjustment',
   fertilityRate: 'Total fertility rate',
   lifeExpectancyBirth: 'Life expectancy at birth',
   netMigration: 'Net migration',
@@ -327,6 +330,24 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
         formatter: (value: number) => value.toFixed(2),
       },
       {
+        id: 'liveBirths',
+        label: text.liveBirths,
+        points: profile.indicators.liveBirths,
+        color: '#dc2626',
+        formatter: (value: number) => Math.round(value).toLocaleString('en-US'),
+        axisFormatter: formatCompact,
+        compareMode: 'dualAxis' as const,
+      },
+      {
+        id: 'deaths',
+        label: text.deaths,
+        points: profile.indicators.deaths,
+        color: '#f59e0b',
+        formatter: (value: number) => Math.round(value).toLocaleString('en-US'),
+        axisFormatter: formatCompact,
+        compareMode: 'dualAxis' as const,
+      },
+      {
         id: 'lifeExpectancyBirth',
         label: text.lifeExpectancyBirth,
         points: profile.indicators.lifeExpectancyBirth,
@@ -372,6 +393,10 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
   const periodStart = comparison.points[0]?.year;
   const periodEnd = comparison.points[comparison.points.length - 1]?.year;
   const benchmarkLatest = comparison.benchmarkPoints.length > 0 ? comparison.benchmarkPoints[comparison.benchmarkPoints.length - 1] : null;
+  const benchmarkName = comparison.dualAxis ? text.euAggregate : text.euAverage;
+  const benchmarkMethodNote = comparison.dualAxis && activeCard.id === 'netMigration'
+    ? text.netMigrationMethodNote
+    : null;
 
   return (
     <section className={styles.section}>
@@ -428,8 +453,9 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
               </div>
               {(benchmarkLatest || comparison.note) && (
                 <div className={styles.expandedBenchmark}>
-                  {text.trendsComparedWith}: {text.euAverage}
+                  {comparison.dualAxis ? text.trendsBenchmarkValue : text.trendsComparedWith}: {benchmarkName}
                   {benchmarkLatest ? ` ${comparison.formatter(benchmarkLatest.value)}` : ''}
+                  {benchmarkMethodNote ? ` · ${benchmarkMethodNote}` : ''}
                   {comparison.note ? ` · ${comparison.note}` : ''}
                 </div>
               )}
@@ -438,7 +464,7 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
 
           <div className={styles.expandedChart}>
             <ReactECharts
-              option={createExpandedChartOption(activeCard, comparison, text.euAverage)}
+              option={createExpandedChartOption(activeCard, comparison, benchmarkName)}
               style={{ height: 320, width: '100%' }}
               opts={{ renderer: 'svg' }}
               notMerge

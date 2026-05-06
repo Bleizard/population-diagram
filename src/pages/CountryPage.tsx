@@ -15,6 +15,84 @@ import type { usePopulationData } from '../hooks';
 import type { Theme } from '../hooks';
 import styles from '../App.module.css';
 
+interface QuickCompareLink {
+  code: string;
+  name: string;
+  flag: string;
+  url: string;
+}
+
+const QUICK_COMPARE_MAP: Record<string, string[]> = {
+  AT: ['DE', 'IT', 'CH'],
+  BE: ['FR', 'NL', 'DE'],
+  BG: ['RO', 'EL', 'RS'],
+  CH: ['DE', 'FR', 'IT'],
+  CY: ['EL', 'IT', 'FR'],
+  CZ: ['DE', 'PL', 'SK'],
+  DE: ['FR', 'PL', 'IT'],
+  DK: ['SE', 'DE', 'NL'],
+  EE: ['LV', 'FI', 'LT'],
+  EL: ['IT', 'BG', 'RO'],
+  ES: ['FR', 'PT', 'IT'],
+  FI: ['SE', 'EE', 'DE'],
+  FR: ['DE', 'ES', 'IT'],
+  HR: ['SI', 'IT', 'AT'],
+  HU: ['AT', 'SK', 'RO'],
+  IE: ['FR', 'DE', 'ES'],
+  IS: ['NO', 'DK', 'SE'],
+  IT: ['DE', 'FR', 'ES'],
+  LI: ['CH', 'AT', 'DE'],
+  LT: ['LV', 'EE', 'PL'],
+  LU: ['BE', 'DE', 'FR'],
+  LV: ['EE', 'LT', 'FI'],
+  ME: ['RS', 'AL', 'HR'],
+  MK: ['RS', 'BG', 'EL'],
+  MT: ['IT', 'ES', 'FR'],
+  NL: ['DE', 'BE', 'FR'],
+  NO: ['SE', 'DK', 'DE'],
+  PL: ['DE', 'CZ', 'SK'],
+  PT: ['ES', 'FR', 'IT'],
+  RO: ['HU', 'BG', 'PL'],
+  RS: ['RO', 'BG', 'HU'],
+  SE: ['DK', 'FI', 'DE'],
+  SI: ['AT', 'IT', 'HR'],
+  SK: ['CZ', 'PL', 'HU'],
+  TR: ['EL', 'BG', 'RO'],
+  AL: ['RS', 'IT', 'EL'],
+  BA: ['RS', 'HR', 'SI'],
+  AU: ['JP', 'US', 'CA'],
+  CA: ['US', 'AU', 'JP'],
+  JP: ['AU', 'US', 'CA'],
+  US: ['CA', 'AU', 'JP'],
+};
+
+function buildQuickCompareLinks(
+  countryCode: string,
+  language: string,
+): QuickCompareLink[] {
+  const currentCountry = COUNTRIES.find((item) => item.code === countryCode);
+  if (!currentCountry || currentCountry.isAggregate) return [];
+
+  const fallbackCodes = COUNTRIES
+    .filter((item) => item.region === currentCountry.region && item.code !== countryCode && !item.isAggregate)
+    .slice(0, 3)
+    .map((item) => item.code);
+
+  const candidateCodes = (QUICK_COMPARE_MAP[countryCode] ?? fallbackCodes)
+    .filter((code, index, list) => code !== countryCode && list.indexOf(code) === index)
+    .slice(0, 3);
+
+  return candidateCodes
+    .map((code) => COUNTRIES.find((item) => item.code === code))
+    .filter((item): item is (typeof COUNTRIES)[number] => Boolean(item))
+    .map((item) => ({
+      code: item.code,
+      name: getLocalizedCountryName(item.code, language, item.name),
+      flag: item.flag,
+      url: `/compare/${countryCode}/${item.code}`,
+    }));
+}
+
 const ChartWorkspace = lazy(() =>
   import('../components/features/ChartWorkspace').then(m => ({ default: m.ChartWorkspace }))
 );
@@ -61,11 +139,17 @@ export function CountryPage({
   const { t, language } = useI18n();
   const upperCode = code?.toUpperCase() ?? '';
   const country = COUNTRIES.find(c => c.code === upperCode);
+  const isAggregateProfile = country?.isAggregate === true;
   const [demographyProfile, setDemographyProfile] = useState<CountryDemographyProfileData | null>(null);
   const [euBenchmarkProfile, setEuBenchmarkProfile] = useState<CountryDemographyProfileData | null>(null);
+  const [isDemographyLoaded, setIsDemographyLoaded] = useState(false);
 
   const localizedName = useMemo(
     () => country ? getLocalizedCountryName(country.code, language, country.name) : '',
+    [country, language],
+  );
+  const quickCompareLinks = useMemo(
+    () => (country ? buildQuickCompareLinks(country.code, language) : []),
     [country, language],
   );
 
@@ -73,7 +157,7 @@ export function CountryPage({
   const pendingCountryCode = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!country || isLoading) return;
+    if (!country || isLoading || isAggregateProfile) return;
 
     const loadedCode = timeSeriesData?.geoCode?.toUpperCase() ?? null;
     if (loadedCode === upperCode) {
@@ -89,11 +173,12 @@ export function CountryPage({
         pendingCountryCode.current = null;
       }
     });
-  }, [country, upperCode, loadPreloaded, isLoading, timeSeriesData?.geoCode]);
+  }, [country, upperCode, loadPreloaded, isAggregateProfile, isLoading, timeSeriesData?.geoCode]);
 
   useEffect(() => {
     let isCancelled = false;
     setDemographyProfile(null);
+    setIsDemographyLoaded(false);
 
     if (!country) return;
 
@@ -101,11 +186,13 @@ export function CountryPage({
       .then((profile) => {
         if (!isCancelled) {
           setDemographyProfile(profile);
+          setIsDemographyLoaded(true);
         }
       })
       .catch(() => {
         if (!isCancelled) {
           setDemographyProfile(null);
+          setIsDemographyLoaded(true);
         }
       });
 
@@ -116,6 +203,13 @@ export function CountryPage({
 
   useEffect(() => {
     let isCancelled = false;
+
+    if (upperCode === 'EU') {
+      setEuBenchmarkProfile(null);
+      return () => {
+        isCancelled = true;
+      };
+    }
 
     fetchCountryDemographyProfile('EU27_2020')
       .then((profile) => {
@@ -140,6 +234,21 @@ export function CountryPage({
 
   const loadingText = `${country.flag} ${t.countryBrowser.loadingCountry.replace('{country}', localizedName)}`;
 
+  if (isAggregateProfile && !isDemographyLoaded) {
+    return <LoadingFallback text={loadingText} />;
+  }
+
+  if (isAggregateProfile && !demographyProfile) {
+    return (
+      <DataUnavailable
+        flag={country.flag}
+        name={localizedName}
+        message={t.countryBrowser.dataUnavailable}
+        backLabel={t.countryBrowser.backToCatalog}
+      />
+    );
+  }
+
   // Show error state when loading failed (data unavailable)
   if (!initialData && !isLoading && error) {
     return (
@@ -161,23 +270,26 @@ export function CountryPage({
       <CountryPageHero
         flag={country.flag}
         name={localizedName}
-        compareLabel={t.countryBrowser.compare}
-        compareUrl={`/compare/${upperCode}`}
+        compareLabel={isAggregateProfile ? undefined : t.countryBrowser.compare}
+        compareUrl={isAggregateProfile ? undefined : `/compare/${upperCode}`}
+        quickCompareLinks={quickCompareLinks}
         profile={demographyProfile}
         benchmarkProfile={euBenchmarkProfile}
       />
       <CountryDemographyTrends profile={demographyProfile} benchmarkProfile={euBenchmarkProfile} />
-      <Suspense fallback={<LoadingFallback text={loadingText} />}>
-        <ChartWorkspace
-          initialData={initialData}
-          timeSeriesData={timeSeriesData}
-          detectedFormat={detectedFormat}
-          initialSelectedYear={initialSelectedYear}
-          theme={theme}
-          onClearData={onClearData}
-          profileMode
-        />
-      </Suspense>
+      {!isAggregateProfile && (
+        <Suspense fallback={<LoadingFallback text={loadingText} />}>
+          <ChartWorkspace
+            initialData={initialData}
+            timeSeriesData={timeSeriesData}
+            detectedFormat={detectedFormat}
+            initialSelectedYear={initialSelectedYear}
+            theme={theme}
+            onClearData={onClearData}
+            profileMode
+          />
+        </Suspense>
+      )}
     </>
   );
 }

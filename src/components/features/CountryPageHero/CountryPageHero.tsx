@@ -11,8 +11,14 @@ import styles from './CountryPageHero.module.css';
 interface CountryPageHeroProps {
   flag: string;
   name: string;
-  compareLabel: string;
-  compareUrl: string;
+  compareLabel?: string;
+  compareUrl?: string;
+  quickCompareLinks: Array<{
+    code: string;
+    name: string;
+    flag: string;
+    url: string;
+  }>;
   profile: CountryDemographyProfile | null;
   benchmarkProfile: CountryDemographyProfile | null;
 }
@@ -152,6 +158,7 @@ export function CountryPageHero({
   name,
   compareLabel,
   compareUrl,
+  quickCompareLinks,
   profile,
   benchmarkProfile,
 }: CountryPageHeroProps) {
@@ -411,10 +418,26 @@ export function CountryPageHero({
           </div>
         </div>
 
-        <Link className={styles.compareButton} to={compareUrl}>
-          {compareLabel}
-        </Link>
+        {compareLabel && compareUrl && (
+          <Link className={styles.compareButton} to={compareUrl}>
+            {compareLabel}
+          </Link>
+        )}
       </div>
+
+      {quickCompareLinks.length > 0 && (
+        <div className={styles.quickCompareBlock}>
+          <div className={styles.sectionLabel}>{t.comparison.compareWith}</div>
+          <div className={styles.quickCompareList}>
+            {quickCompareLinks.map((item) => (
+              <Link key={item.code} className={styles.quickCompareChip} to={item.url}>
+                <span className={styles.quickCompareFlag}>{item.flag}</span>
+                <span>{item.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {insights.length > 0 && (
         <div className={styles.insightsBlock}>

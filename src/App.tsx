@@ -127,7 +127,9 @@ function App() {
       const country = COUNTRIES.find(c => c.code === code);
       if (country) {
         const localName = getLocalizedCountryName(country.code, language, country.name);
-        document.title = `${localName} Population Pyramid - ${baseTitle}`;
+        document.title = country.isAggregate
+          ? `${localName} Demographic Profile - ${baseTitle}`
+          : `${localName} Population Pyramid - ${baseTitle}`;
       }
     } else {
       document.title = `${baseTitle} - Visualize Age-Sex Structure from CSV/Excel`;

@@ -90,6 +90,11 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
     });
   }, [search, regionFilter, localizedNames, language]);
 
+  const mapFiltered = useMemo(
+    () => filtered.filter((country) => !country.isAggregate),
+    [filtered],
+  );
+
   const tAny = t as Record<string, unknown>;
   const euCandidatesLabel = (tAny.countryBrowser as Record<string, string>)?.euCandidates
     ?? (t.countryBrowser as Record<string, string>).candidates;
@@ -154,12 +159,12 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
       </div>
 
       {browserMode === 'map' ? (
-        filtered.length === 0 ? (
+        mapFiltered.length === 0 ? (
           <div className={styles.noResults}>{t.countryBrowser.noResults}</div>
         ) : (
           <Suspense fallback={<div className={styles.noResults}>{t.countryBrowser.mapLoading}</div>}>
             <CountryMapBrowser
-              countries={filtered}
+              countries={mapFiltered}
               localizedNames={localizedNames}
               isLoading={isLoading}
               theme={theme}
@@ -189,13 +194,15 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
                     >
                       {t.countryBrowser.view}
                     </Link>
-                    <Link
-                      className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
-                      to={`/compare/${country.code}`}
-                      onClick={isLoading ? (e) => e.preventDefault() : undefined}
-                    >
-                      {t.countryBrowser.compare}
-                    </Link>
+                    {!country.isAggregate && (
+                      <Link
+                        className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
+                        to={`/compare/${country.code}`}
+                        onClick={isLoading ? (e) => e.preventDefault() : undefined}
+                      >
+                        {t.countryBrowser.compare}
+                      </Link>
+                    )}
                   </div>
                 </div>
               );

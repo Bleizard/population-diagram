@@ -36,6 +36,14 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- EU aggregate profile -->
+  <url>
+    <loc>https://bleizard.github.io/population-diagram/country/EU</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Individual countries — EU-27 -->
   <url>
     <loc>https://bleizard.github.io/population-diagram/country/AT</loc>

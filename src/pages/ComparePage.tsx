@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { useComparisonData } from '../hooks/useComparisonData';
 import { useComparisonSettings } from '../hooks/useComparisonSettings';
-import { COUNTRIES } from '../data/countries';
+import { COMPARABLE_COUNTRIES } from '../data/countries';
 import { getLocalizedCountryName } from '../utils/localizedCountryName';
 import { CountrySelector } from '../components/features/CountrySelector';
 import { PopulationPyramid } from '../components/features/PopulationPyramid/PopulationPyramid';
@@ -56,8 +56,8 @@ export function ComparePage({ theme }: ComparePageProps) {
   useEffect(() => {
     const lCode = leftParam?.toUpperCase() ?? null;
     const rCode = rightParam?.toUpperCase() ?? null;
-    const lValid = lCode && COUNTRIES.some(c => c.code === lCode) ? lCode : null;
-    const rValid = rCode && COUNTRIES.some(c => c.code === rCode) ? rCode : null;
+    const lValid = lCode && COMPARABLE_COUNTRIES.some(c => c.code === lCode) ? lCode : null;
+    const rValid = rCode && COMPARABLE_COUNTRIES.some(c => c.code === rCode) ? rCode : null;
 
     if (lValid !== left.code) setLeftCode(lValid);
     if (rValid !== right.code) setRightCode(rValid);
@@ -137,7 +137,7 @@ export function ComparePage({ theme }: ComparePageProps) {
 
   const getCountryName = (code: string | null) => {
     if (!code) return '';
-    const c = COUNTRIES.find(c => c.code === code);
+    const c = COMPARABLE_COUNTRIES.find(c => c.code === code);
     if (!c) return code;
     return getLocalizedCountryName(c.code, language, c.name);
   };

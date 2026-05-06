@@ -74,6 +74,45 @@
   text-decoration: none;
 }
 
+.quickCompareBlock {
+  margin-top: 18px;
+}
+
+.quickCompareList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quickCompareChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-secondary);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.quickCompareChip:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-primary) 28%, rgba(148, 163, 184, 0.14));
+  color: var(--color-text);
+}
+
+.quickCompareFlag {
+  font-size: 1rem;
+}
+
 .sectionLabel {
   margin-bottom: 10px;
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -258,6 +297,7 @@
 [data-theme="dark"] .flag,
 [data-theme="dark"] .summaryCard,
 [data-theme="dark"] .compareButton,
+[data-theme="dark"] .quickCompareChip,
 [data-theme="dark"] .insightChip,
 [data-theme="dark"] .benchmarkCard,
 [data-theme="dark"] .detailCard {

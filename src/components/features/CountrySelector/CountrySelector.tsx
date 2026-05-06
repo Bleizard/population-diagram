@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useI18n } from '../../../i18n';
-import { COUNTRIES, type CountryMeta } from '../../../data/countries';
+import { COMPARABLE_COUNTRIES, type CountryMeta } from '../../../data/countries';
 import { getLocalizedCountryName } from '../../../utils/localizedCountryName';
 import styles from './CountrySelector.module.css';
 
@@ -47,7 +47,7 @@ export function CountrySelector({ value, onChange, excludeCode, label, customLab
 
   const localizedNames = useMemo(() => {
     const map = new Map<string, string>();
-    for (const c of COUNTRIES) {
+    for (const c of COMPARABLE_COUNTRIES) {
       map.set(c.code, getLocalizedCountryName(c.code, language, c.name));
     }
     return map;
@@ -55,7 +55,7 @@ export function CountrySelector({ value, onChange, excludeCode, label, customLab
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return COUNTRIES.filter((c: CountryMeta) => {
+    return COMPARABLE_COUNTRIES.filter((c: CountryMeta) => {
       if (excludeCode && c.code === excludeCode) return false;
       if (!q) return true;
       const locName = localizedNames.get(c.code) ?? c.name;
@@ -65,7 +65,7 @@ export function CountrySelector({ value, onChange, excludeCode, label, customLab
     });
   }, [search, excludeCode, localizedNames]);
 
-  const selected = value ? COUNTRIES.find(c => c.code === value) : null;
+  const selected = value ? COMPARABLE_COUNTRIES.find(c => c.code === value) : null;
   const selectedName = selected ? (localizedNames.get(selected.code) ?? selected.name) : null;
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
