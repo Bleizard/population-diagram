@@ -323,13 +323,6 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
         compareMode: 'dualAxis' as const,
       },
       {
-        id: 'fertilityRate',
-        label: text.fertilityRate,
-        points: profile.indicators.fertilityRate,
-        color: '#ea580c',
-        formatter: (value: number) => value.toFixed(2),
-      },
-      {
         id: 'liveBirths',
         label: text.liveBirths,
         points: profile.indicators.liveBirths,
@@ -346,6 +339,13 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
         formatter: (value: number) => Math.round(value).toLocaleString('en-US'),
         axisFormatter: formatCompact,
         compareMode: 'dualAxis' as const,
+      },
+      {
+        id: 'fertilityRate',
+        label: text.fertilityRate,
+        points: profile.indicators.fertilityRate,
+        color: '#ea580c',
+        formatter: (value: number) => value.toFixed(2),
       },
       {
         id: 'lifeExpectancyBirth',

@@ -78,6 +78,11 @@
   margin-bottom: 16px;
 }
 
+.searchWrapper {
+  width: 240px;
+  flex-shrink: 0;
+}
+
 .searchInput {
   width: 100%;
   padding: 10px 16px;
@@ -185,98 +190,212 @@
 
 /* Card */
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 16px;
+  gap: 18px;
+  min-height: 272px;
+  padding: 20px;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-light);
-  border-radius: 10px;
+  border-radius: 16px;
+  cursor: pointer;
   transition:
     background-color var(--transition-normal),
     border-color var(--transition-normal),
-    box-shadow var(--transition-fast);
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .card:hover {
   border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.cardDisabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.cardMuted {
+  background: color-mix(in srgb, var(--color-bg-card) 78%, var(--color-bg-hover) 22%);
+  border-color: color-mix(in srgb, var(--color-border-light) 75%, transparent 25%);
+  box-shadow: none;
+  cursor: default;
+}
+
+.cardMuted:hover {
+  border-color: color-mix(in srgb, var(--color-border-light) 80%, var(--color-primary) 20%);
   box-shadow: var(--shadow-sm);
+  transform: none;
+}
+
+.cardMuted .cardFlag {
+  opacity: 0.72;
+  filter: saturate(0.75);
+}
+
+.cardMuted .summaryValue,
+.cardMuted .cardName {
+  color: color-mix(in srgb, var(--color-text) 82%, var(--color-text-muted) 18%);
+}
+
+.cardMuted .summaryLabel,
+.cardMuted .compareIconButton,
+.cardMuted .cardSourceLabel,
+.cardMuted .cardSourceValue {
+  color: color-mix(in srgb, var(--color-text-muted) 88%, transparent 12%);
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.16);
+  border-radius: inherit;
+  backdrop-filter: blur(1.25px) saturate(0.9);
+  z-index: 3;
+}
+
+.compareIconButton {
+  position: absolute;
+  top: 28px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  text-decoration: none;
+  z-index: 2;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.compareIconButton:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-selection-bg);
+}
+
+.compareIconButton:active {
+  transform: scale(0.97);
 }
 
 /* Row 1: flag + name */
 .cardHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
+  padding-right: 52px;
 }
 
 .cardFlag {
-  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  font-size: 3rem;
   line-height: 1;
   flex-shrink: 0;
 }
 
+.cardHeading {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  min-width: 0;
+}
+
 .cardName {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--color-text);
   margin: 0;
-  white-space: nowrap;
+  line-height: 1.1;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color var(--transition-normal);
 }
 
-/* Row 2: data description */
-.cardYears {
+.cardSummaryGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.cardSourceMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px dashed color-mix(in srgb, var(--color-border-light) 70%, transparent 30%);
+}
+
+.cardSourceLabel {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  margin: 0;
+}
+
+.cardSourceValue {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-text-secondary) 90%, var(--color-text) 10%);
+  text-align: right;
+}
+
+.summaryLabel {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
   transition: color var(--transition-normal);
 }
 
-/* Row 3: buttons */
-.cardActions {
+.summaryItem {
   display: flex;
-  gap: 8px;
-  margin-top: 2px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 0;
+  padding: 0;
 }
 
-.cardButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: 6px 12px;
+.summaryValue {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.8125rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-primary);
-  background: var(--color-selection-bg);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.cardButton:hover {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.cardButton:active {
-  transform: scale(0.96);
-}
-
-.cardButtonDisabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  color: var(--color-text);
+  line-height: 1.35;
+  text-align: right;
+  margin-left: auto;
+  transition: color var(--transition-normal);
 }
 
 /* No results */

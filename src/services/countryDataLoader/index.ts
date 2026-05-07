@@ -22,8 +22,17 @@ interface CompactCountryData {
   data: Record<number, { m: number[]; f: number[] }>;
 }
 
+interface CountryDataMeta {
+  source: string;
+  license: string;
+  lastUpdated: string;
+}
+
 export interface CountrySummaryEntry {
   year: number | null;
+  source: string;
+  license: string;
+  lastUpdated: string;
   metrics: PopulationSummaryMetrics;
 }
 
@@ -57,6 +66,7 @@ export interface CountryDemographyProfile {
 // ─── Кэш ─────────────────────────────────────────────────
 
 const countryDataCache = new Map<string, TimeSeriesPopulationData>();
+const countryDataMetaCache = new Map<string, CountryDataMeta>();
 const countrySummaryCache = new Map<string, CountrySummaryEntry>();
 const countryDemographyCache = new Map<string, CountryDemographyProfile | null>();
 let indexCache: CountryIndexEntry[] | null = null;
@@ -87,7 +97,28 @@ export async function fetchCountryIndex(): Promise<CountryIndexEntry[]> {
 /**
  * Конвертирует компактные данные в массив PopulationAgeGroup.
  */
-function convertToAgeGroups(m: number[], f: number[]): PopulationAgeGroup[] {
+function convertToAgeGroups(m: number[], f: number[], geoCode?: string): PopulationAgeGroup[] {
+  if (geoCode === 'US') {
+    const groups: PopulationAgeGroup[] = [];
+    for (let i = 0; i <= 84; i++) {
+      groups.push({
+        age: String(i),
+        ageNumeric: i,
+        male: m[i] || 0,
+        female: f[i] || 0,
+      });
+    }
+
+    groups.push({
+      age: '85+',
+      ageNumeric: 85,
+      male: m[100] || 0,
+      female: f[100] || 0,
+    });
+
+    return groups;
+  }
+
   const groups: PopulationAgeGroup[] = [];
   for (let i = 0; i < 101; i++) {
     groups.push({
@@ -116,7 +147,7 @@ export async function fetchCountryData(code: string): Promise<TimeSeriesPopulati
   for (const year of raw.years) {
     const yearData = raw.data[year];
     if (yearData) {
-      dataByYear[year] = convertToAgeGroups(yearData.m, yearData.f);
+      dataByYear[year] = convertToAgeGroups(yearData.m, yearData.f, raw.geo);
     }
   }
 
@@ -129,6 +160,11 @@ export async function fetchCountryData(code: string): Promise<TimeSeriesPopulati
   };
 
   countryDataCache.set(code, result);
+  countryDataMetaCache.set(code, {
+    source: raw.source,
+    license: raw.license,
+    lastUpdated: raw.lastUpdated,
+  });
   return result;
 }
 
@@ -142,6 +178,9 @@ export async function fetchCountrySummary(code: string): Promise<CountrySummaryE
 
   const summary: CountrySummaryEntry = {
     year: latestYear,
+    source: data.source ?? '',
+    license: countryDataMetaCache.get(code)?.license ?? '',
+    lastUpdated: countryDataMetaCache.get(code)?.lastUpdated ?? '',
     metrics: calculatePopulationSummary(ageGroups, data.hasGenderData !== false),
   };
 

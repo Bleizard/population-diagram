@@ -1,9 +1,18 @@
 import { lazy, Suspense, useState, useEffect, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useI18n } from '../../../i18n';
 import { COUNTRIES, type CountryMeta } from '../../../data/countries';
 import { getLocalizedCountryName } from '../../../utils/localizedCountryName';
-import { fetchCountryIndex, type CountryIndexEntry } from '../../../services/countryDataLoader';
+import { getLocalizedCapitalName } from '../../../utils/localizedCapitalName';
+import { formatPopulation } from '../../../utils';
+import {
+  fetchCountryIndex,
+  fetchCountryDemographyProfile,
+  fetchCountrySummary,
+  type CountryIndexEntry,
+  type CountryDemographyProfile,
+  type CountrySummaryEntry,
+} from '../../../services/countryDataLoader';
 import type { Theme } from '../../../hooks';
 import styles from './CountryBrowser.module.css';
 
@@ -32,12 +41,41 @@ const REGION_COUNTS: Record<RegionFilter, number> = {
   Other: COUNTRIES.filter(c => c.region === 'Other').length,
 };
 
+function getLatestValue(
+  profile: CountryDemographyProfile | null | undefined,
+  key: 'population' | 'medianAge' | 'oldAgeDependency' | 'lifeExpectancyBirth',
+): number | null {
+  const series = profile?.indicators[key];
+  if (!series || series.length === 0) return null;
+  return series[series.length - 1]?.value ?? null;
+}
+
+function getDisplaySourceLabel(rawSource: string | null | undefined): string | null {
+  if (!rawSource) return null;
+
+  if (
+    rawSource.includes('US Census Bureau')
+    && (rawSource.includes('CDC') || rawSource.includes('National Center for Health Statistics'))
+  ) return 'US Census + CDC';
+  if (rawSource.includes('Eurostat')) return 'Eurostat';
+  if (rawSource.includes('Office for National Statistics')) return 'ONS';
+  if (rawSource.includes('Australian Bureau of Statistics')) return 'ABS';
+  if (rawSource.includes('CDC') || rawSource.includes('National Center for Health Statistics')) return 'CDC/NCHS';
+  if (rawSource.includes('US Census Bureau')) return 'US Census Bureau';
+  if (rawSource.includes('Statistics Canada')) return 'Statistics Canada';
+
+  return rawSource.replace(/\s*\(.*?\)\s*/g, ' ').trim();
+}
+
 export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserProps) {
   const { t, language } = useI18n();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [regionFilter, setRegionFilter] = useState<RegionFilter>('All');
   const [countryIndex, setCountryIndex] = useState<CountryIndexEntry[]>([]);
+  const [profileMap, setProfileMap] = useState<Record<string, CountryDemographyProfile | null>>({});
+  const [summaryMap, setSummaryMap] = useState<Record<string, CountrySummaryEntry | null>>({});
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [browserMode, setBrowserMode] = useState<BrowserMode>(() => {
     if (typeof window === 'undefined') return 'list';
@@ -49,6 +87,50 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
     fetchCountryIndex()
       .then(setCountryIndex)
       .catch(() => {/* index load failed — cards will show without year info */});
+  }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    Promise.all(
+      COUNTRIES.map(async (country) => {
+        try {
+          const profile = await fetchCountryDemographyProfile(country.code);
+          return [country.code, profile] as const;
+        } catch {
+          return [country.code, null] as const;
+        }
+      })
+    ).then((entries) => {
+      if (isCancelled) return;
+      setProfileMap(Object.fromEntries(entries));
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    Promise.all(
+      COUNTRIES.map(async (country) => {
+        try {
+          const summary = await fetchCountrySummary(country.code);
+          return [country.code, summary] as const;
+        } catch {
+          return [country.code, null] as const;
+        }
+      })
+    ).then((entries) => {
+      if (isCancelled) return;
+      setSummaryMap(Object.fromEntries(entries));
+    });
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -115,11 +197,22 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
     { key: 'Other', label: `${t.countryBrowser.other} (${REGION_COUNTS.Other})` },
   ];
 
+  const browserText = {
+    capital: (tAny.countryBrowser as Record<string, string>)?.capital ?? (language === 'ru' ? 'Столица' : 'Capital'),
+    population: (tAny.countryBrowser as Record<string, string>)?.population ?? (language === 'ru' ? 'Население' : 'Population'),
+    medianAge: (tAny.countryBrowser as Record<string, string>)?.medianAge ?? t.demographyProfile.medianAge,
+    dataPeriod: (tAny.countryBrowser as Record<string, string>)?.dataPeriod ?? (language === 'ru' ? 'Период данных' : 'Data period'),
+    lifeExpectancy: (tAny.countryBrowser as Record<string, string>)?.lifeExpectancy ?? (language === 'ru' ? 'Продолж. жизни' : 'Life expectancy'),
+    dependencyRatio: (tAny.countryBrowser as Record<string, string>)?.dependencyRatio ?? t.summary.dependencyRatio,
+    source: (tAny.countryBrowser as Record<string, string>)?.source ?? (language === 'ru' ? 'Источник' : 'Source'),
+    compareCountry: (tAny.countryBrowser as Record<string, string>)?.compareCountry ?? (language === 'ru' ? 'Сравнить страну' : 'Compare country'),
+  };
+
   function formatYearRange(entry: CountryIndexEntry | undefined): string | null {
     if (!entry || entry.years.length === 0) return null;
     const first = entry.years[0];
     const last = entry.years[entry.years.length - 1];
-    return `${first}–${last} (${entry.years.length} ${t.countryBrowser.years})`;
+    return `${first}–${last}`;
   }
 
   function closeSearch() {
@@ -223,32 +316,109 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
           ) : (
             filtered.map(country => {
               const idx = indexMap.get(country.code);
+              const profile = profileMap[country.code];
+              const summary = summaryMap[country.code];
               const yearRange = formatYearRange(idx);
+              const hasResolvedProfile = Object.prototype.hasOwnProperty.call(profileMap, country.code);
+              const hasResolvedSummary = Object.prototype.hasOwnProperty.call(summaryMap, country.code);
+              const isDataUnavailable =
+                hasResolvedProfile &&
+                hasResolvedSummary &&
+                profile === null &&
+                summary === null &&
+                (!idx || idx.years.length === 0);
+              const isCardInteractive = !isLoading && !isDataUnavailable;
+              const population = getLatestValue(profile, 'population') ?? summary?.metrics.totalPopulation ?? null;
+              const medianAge = getLatestValue(profile, 'medianAge') ?? summary?.metrics.medianAge ?? null;
+              const lifeExpectancy = getLatestValue(profile, 'lifeExpectancyBirth');
+              const dependencyRatio = getLatestValue(profile, 'oldAgeDependency') ?? summary?.metrics.dependencyRatio ?? null;
+              const sourceLabel = getDisplaySourceLabel(profile?.source ?? summary?.source);
               return (
-                <div key={country.code} className={styles.card}>
+                <div
+                  key={country.code}
+                  className={`${styles.card} ${isLoading ? styles.cardDisabled : ''} ${isDataUnavailable ? styles.cardMuted : ''}`}
+                  role="link"
+                  tabIndex={isCardInteractive ? 0 : -1}
+                  onClick={() => {
+                    if (isCardInteractive) navigate(`/country/${country.code}`);
+                  }}
+                  onKeyDown={(event) => {
+                    if (!isCardInteractive) return;
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      navigate(`/country/${country.code}`);
+                    }
+                  }}
+                >
+                  {!country.isAggregate && !isDataUnavailable && (
+                    <Link
+                      className={styles.compareIconButton}
+                      to={`/compare/${country.code}`}
+                      onClick={(event) => {
+                        if (!isCardInteractive) {
+                          event.preventDefault();
+                          return;
+                        }
+                        event.stopPropagation();
+                      }}
+                      aria-label={browserText.compareCountry}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 5H5v14h2V5zm12 0h-2v14h2V5zM14 9h-2v10h2V9zm-5 4H7v6h2v-6z" fill="currentColor" />
+                      </svg>
+                    </Link>
+                  )}
+
                   <div className={styles.cardHeader}>
                     <span className={styles.cardFlag}>{country.flag}</span>
-                    <p className={styles.cardName}>{localizedNames.get(country.code) ?? country.name}</p>
+                    <div className={styles.cardHeading}>
+                      <p className={styles.cardName}>{localizedNames.get(country.code) ?? country.name}</p>
+                    </div>
                   </div>
-                  {yearRange && <p className={styles.cardYears}>{yearRange}</p>}
-                  <div className={styles.cardActions}>
-                    <Link
-                      className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
-                      to={`/country/${country.code}`}
-                      onClick={isLoading ? (e) => e.preventDefault() : undefined}
-                    >
-                      {t.countryBrowser.view}
-                    </Link>
-                    {!country.isAggregate && (
-                      <Link
-                        className={`${styles.cardButton} ${isLoading ? styles.cardButtonDisabled : ''}`}
-                        to={`/compare/${country.code}`}
-                        onClick={isLoading ? (e) => e.preventDefault() : undefined}
-                      >
-                        {t.countryBrowser.compare}
-                      </Link>
-                    )}
+
+                  <div className={styles.cardSummaryGrid}>
+                    <div className={styles.summaryItem}>
+                      <span className={styles.summaryLabel}>{browserText.capital}</span>
+                      <span className={styles.summaryValue}>
+                        {getLocalizedCapitalName(country.code, language, country.capital)}
+                      </span>
+                    </div>
+                    <div className={styles.summaryItem}>
+                      <span className={styles.summaryLabel}>{browserText.population}</span>
+                      <span className={styles.summaryValue}>
+                        {population !== null ? formatPopulation(population) : t.summary.notAvailable}
+                      </span>
+                    </div>
+                    <div className={styles.summaryItem}>
+                      <span className={styles.summaryLabel}>{browserText.medianAge}</span>
+                      <span className={styles.summaryValue}>
+                        {medianAge !== null ? medianAge.toFixed(1) : t.summary.notAvailable}
+                      </span>
+                    </div>
+                    <div className={styles.summaryItem}>
+                      <span className={styles.summaryLabel}>{browserText.lifeExpectancy}</span>
+                      <span className={styles.summaryValue}>
+                        {lifeExpectancy !== null ? lifeExpectancy.toFixed(1) : t.summary.notAvailable}
+                      </span>
+                    </div>
+                    <div className={styles.summaryItem}>
+                      <span className={styles.summaryLabel}>{browserText.dataPeriod}</span>
+                      <span className={styles.summaryValue}>{yearRange ?? t.summary.notAvailable}</span>
+                    </div>
+                    <div className={styles.summaryItem}>
+                      <span className={styles.summaryLabel}>{browserText.dependencyRatio}</span>
+                      <span className={styles.summaryValue}>
+                        {dependencyRatio !== null ? `${dependencyRatio.toFixed(1)}%` : t.summary.notAvailable}
+                      </span>
+                    </div>
                   </div>
+                  {sourceLabel && (
+                    <div className={styles.cardSourceMeta}>
+                      <span className={styles.cardSourceLabel}>{browserText.source}</span>
+                      <span className={styles.cardSourceValue}>{sourceLabel}</span>
+                    </div>
+                  )}
+                  {isDataUnavailable && <div className={styles.cardOverlay} aria-hidden="true" />}
                 </div>
               );
             })

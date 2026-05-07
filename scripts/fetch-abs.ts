@@ -6,7 +6,7 @@
  * Uses Q3 (September quarter, reference date ~June 30) for annual snapshots.
  *
  * API: https://api.data.abs.gov.au/
- * License: CC BY 3.0 AU
+ * License: CC BY 4.0
  *
  * Run: npx tsx scripts/fetch-abs.ts
  */
@@ -26,7 +26,7 @@ interface CompactCountryData {
 
 const OUTPUT_DIR = join(import.meta.dirname, '..', 'public', 'data');
 const SOURCE = 'Australian Bureau of Statistics (ABS)';
-const LICENSE = 'CC BY 3.0 AU';
+const LICENSE = 'CC BY 4.0';
 const RATE_LIMIT_MS = 1000;
 
 function delay(ms: number): Promise<void> {

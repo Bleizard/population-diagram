@@ -9,8 +9,13 @@
     "build:gh-pages": "GITHUB_PAGES=true npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "fetch-abs": "npx tsx scripts/fetch-abs.ts",
+    "fetch-au-demography": "npx tsx scripts/fetch-au-demography.ts",
     "fetch-eurostat": "npx tsx scripts/fetch-eurostat.ts",
-    "fetch-eurostat-demography": "npx tsx scripts/fetch-eurostat-demography.ts"
+    "fetch-eurostat-demography": "npx tsx scripts/fetch-eurostat-demography.ts",
+    "fetch-us-census": "npx tsx scripts/fetch-us-census.ts",
+    "fetch-us-demography": "npx tsx scripts/fetch-us-demography.ts",
+    "fetch-uk-ons": "npx tsx scripts/fetch-uk-ons.ts"
   },
   "dependencies": {
     "@geovis/renderer": "file:./vendor/geovis-renderer",

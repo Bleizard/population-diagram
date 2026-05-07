@@ -3,6 +3,7 @@ import polylabel from 'polylabel';
 
 const GEO_CODE_ALIASES: Record<string, string> = {
   GR: 'EL',
+  GB: 'UK',
 };
 
 const GEO_NAME_OVERRIDES: Record<string, string> = {

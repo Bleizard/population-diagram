@@ -78,7 +78,10 @@ async function fetchVintageYear(vintage: number, yearParam: string, calendarYear
 
         const age = parseAgeCode(ageCode);
         if (age >= 0) {
-          bins[age] += pop;
+          // Some Census 2020 responses expose duplicate age rows (for different
+          // reference months/base points). We keep the last seen value per age
+          // instead of summing duplicates, otherwise the national totals double.
+          bins[age] = pop;
           hasData = true;
         }
       }

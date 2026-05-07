@@ -58,6 +58,7 @@ const QUICK_COMPARE_MAP: Record<string, string[]> = {
   SI: ['AT', 'IT', 'HR'],
   SK: ['CZ', 'PL', 'HU'],
   TR: ['EL', 'BG', 'RO'],
+  UK: ['IE', 'FR', 'DE'],
   AL: ['RS', 'IT', 'EL'],
   BA: ['RS', 'HR', 'SI'],
   AU: ['JP', 'US', 'CA'],
