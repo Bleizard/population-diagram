@@ -8,6 +8,7 @@ interface CountrySelectorProps {
   value: string | null;
   onChange: (code: string | null) => void;
   excludeCode?: string | null;
+  allowSameSelection?: boolean;
   label?: string;
   /** Custom file label (when data was loaded from file, not country catalog) */
   customLabel?: string | null;
@@ -17,7 +18,16 @@ interface CountrySelectorProps {
   onReset?: () => void;
 }
 
-export function CountrySelector({ value, onChange, excludeCode, label, customLabel, onFileUpload, onReset }: CountrySelectorProps) {
+export function CountrySelector({
+  value,
+  onChange,
+  excludeCode,
+  allowSameSelection = false,
+  label,
+  customLabel,
+  onFileUpload,
+  onReset,
+}: CountrySelectorProps) {
   const { t, language } = useI18n();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -56,14 +66,14 @@ export function CountrySelector({ value, onChange, excludeCode, label, customLab
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return COMPARABLE_COUNTRIES.filter((c: CountryMeta) => {
-      if (excludeCode && c.code === excludeCode) return false;
+      if (!allowSameSelection && excludeCode && c.code === excludeCode) return false;
       if (!q) return true;
       const locName = localizedNames.get(c.code) ?? c.name;
       return c.name.toLowerCase().includes(q)
         || locName.toLowerCase().includes(q)
         || c.code.toLowerCase().includes(q);
     });
-  }, [search, excludeCode, localizedNames]);
+  }, [search, excludeCode, allowSameSelection, localizedNames]);
 
   const selected = value ? COMPARABLE_COUNTRIES.find(c => c.code === value) : null;
   const selectedName = selected ? (localizedNames.get(selected.code) ?? selected.name) : null;

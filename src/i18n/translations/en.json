@@ -5,11 +5,40 @@
     "footer": "Population Pyramid Builder",
     "footerFreeToUse": "Free to use for personal and commercial purposes",
     "footerSourceCode": "Source code on GitHub",
-    "dataAttribution": "Data: Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 4.0)"
+    "dataAttribution": "Data: Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau IDB (Public Domain) \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 4.0)"
   },
   "nav": {
     "demo": "Demo",
-    "countries": "Countries"
+    "countries": "Countries",
+    "rankings": "Rankings"
+  },
+  "rankings": {
+    "title": "Rankings",
+    "subtitle": "Browse demographic leaderboards and jump straight into country profiles",
+    "scope": "Scope",
+    "allCountries": "All countries",
+    "europeOnly": "Europe",
+    "metric": "Metric",
+    "year": "Year",
+    "source": "Source",
+    "explore": "Open country profile",
+    "loading": "Loading rankings...",
+    "empty": "Not enough data for this ranking yet",
+    "medianAge": "Median age",
+    "share65Plus": "Age 65+",
+    "dependencyRatio": "Dependency ratio",
+    "workingAgeShare": "Age 15-64",
+    "youngestPopulation": "Youngest population",
+    "oldestPopulations": "Oldest populations",
+    "highest65Plus": "Highest 65+ shares",
+    "highestDependency": "Highest dependency ratios",
+    "highestWorkingAgeShare": "Highest working-age shares",
+    "youngestPopulations": "Youngest populations",
+    "oldestPopulationsInEurope": "Oldest populations in Europe",
+    "highest65PlusInEurope": "Highest 65+ shares in Europe",
+    "highestDependencyInEurope": "Highest dependency ratios in Europe",
+    "highestWorkingAgeShareInEurope": "Highest working-age shares in Europe",
+    "youngestPopulationsInEurope": "Youngest populations in Europe"
   },
   "countryBrowser": {
     "title": "Browse Countries",
@@ -182,6 +211,7 @@
   "demographyProfile": {
     "title": "Demographic profile",
     "subtitle": "Latest country-level demographic indicators from Eurostat",
+    "subtitleIdb": "Latest country-level demographic indicators from the U.S. Census Bureau IDB",
     "insightsTitle": "What stands out",
     "benchmarkTitle": "Against the EU average",
     "detailsTitle": "All indicators",

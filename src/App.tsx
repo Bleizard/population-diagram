@@ -5,7 +5,7 @@ import { I18nContext } from './i18n';
 import { FileUpload, ErrorBoundary } from './components/common';
 import { AppHeader, AppFooter } from './components/layout';
 import { CountryBrowser } from './components/features';
-import { CountriesPage, ComparePage, CountryPage, DemoPage } from './pages';
+import { CountriesPage, ComparePage, CountryPage, DemoPage, RankingsPage } from './pages';
 import { COUNTRIES } from './data/countries';
 import { getLocalizedCountryName } from './utils/localizedCountryName';
 import styles from './App.module.css';
@@ -120,6 +120,8 @@ function App() {
       document.title = `Browse Countries - ${baseTitle}`;
     } else if (location.pathname === '/demo') {
       document.title = `Demo: Spain Population Pyramid 1975-2024 - ${baseTitle}`;
+    } else if (location.pathname.startsWith('/rankings')) {
+      document.title = `Demographic Rankings - ${baseTitle}`;
     } else if (location.pathname.startsWith('/compare')) {
       document.title = `Compare Population Pyramids - ${baseTitle}`;
     } else if (location.pathname.startsWith('/country/')) {
@@ -192,6 +194,8 @@ function App() {
             <Route path="/compare/:left/:right" element={
               <ComparePage theme={theme} />
             } />
+            <Route path="/rankings" element={<RankingsPage />} />
+            <Route path="/rankings/:metric" element={<RankingsPage />} />
             <Route path="/countries" element={
               <CountriesPage isLoading={isLoading} theme={theme} />
             } />

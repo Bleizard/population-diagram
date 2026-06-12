@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { useComparisonData } from '../hooks/useComparisonData';
@@ -34,6 +34,7 @@ interface ComparePageProps {
 export function ComparePage({ theme }: ComparePageProps) {
   const { left: leftParam, right: rightParam } = useParams<{ left?: string; right?: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t, language } = useI18n();
   const [viewMode, setViewMode] = useState<ViewMode>('side-by-side');
   const [showAsPercentage, setShowAsPercentage] = useState(false);
@@ -52,6 +53,42 @@ export function ComparePage({ theme }: ComparePageProps) {
     sharedMaxScale,
   } = useComparisonData();
 
+  const leftYearParam = Number.parseInt(searchParams.get('leftYear') ?? '', 10);
+  const rightYearParam = Number.parseInt(searchParams.get('rightYear') ?? '', 10);
+  const syncParam = searchParams.get('sync');
+  const viewParam = searchParams.get('view');
+
+  const updateUrl = useCallback((
+    lCode: string | null,
+    rCode: string | null,
+    overrides?: Partial<{ leftYear: number | null; rightYear: number | null; syncYears: boolean; viewMode: ViewMode }>
+  ) => {
+    const pathname = lCode && rCode
+      ? `/compare/${lCode}/${rCode}`
+      : lCode
+        ? `/compare/${lCode}`
+        : rCode
+          ? `/compare/${rCode}`
+          : '/compare';
+
+    const params = new URLSearchParams(searchParams);
+    const nextLeftYear = overrides?.leftYear ?? left.year ?? null;
+    const nextRightYear = overrides?.rightYear ?? right.year ?? null;
+    const nextSync = overrides?.syncYears ?? syncYears;
+    const nextView = overrides?.viewMode ?? viewMode;
+
+    if (nextLeftYear) params.set('leftYear', String(nextLeftYear));
+    else params.delete('leftYear');
+
+    if (nextRightYear) params.set('rightYear', String(nextRightYear));
+    else params.delete('rightYear');
+
+    params.set('sync', nextSync ? '1' : '0');
+    params.set('view', nextView);
+
+    navigate({ pathname, search: `?${params.toString()}` }, { replace: true });
+  }, [left.year, navigate, right.year, searchParams, syncYears, viewMode]);
+
   // Sync URL params -> state (on mount / param change)
   useEffect(() => {
     const lCode = leftParam?.toUpperCase() ?? null;
@@ -64,42 +101,55 @@ export function ComparePage({ theme }: ComparePageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leftParam, rightParam]);
 
-  // Sync state -> URL
-  const updateUrl = (lCode: string | null, rCode: string | null) => {
-    if (lCode && rCode) {
-      navigate(`/compare/${lCode}/${rCode}`, { replace: true });
-    } else if (lCode) {
-      navigate(`/compare/${lCode}`, { replace: true });
-    } else if (rCode) {
-      navigate(`/compare/${rCode}`, { replace: true });
-    } else {
-      navigate('/compare', { replace: true });
+  useEffect(() => {
+    if ((viewParam === 'side-by-side' || viewParam === 'overlay' || viewParam === 'difference') && viewParam !== viewMode) {
+      setViewMode(viewParam);
     }
-  };
+  }, [viewMode, viewParam]);
+
+  useEffect(() => {
+    if (syncParam === '1' && !syncYears) setSyncYears(true);
+    if (syncParam === '0' && syncYears) setSyncYears(false);
+  }, [setSyncYears, syncParam, syncYears]);
+
+  useEffect(() => {
+    if (left.data && Number.isFinite(leftYearParam) && left.data.years.includes(leftYearParam) && left.year !== leftYearParam) {
+      setLeftYear(leftYearParam);
+    }
+  }, [left.data, left.year, leftYearParam, setLeftYear]);
+
+  useEffect(() => {
+    if (right.data && Number.isFinite(rightYearParam) && right.data.years.includes(rightYearParam) && right.year !== rightYearParam) {
+      setRightYear(rightYearParam);
+    }
+  }, [right.data, right.year, rightYearParam, setRightYear]);
 
   const handleLeftChange = (code: string | null) => {
     setLeftCode(code);
-    updateUrl(code, right.code);
+    updateUrl(code, right.code, { leftYear: null, rightYear: right.year });
   };
 
   const handleRightChange = (code: string | null) => {
     setRightCode(code);
-    updateUrl(left.code, code);
+    updateUrl(left.code, code, { leftYear: left.year, rightYear: null });
   };
 
   const handleSwap = () => {
     swap();
-    updateUrl(right.code, left.code);
+    updateUrl(right.code, left.code, {
+      leftYear: right.year,
+      rightYear: left.year,
+    });
   };
 
   const handleLeftReset = () => {
     clearLeft();
-    updateUrl(null, right.code);
+    updateUrl(null, right.code, { leftYear: null });
   };
 
   const handleRightReset = () => {
     clearRight();
-    updateUrl(left.code, null);
+    updateUrl(left.code, null, { rightYear: null });
   };
 
   // File upload handlers
@@ -144,9 +194,43 @@ export function ComparePage({ theme }: ComparePageProps) {
 
   const leftName = left.code ? getCountryName(left.code) : (left.customLabel || '');
   const rightName = right.code ? getCountryName(right.code) : (right.customLabel || '');
+  const leftChartTitle = left.code && right.code && left.code === right.code && left.year
+    ? `${leftName} ${left.year}`
+    : leftName;
+  const rightChartTitle = left.code && right.code && left.code === right.code && right.year
+    ? `${rightName} ${right.year}`
+    : rightName;
+  const isSameCountryComparison = Boolean(left.code && right.code && left.code === right.code);
 
   const hasAnyData = left.data || right.data || left.customLabel || right.customLabel;
   const yearsForSync = syncYears && commonYears.length > 0 ? commonYears : undefined;
+
+  const handleLeftYearChange = (year: number) => {
+    setLeftYear(year);
+    updateUrl(left.code, right.code, {
+      leftYear: year,
+      rightYear: syncYears ? year : right.year,
+    });
+  };
+
+  const handleRightYearChange = (year: number) => {
+    setRightYear(year);
+    updateUrl(left.code, right.code, {
+      leftYear: syncYears ? year : left.year,
+      rightYear: year,
+    });
+  };
+
+  useEffect(() => {
+    if (isSameCountryComparison && syncYears) {
+      setSyncYears(false);
+      updateUrl(left.code, right.code, {
+        syncYears: false,
+        leftYear: left.year,
+        rightYear: right.year,
+      });
+    }
+  }, [isSameCountryComparison, left.code, left.year, right.code, right.year, setSyncYears, syncYears, updateUrl]);
 
   return (
     <div className={styles.page}>
@@ -155,21 +239,30 @@ export function ComparePage({ theme }: ComparePageProps) {
         <div className={styles.modeToggle}>
           <button
             className={`${styles.modeButton} ${viewMode === 'side-by-side' ? styles.modeButtonActive : ''}`}
-            onClick={() => setViewMode('side-by-side')}
+            onClick={() => {
+              setViewMode('side-by-side');
+              updateUrl(left.code, right.code, { viewMode: 'side-by-side' });
+            }}
             type="button"
           >
             {t.comparison.sideBySide}
           </button>
           <button
             className={`${styles.modeButton} ${viewMode === 'overlay' ? styles.modeButtonActive : ''}`}
-            onClick={() => setViewMode('overlay')}
+            onClick={() => {
+              setViewMode('overlay');
+              updateUrl(left.code, right.code, { viewMode: 'overlay' });
+            }}
             type="button"
           >
             {t.comparison.overlay}
           </button>
           <button
             className={`${styles.modeButton} ${viewMode === 'difference' ? styles.modeButtonActive : ''}`}
-            onClick={() => setViewMode('difference')}
+            onClick={() => {
+              setViewMode('difference');
+              updateUrl(left.code, right.code, { viewMode: 'difference' });
+            }}
             type="button"
           >
             {t.comparison.difference}
@@ -181,7 +274,16 @@ export function ComparePage({ theme }: ComparePageProps) {
             <input
               type="checkbox"
               checked={syncYears}
-              onChange={e => setSyncYears(e.target.checked)}
+              onChange={(e) => {
+                const nextSync = e.target.checked;
+                setSyncYears(nextSync);
+                const syncedYear = nextSync && commonYears.length > 0 ? commonYears[commonYears.length - 1] : null;
+                updateUrl(left.code, right.code, {
+                  syncYears: nextSync,
+                  leftYear: syncedYear ?? left.year,
+                  rightYear: syncedYear ?? right.year,
+                });
+              }}
               disabled={commonYears.length === 0}
             />
             <span>{t.comparison.syncYear}</span>
@@ -230,6 +332,7 @@ export function ComparePage({ theme }: ComparePageProps) {
           value={left.code}
           onChange={handleLeftChange}
           excludeCode={right.code}
+          allowSameSelection
           label={t.comparison.left}
           customLabel={left.customLabel}
           onFileUpload={handleLeftFile}
@@ -239,12 +342,21 @@ export function ComparePage({ theme }: ComparePageProps) {
           value={right.code}
           onChange={handleRightChange}
           excludeCode={left.code}
+          allowSameSelection
           label={t.comparison.right}
           customLabel={right.customLabel}
           onFileUpload={handleRightFile}
           onReset={handleRightReset}
         />
       </div>
+
+      {isSameCountryComparison && (
+        <div className={styles.sameCountryHint}>
+          {language === 'ru'
+            ? 'Выбрана одна и та же страна с двух сторон. Используй разные годы слева и справа для внутристранового сравнения.'
+            : 'The same country is selected on both sides. Use different years on the left and right for a within-country comparison.'}
+        </div>
+      )}
 
       {/* Content area */}
       {viewMode === 'side-by-side' ? (
@@ -264,7 +376,7 @@ export function ComparePage({ theme }: ComparePageProps) {
                   <PopulationPyramid
                     data={leftPopulationData}
                     theme={theme}
-                    customTitle={leftName}
+                    customTitle={leftChartTitle}
                     maxScale={sharedMaxScale}
                     showAsPercentage={showAsPercentage || compSettings.left.showAsPercentage}
                     viewMode={compSettings.left.viewMode}
@@ -279,7 +391,7 @@ export function ComparePage({ theme }: ComparePageProps) {
                     <YearSelector
                       years={left.data.years}
                       selectedYear={left.year}
-                      onYearChange={setLeftYear}
+                      onYearChange={handleLeftYearChange}
                       compact
                     />
                   )}
@@ -304,7 +416,7 @@ export function ComparePage({ theme }: ComparePageProps) {
                   <PopulationPyramid
                     data={rightPopulationData}
                     theme={theme}
-                    customTitle={rightName}
+                    customTitle={rightChartTitle}
                     maxScale={sharedMaxScale}
                     showAsPercentage={showAsPercentage || compSettings.right.showAsPercentage}
                     viewMode={compSettings.right.viewMode}
@@ -319,7 +431,7 @@ export function ComparePage({ theme }: ComparePageProps) {
                     <YearSelector
                       years={right.data.years}
                       selectedYear={right.year}
-                      onYearChange={setRightYear}
+                      onYearChange={handleRightYearChange}
                       compact
                     />
                   )}
@@ -443,7 +555,7 @@ export function ComparePage({ theme }: ComparePageProps) {
               <YearSelector
                 years={yearsForSync}
                 selectedYear={left.year}
-                onYearChange={setLeftYear}
+                onYearChange={handleLeftYearChange}
                 compact
               />
             </div>
@@ -462,8 +574,8 @@ export function ComparePage({ theme }: ComparePageProps) {
                 <OverlayPyramid
                   leftData={leftPopulationData}
                   rightData={rightPopulationData}
-                  leftName={leftName}
-                  rightName={rightName}
+                  leftName={leftChartTitle}
+                  rightName={rightChartTitle}
                   theme={theme}
                   maxScale={sharedMaxScale}
                   showAsPercentage={showAsPercentage}
@@ -475,8 +587,8 @@ export function ComparePage({ theme }: ComparePageProps) {
                 <DifferencePyramid
                   leftData={leftPopulationData}
                   rightData={rightPopulationData}
-                  leftName={leftName}
-                  rightName={rightName}
+                  leftName={leftChartTitle}
+                  rightName={rightChartTitle}
                   theme={theme}
                   showAsPercentage={showAsPercentage}
                   customColors={compSettings.overlay.colors}
@@ -489,7 +601,7 @@ export function ComparePage({ theme }: ComparePageProps) {
                 <YearSelector
                   years={yearsForSync}
                   selectedYear={left.year}
-                  onYearChange={setLeftYear}
+                  onYearChange={handleLeftYearChange}
                   compact
                 />
               ) : (
@@ -498,22 +610,22 @@ export function ComparePage({ theme }: ComparePageProps) {
                     <div className={styles.overlayYearItem}>
                       <span className={styles.overlayYearLabel}>{leftName}</span>
                       <YearSelector
-                        years={left.data.years}
-                        selectedYear={left.year}
-                        onYearChange={setLeftYear}
-                        compact
-                      />
+                      years={left.data.years}
+                      selectedYear={left.year}
+                      onYearChange={handleLeftYearChange}
+                      compact
+                    />
                     </div>
                   )}
                   {right.data && (
                     <div className={styles.overlayYearItem}>
                       <span className={styles.overlayYearLabel}>{rightName}</span>
                       <YearSelector
-                        years={right.data.years}
-                        selectedYear={right.year}
-                        onYearChange={setRightYear}
-                        compact
-                      />
+                      years={right.data.years}
+                      selectedYear={right.year}
+                      onYearChange={handleRightYearChange}
+                      compact
+                    />
                     </div>
                   )}
                 </div>

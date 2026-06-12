@@ -57,6 +57,9 @@ export function AppHeader({
           <Link to="/countries" className={styles.navLink}>
             {t.nav.countries}
           </Link>
+          <Link to="/rankings/median-age" className={styles.navLink}>
+            {((t as unknown as Record<string, unknown>).nav as Record<string, string> | undefined)?.rankings ?? 'Rankings'}
+          </Link>
           <Link to="/compare" className={styles.navLink}>
             {t.comparison.title}
           </Link>

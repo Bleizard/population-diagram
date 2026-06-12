@@ -5,11 +5,40 @@
     "footer": "Построение половозрастных пирамид",
     "footerFreeToUse": "Бесплатно для личного и коммерческого использования",
     "footerSourceCode": "Исходный код на GitHub",
-    "dataAttribution": "Данные: Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 4.0)"
+    "dataAttribution": "Данные: Eurostat (demo_pjan) CC BY 4.0 \u2022 US Census Bureau IDB (Public Domain) \u2022 US Census Bureau (Public Domain) \u2022 Statistics Canada (Open Licence) \u2022 e-Stat Japan (CC BY 4.0) \u2022 ABS Australia (CC BY 4.0)"
   },
   "nav": {
     "demo": "Демо",
-    "countries": "Страны"
+    "countries": "Страны",
+    "rankings": "Рейтинги"
+  },
+  "rankings": {
+    "title": "Рейтинги",
+    "subtitle": "Открывай демографические лидерборды и переходи сразу к профилям стран",
+    "scope": "Охват",
+    "allCountries": "Все страны",
+    "europeOnly": "Европа",
+    "metric": "Показатель",
+    "year": "Год",
+    "source": "Источник",
+    "explore": "Открыть профиль страны",
+    "loading": "Загружаем рейтинги...",
+    "empty": "Пока недостаточно данных для этого рейтинга",
+    "medianAge": "Медианный возраст",
+    "share65Plus": "Возраст 65+",
+    "dependencyRatio": "Коэффициент нагрузки",
+    "workingAgeShare": "Возраст 15-64",
+    "youngestPopulation": "Самое молодое население",
+    "oldestPopulations": "Самые возрастные страны",
+    "highest65Plus": "Наибольшая доля 65+",
+    "highestDependency": "Наибольший коэффициент нагрузки",
+    "highestWorkingAgeShare": "Наибольшая доля трудоспособного населения",
+    "youngestPopulations": "Самые молодые страны",
+    "oldestPopulationsInEurope": "Самые старые населения Европы",
+    "highest65PlusInEurope": "Наибольшая доля 65+ в Европе",
+    "highestDependencyInEurope": "Наибольший коэффициент нагрузки в Европе",
+    "highestWorkingAgeShareInEurope": "Наибольшая доля трудоспособного населения в Европе",
+    "youngestPopulationsInEurope": "Самые молодые населения Европы"
   },
   "countryBrowser": {
     "title": "Каталог стран",
@@ -182,6 +211,7 @@
   "demographyProfile": {
     "title": "Демографический профиль",
     "subtitle": "Последние демографические показатели страны по данным Eurostat",
+    "subtitleIdb": "Последние демографические показатели страны по данным U.S. Census Bureau IDB",
     "insightsTitle": "Что особенно заметно",
     "benchmarkTitle": "По сравнению со средним по ЕС",
     "detailsTitle": "Все показатели",
