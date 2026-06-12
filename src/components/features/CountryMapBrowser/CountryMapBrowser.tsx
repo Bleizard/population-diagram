@@ -10,8 +10,8 @@ import { fetchCountrySummary, type CountrySummaryEntry } from '../../../services
 import { formatPopulation } from '../../../utils';
 import {
   createCountryMapGeoJson,
+  getFeatureLabelPoint,
   getGeoJsonBounds,
-  getGeometryLabelPoint,
   type CountryMapFeatureProperties,
 } from '../../../utils/countryMap';
 import styles from './CountryMapBrowser.module.css';
@@ -38,6 +38,28 @@ const SUMMARY_TEXT_FALLBACK = {
 const NATURE_WATER = '#5cb4e5';
 const NATURE_LAND = '#a3dea7';
 const NATURE_ROADS = '#adb6c7';
+const WORLD_MAP_SOURCES = ['data/world-countries.optimized.geojson', 'data/world-countries.geojson'];
+const DESERTS_MAP_SOURCES = ['data/deserts_biome.optimized.geojson', 'data/deserts_biome.geojson'];
+
+async function fetchGeoJsonWithFallback(paths: string[]): Promise<GeoJSON.GeoJSON> {
+  const baseUrl = import.meta.env.BASE_URL;
+  let lastError: Error | null = null;
+
+  for (const relativePath of paths) {
+    try {
+      const response = await fetch(`${baseUrl}${relativePath}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${relativePath}: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
+  }
+
+  throw lastError ?? new Error('Failed to load GeoJSON');
+}
 
 function shouldHideBaseLabelLayer(layer: { id?: string; type?: string; ['source-layer']?: string | undefined }): boolean {
   if (layer.type !== 'symbol') return false;
@@ -163,13 +185,7 @@ function NatureStyleController() {
       if (desertsLoadedRef.current) return;
 
       try {
-        const baseUrl = import.meta.env.BASE_URL;
-        const response = await fetch(`${baseUrl}data/deserts_biome.geojson`);
-        if (!response.ok) {
-          throw new Error(`Failed to load deserts layer: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await fetchGeoJsonWithFallback(DESERTS_MAP_SOURCES);
         if (isCancelled) return;
 
         if (!map.getSource(DESERTS_SOURCE)) {
@@ -269,7 +285,7 @@ function CountryFlagMarkers({
       const properties = feature.properties;
       if (!properties?.flag) continue;
 
-      const point = getGeometryLabelPoint(feature.geometry);
+      const point = getFeatureLabelPoint(feature);
       if (!point) continue;
 
       const element = document.createElement('div');
@@ -315,7 +331,7 @@ function CountryNameMarkers({
       const properties = feature.properties;
       if (!properties?.localizedName) continue;
 
-      const point = getGeometryLabelPoint(feature.geometry);
+      const point = getFeatureLabelPoint(feature);
       if (!point) continue;
 
       const element = document.createElement('div');
@@ -367,13 +383,7 @@ export function CountryMapBrowser({
       setMapError(null);
 
       try {
-        const baseUrl = import.meta.env.BASE_URL;
-        const response = await fetch(`${baseUrl}data/world-countries.geojson`);
-        if (!response.ok) {
-          throw new Error(`Failed to load map data: ${response.status}`);
-        }
-
-        const json = await response.json();
+        const json = await fetchGeoJsonWithFallback(WORLD_MAP_SOURCES);
         if (!isCancelled) {
           setRawGeoJson(json);
         }

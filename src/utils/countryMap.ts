@@ -16,7 +16,10 @@ export type CountryMapFeatureProperties = GeoJSON.GeoJsonProperties & {
   flag: string;
   localizedName: string;
   mapLabel: string;
+  labelPoint?: [number, number];
 };
+
+const geometryLabelPointCache = new WeakMap<GeoJSON.Geometry, [number, number] | null>();
 
 function getFeatureName(properties: GeoJSON.GeoJsonProperties | null | undefined): string | null {
   const rawName = properties?.name;
@@ -84,6 +87,18 @@ export function createCountryMapGeoJson(
 }
 
 export function getGeoJsonBounds(geoJson: GeoJSON.GeoJSON): [number, number, number, number] | null {
+  if ('bbox' in geoJson && Array.isArray(geoJson.bbox) && geoJson.bbox.length >= 4) {
+    const [minLng, minLat, maxLng, maxLat] = geoJson.bbox;
+    if (
+      typeof minLng === 'number' &&
+      typeof minLat === 'number' &&
+      typeof maxLng === 'number' &&
+      typeof maxLat === 'number'
+    ) {
+      return [minLng, minLat, maxLng, maxLat];
+    }
+  }
+
   let minLng = Infinity;
   let minLat = Infinity;
   let maxLng = -Infinity;
@@ -157,32 +172,46 @@ function ringBBoxArea(ring: GeoJSON.Position[]): number {
   return (maxX - minX) * (maxY - minY);
 }
 
+export function getFeatureLabelPoint(
+  feature: GeoJSON.Feature<GeoJSON.Geometry, CountryMapFeatureProperties>
+): [number, number] | null {
+  const labelPoint = feature.properties?.labelPoint;
+
+  if (
+    Array.isArray(labelPoint) &&
+    labelPoint.length >= 2 &&
+    typeof labelPoint[0] === 'number' &&
+    typeof labelPoint[1] === 'number'
+  ) {
+    return [labelPoint[0], labelPoint[1]];
+  }
+
+  return getGeometryLabelPoint(feature.geometry);
+}
+
 export function getGeometryLabelPoint(geometry: GeoJSON.Geometry): [number, number] | null {
+  const cachedPoint = geometryLabelPointCache.get(geometry);
+  if (cachedPoint !== undefined) {
+    return cachedPoint;
+  }
+
+  let labelPoint: [number, number] | null = null;
+
   if (geometry.type === 'Point') {
-    return geometry.coordinates as [number, number];
-  }
-
-  if (geometry.type === 'MultiPoint' && geometry.coordinates.length > 0) {
-    return geometry.coordinates[0] as [number, number];
-  }
-
-  if (geometry.type === 'LineString' && geometry.coordinates.length > 0) {
+    labelPoint = geometry.coordinates as [number, number];
+  } else if (geometry.type === 'MultiPoint' && geometry.coordinates.length > 0) {
+    labelPoint = geometry.coordinates[0] as [number, number];
+  } else if (geometry.type === 'LineString' && geometry.coordinates.length > 0) {
     const mid = Math.floor(geometry.coordinates.length / 2);
-    return geometry.coordinates[mid] as [number, number];
-  }
-
-  if (geometry.type === 'MultiLineString' && geometry.coordinates.length > 0) {
+    labelPoint = geometry.coordinates[mid] as [number, number];
+  } else if (geometry.type === 'MultiLineString' && geometry.coordinates.length > 0) {
     const line = geometry.coordinates[0];
     const mid = Math.floor(line.length / 2);
-    return line[mid] as [number, number];
-  }
-
-  if (geometry.type === 'Polygon' && geometry.coordinates.length > 0) {
+    labelPoint = line[mid] as [number, number];
+  } else if (geometry.type === 'Polygon' && geometry.coordinates.length > 0) {
     const result = polylabel(geometry.coordinates as number[][][], 1.0);
-    return [result[0], result[1]];
-  }
-
-  if (geometry.type === 'MultiPolygon' && geometry.coordinates.length > 0) {
+    labelPoint = [result[0], result[1]];
+  } else if (geometry.type === 'MultiPolygon' && geometry.coordinates.length > 0) {
     let largestPolygon: GeoJSON.Position[][] | null = null;
     let largestArea = 0;
 
@@ -197,16 +226,18 @@ export function getGeometryLabelPoint(geometry: GeoJSON.Geometry): [number, numb
 
     if (largestPolygon) {
       const result = polylabel(largestPolygon as number[][][], 1.0);
-      return [result[0], result[1]];
+      labelPoint = [result[0], result[1]];
     }
-  }
-
-  if (geometry.type === 'GeometryCollection') {
+  } else if (geometry.type === 'GeometryCollection') {
     for (const nestedGeometry of geometry.geometries) {
       const point = getGeometryLabelPoint(nestedGeometry);
-      if (point) return point;
+      if (point) {
+        labelPoint = point;
+        break;
+      }
     }
   }
 
-  return null;
+  geometryLabelPointCache.set(geometry, labelPoint);
+  return labelPoint;
 }

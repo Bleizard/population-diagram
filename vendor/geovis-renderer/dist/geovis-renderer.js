@@ -453,27 +453,28 @@ function ringBBoxArea(ring) {
   }
   return (maxX - minX) * (maxY - minY);
 }
+const geometryLabelPointCache = /* @__PURE__ */ new WeakMap();
 function computeLabelPoint(geometry) {
+  const cachedPoint = geometryLabelPointCache.get(geometry);
+  if (cachedPoint !== void 0) {
+    return cachedPoint;
+  }
+  let labelPoint = null;
   if (geometry.type === "Point") {
-    return geometry.coordinates;
-  }
-  if (geometry.type === "MultiPoint" && geometry.coordinates.length > 0) {
-    return geometry.coordinates[0];
-  }
-  if (geometry.type === "LineString" && geometry.coordinates.length > 0) {
+    labelPoint = geometry.coordinates;
+  } else if (geometry.type === "MultiPoint" && geometry.coordinates.length > 0) {
+    labelPoint = geometry.coordinates[0];
+  } else if (geometry.type === "LineString" && geometry.coordinates.length > 0) {
     const mid = Math.floor(geometry.coordinates.length / 2);
-    return geometry.coordinates[mid];
-  }
-  if (geometry.type === "MultiLineString" && geometry.coordinates.length > 0) {
+    labelPoint = geometry.coordinates[mid];
+  } else if (geometry.type === "MultiLineString" && geometry.coordinates.length > 0) {
     const line = geometry.coordinates[0];
     const mid = Math.floor(line.length / 2);
-    return line[mid];
-  }
-  if (geometry.type === "Polygon" && geometry.coordinates.length > 0) {
+    labelPoint = line[mid];
+  } else if (geometry.type === "Polygon" && geometry.coordinates.length > 0) {
     const result = polylabel(geometry.coordinates, 1);
-    return [result[0], result[1]];
-  }
-  if (geometry.type === "MultiPolygon" && geometry.coordinates.length > 0) {
+    labelPoint = [result[0], result[1]];
+  } else if (geometry.type === "MultiPolygon" && geometry.coordinates.length > 0) {
     let largestPolygon = null;
     let largestArea = 0;
     for (const polygon of geometry.coordinates) {
@@ -488,11 +489,11 @@ function computeLabelPoint(geometry) {
     }
     if (largestPolygon) {
       const result = polylabel(largestPolygon, 1);
-      return [result[0], result[1]];
+      labelPoint = [result[0], result[1]];
     }
-    return null;
   }
-  return null;
+  geometryLabelPointCache.set(geometry, labelPoint);
+  return labelPoint;
 }
 function formatNumber(value) {
   let numValue;
@@ -598,11 +599,9 @@ function useLabelLayer({
       return;
     }
     const labelFieldName = typeof labelField === "string" ? labelField : void 0;
-    const centroidsData = createCentroidsGeoJson(data, labelFieldName, labelFormatNumbers);
     const existingLabelSource = map.getSource(labelSourceId);
-    if (existingLabelSource) {
-      existingLabelSource.setData(centroidsData);
-    } else {
+    if (!existingLabelSource) {
+      const centroidsData = createCentroidsGeoJson(data, labelFieldName, labelFormatNumbers);
       map.addSource(labelSourceId, {
         type: "geojson",
         data: centroidsData
@@ -890,32 +889,19 @@ function useGeoJsonLayers({
   circleStrokeWidth
 }) {
   useEffect(() => {
-    console.log(`[GeoJsonLayer ${id}] useEffect triggered:`, {
-      hasMap: !!map,
-      isLoaded,
-      hasData: !!data,
-      dataType: data && typeof data === "object" ? data.type : null,
-      featureCount: data && typeof data === "object" && "features" in data ? data.features?.length : "N/A"
-    });
     if (!map || !isLoaded || !data) {
-      console.log(`[GeoJsonLayer ${id}] Early return:`, { map: !!map, isLoaded, data: !!data });
       return;
     }
     if (!map.getSource(sourceId)) {
       return;
     }
-    console.log(`[GeoJsonLayer ${id}] Map is ready, adding layers...`);
     const layerOptions = {
       minzoom: minZoom,
       maxzoom: maxZoom,
       filter
     };
-    console.log(`[GeoJsonLayer ${id}] Layer type: ${type}, adding layers...`);
     if (type === "fill" || type === "line") {
       if (!map.getLayer(layerIdFill)) {
-        console.log(
-          `[GeoJsonLayer ${id}] Creating fill layer: ${layerIdFill} with fillColor=${fillColor}, fillOpacity=${fillOpacity}`
-        );
         try {
           map.addLayer({
             id: layerIdFill,
@@ -943,17 +929,11 @@ function useGeoJsonLayers({
               ["==", ["geometry-type"], "MultiPolygon"]
             ]
           });
-          console.log(`[GeoJsonLayer ${id}] Fill layer created successfully`);
         } catch (err) {
           console.error(`[GeoJsonLayer ${id}] Error creating fill layer:`, err);
         }
-      } else {
-        console.log(`[GeoJsonLayer ${id}] Fill layer already exists`);
       }
       if (!map.getLayer(layerIdLine)) {
-        console.log(
-          `[GeoJsonLayer ${id}] Creating line layer: ${layerIdLine} with lineColor=${lineColor}, lineWidth=${lineWidth}`
-        );
         try {
           map.addLayer({
             id: layerIdLine,
@@ -984,18 +964,10 @@ function useGeoJsonLayers({
               ["==", ["geometry-type"], "MultiLineString"]
             ]
           });
-          console.log(`[GeoJsonLayer ${id}] Line layer created successfully`);
         } catch (err) {
           console.error(`[GeoJsonLayer ${id}] Error creating line layer:`, err);
         }
-      } else {
-        console.log(`[GeoJsonLayer ${id}] Line layer already exists`);
       }
-      console.log(
-        `[GeoJsonLayer ${id}] Layers created. Checking: fill=${!!map.getLayer(layerIdFill)}, line=${!!map.getLayer(
-          layerIdLine
-        )}`
-      );
     }
     if (type === "circle") {
       if (!map.getLayer(layerIdCircle)) {
@@ -1026,7 +998,7 @@ function useGeoJsonLayers({
       safelyRemoveSource(map, labelSourceId);
       safelyRemoveSource(map, sourceId);
     };
-  }, [map, isLoaded, id, data]);
+  }, [map, isLoaded, id, type, sourceId, labelSourceId, layerIdFill, layerIdLine, layerIdCircle, layerIdLabel]);
 }
 function useLayerVisibility({
   map,
