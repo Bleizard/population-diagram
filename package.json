@@ -13,6 +13,7 @@
     "fetch-au-demography": "npx tsx scripts/fetch-au-demography.ts",
     "fetch-eurostat": "npx tsx scripts/fetch-eurostat.ts",
     "fetch-eurostat-demography": "npx tsx scripts/fetch-eurostat-demography.ts",
+    "fetch-idb": "npx tsx scripts/fetch-idb.ts",
     "fetch-us-census": "npx tsx scripts/fetch-us-census.ts",
     "fetch-us-demography": "npx tsx scripts/fetch-us-demography.ts",
     "fetch-uk-ons": "npx tsx scripts/fetch-uk-ons.ts"

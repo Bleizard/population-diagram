@@ -50,6 +50,8 @@ export const COUNTRIES: CountryMeta[] = [
   { code: 'MD', name: 'Moldova', capital: 'Chișinău', region: 'Candidate', flag: '\u{1F1F2}\u{1F1E9}' },
   { code: 'RS', name: 'Serbia', capital: 'Belgrade', region: 'Candidate', flag: '\u{1F1F7}\u{1F1F8}' },
   { code: 'TR', name: 'Turkey', capital: 'Ankara', region: 'Candidate', flag: '\u{1F1F9}\u{1F1F7}' },
+  { code: 'GE', name: 'Georgia', capital: 'Tbilisi', region: 'Candidate', flag: '\u{1F1EC}\u{1F1EA}' },
+  { code: 'UA', name: 'Ukraine', capital: 'Kyiv', region: 'Candidate', flag: '\u{1F1FA}\u{1F1E6}' },
   { code: 'XK', name: 'Kosovo', capital: 'Pristina', region: 'Candidate', flag: '\u{1F1FD}\u{1F1F0}' },
   // North America
   { code: 'US', name: 'United States', capital: 'Washington, D.C.', region: 'NorthAmerica', flag: '\u{1F1FA}\u{1F1F8}' },
@@ -58,6 +60,15 @@ export const COUNTRIES: CountryMeta[] = [
   { code: 'UK', name: 'United Kingdom', capital: 'London', region: 'Other', flag: '\u{1F1EC}\u{1F1E7}' },
   { code: 'JP', name: 'Japan', capital: 'Tokyo', region: 'Other', flag: '\u{1F1EF}\u{1F1F5}' },
   { code: 'AU', name: 'Australia', capital: 'Canberra', region: 'Other', flag: '\u{1F1E6}\u{1F1FA}' },
+  { code: 'AM', name: 'Armenia', capital: 'Yerevan', region: 'Other', flag: '\u{1F1E6}\u{1F1F2}' },
+  { code: 'AZ', name: 'Azerbaijan', capital: 'Baku', region: 'Other', flag: '\u{1F1E6}\u{1F1FF}' },
+  { code: 'BY', name: 'Belarus', capital: 'Minsk', region: 'Other', flag: '\u{1F1E7}\u{1F1FE}' },
+  { code: 'KZ', name: 'Kazakhstan', capital: 'Astana', region: 'Other', flag: '\u{1F1F0}\u{1F1FF}' },
+  { code: 'KG', name: 'Kyrgyzstan', capital: 'Bishkek', region: 'Other', flag: '\u{1F1F0}\u{1F1EC}' },
+  { code: 'RU', name: 'Russia', capital: 'Moscow', region: 'Other', flag: '\u{1F1F7}\u{1F1FA}' },
+  { code: 'TJ', name: 'Tajikistan', capital: 'Dushanbe', region: 'Other', flag: '\u{1F1F9}\u{1F1EF}' },
+  { code: 'TM', name: 'Turkmenistan', capital: 'Ashgabat', region: 'Other', flag: '\u{1F1F9}\u{1F1F2}' },
+  { code: 'UZ', name: 'Uzbekistan', capital: 'Tashkent', region: 'Other', flag: '\u{1F1FA}\u{1F1FF}' },
 ];
 
 export const COMPARABLE_COUNTRIES = COUNTRIES.filter((country) => !country.isAggregate);

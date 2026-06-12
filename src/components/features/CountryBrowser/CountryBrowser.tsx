@@ -60,6 +60,7 @@ function getDisplaySourceLabel(rawSource: string | null | undefined): string | n
   if (rawSource.includes('Eurostat')) return 'Eurostat';
   if (rawSource.includes('Office for National Statistics')) return 'ONS';
   if (rawSource.includes('Australian Bureau of Statistics')) return 'ABS';
+  if (rawSource.includes('International Database')) return 'US Census IDB';
   if (rawSource.includes('CDC') || rawSource.includes('National Center for Health Statistics')) return 'CDC/NCHS';
   if (rawSource.includes('US Census Bureau')) return 'US Census Bureau';
   if (rawSource.includes('Statistics Canada')) return 'Statistics Canada';

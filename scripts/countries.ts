@@ -47,6 +47,8 @@ export const COUNTRIES: CountryMeta[] = [
   { code: 'MD', name: 'Moldova', region: 'Candidate', flag: '\u{1F1F2}\u{1F1E9}' },
   { code: 'RS', name: 'Serbia', region: 'Candidate', flag: '\u{1F1F7}\u{1F1F8}' },
   { code: 'TR', name: 'Turkey', region: 'Candidate', flag: '\u{1F1F9}\u{1F1F7}' },
+  { code: 'GE', name: 'Georgia', region: 'Candidate', flag: '\u{1F1EC}\u{1F1EA}' },
+  { code: 'UA', name: 'Ukraine', region: 'Candidate', flag: '\u{1F1FA}\u{1F1E6}' },
   { code: 'XK', name: 'Kosovo', region: 'Candidate', flag: '\u{1F1FD}\u{1F1F0}' },
   // North America
   { code: 'US', name: 'United States', region: 'NorthAmerica', flag: '\u{1F1FA}\u{1F1F8}' },
@@ -55,4 +57,13 @@ export const COUNTRIES: CountryMeta[] = [
   { code: 'UK', name: 'United Kingdom', region: 'Other', flag: '\u{1F1EC}\u{1F1E7}' },
   { code: 'JP', name: 'Japan', region: 'Other', flag: '\u{1F1EF}\u{1F1F5}' },
   { code: 'AU', name: 'Australia', region: 'Other', flag: '\u{1F1E6}\u{1F1FA}' },
+  { code: 'AM', name: 'Armenia', region: 'Other', flag: '\u{1F1E6}\u{1F1F2}' },
+  { code: 'AZ', name: 'Azerbaijan', region: 'Other', flag: '\u{1F1E6}\u{1F1FF}' },
+  { code: 'BY', name: 'Belarus', region: 'Other', flag: '\u{1F1E7}\u{1F1FE}' },
+  { code: 'KZ', name: 'Kazakhstan', region: 'Other', flag: '\u{1F1F0}\u{1F1FF}' },
+  { code: 'KG', name: 'Kyrgyzstan', region: 'Other', flag: '\u{1F1F0}\u{1F1EC}' },
+  { code: 'RU', name: 'Russia', region: 'Other', flag: '\u{1F1F7}\u{1F1FA}' },
+  { code: 'TJ', name: 'Tajikistan', region: 'Other', flag: '\u{1F1F9}\u{1F1EF}' },
+  { code: 'TM', name: 'Turkmenistan', region: 'Other', flag: '\u{1F1F9}\u{1F1F2}' },
+  { code: 'UZ', name: 'Uzbekistan', region: 'Other', flag: '\u{1F1FA}\u{1F1FF}' },
 ];

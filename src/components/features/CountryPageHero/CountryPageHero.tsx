@@ -51,6 +51,7 @@ interface DetailGroup {
 interface HeroText {
   title: string;
   subtitle: string;
+  subtitleIdb?: string;
   referenceYear: string;
   sourceLabel: string;
   structureTitle: string;
@@ -167,6 +168,9 @@ export function CountryPageHero({
     ...FALLBACK_TEXT,
     ...(t.demographyProfile ?? {}),
   };
+  const subtitle = profile?.source.includes('International Database')
+    ? (text.subtitleIdb ?? 'Latest country-level demographic indicators from the U.S. Census Bureau IDB')
+    : text.subtitle;
 
   const summaryCards = useMemo<SummaryCard[]>(
     () => (profile ? [
@@ -414,7 +418,7 @@ export function CountryPageHero({
           <div>
             <p className={styles.eyebrow}>{text.title}</p>
             <h1 className={styles.title}>{name}</h1>
-            <p className={styles.subtitle}>{text.subtitle}</p>
+            <p className={styles.subtitle}>{subtitle}</p>
           </div>
         </div>
 

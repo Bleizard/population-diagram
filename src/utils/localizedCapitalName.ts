@@ -40,12 +40,23 @@ const LOCALIZED_CAPITALS: Record<string, Partial<Record<Language, string>>> = {
   MD: { ru: 'Кишинёв', de: 'Chișinău', es: 'Chisináu', pt: 'Chisinau', fr: 'Chișinău' },
   RS: { ru: 'Белград', de: 'Belgrad', es: 'Belgrado', pt: 'Belgrado' },
   TR: { ru: 'Анкара' },
+  GE: { ru: 'Тбилиси' },
+  UA: { ru: 'Киев' },
   XK: { ru: 'Приштина' },
   US: { ru: 'Вашингтон' },
   CA: { ru: 'Оттава' },
   UK: { ru: 'Лондон' },
   JP: { ru: 'Токио', de: 'Tokio', es: 'Tokio', pt: 'Tóquio' },
   AU: { ru: 'Канберра' },
+  AM: { ru: 'Ереван' },
+  AZ: { ru: 'Баку' },
+  BY: { ru: 'Минск' },
+  KZ: { ru: 'Астана' },
+  KG: { ru: 'Бишкек' },
+  RU: { ru: 'Москва' },
+  TJ: { ru: 'Душанбе' },
+  TM: { ru: 'Ашхабад' },
+  UZ: { ru: 'Ташкент' },
 };
 
 export function getLocalizedCapitalName(
