@@ -9,6 +9,12 @@ interface CountryDemographyTrendsProps {
   benchmarkProfile?: CountryDemographyProfile | null;
 }
 
+const EU_MEMBER_CODES = new Set([
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL',
+  'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+  'SI', 'ES', 'SE',
+]);
+
 interface TrendCardConfig {
   id: string;
   label: string;
@@ -111,7 +117,22 @@ function alignByYear(
 function buildComparisonSeries(
   card: TrendCardConfig,
   benchmarkProfile: CountryDemographyProfile | null,
+  countryCode?: string,
 ): ComparisonSeriesConfig {
+  const shouldHidePopulationBenchmark =
+    card.id === 'population'
+    && countryCode
+    && !EU_MEMBER_CODES.has(countryCode);
+
+  if (shouldHidePopulationBenchmark) {
+    return {
+      points: card.points,
+      benchmarkPoints: [],
+      formatter: card.formatter,
+      axisFormatter: card.axisFormatter,
+    };
+  }
+
   const benchmarkPoints = benchmarkProfile?.indicators[card.id as keyof CountryDemographyProfile['indicators']] ?? [];
 
   if (!benchmarkProfile || benchmarkPoints.length <= 1) {
@@ -389,7 +410,7 @@ export function CountryDemographyTrends({ profile, benchmarkProfile = null }: Co
 
   const activeCard = cards.find((card) => card.id === activeCardId) ?? cards[0];
   const activeLatest = getLatest(activeCard.points);
-  const comparison = buildComparisonSeries(activeCard, benchmarkProfile);
+  const comparison = buildComparisonSeries(activeCard, benchmarkProfile, profile.geo);
   const periodStart = comparison.points[0]?.year;
   const periodEnd = comparison.points[comparison.points.length - 1]?.year;
   const benchmarkLatest = comparison.benchmarkPoints.length > 0 ? comparison.benchmarkPoints[comparison.benchmarkPoints.length - 1] : null;

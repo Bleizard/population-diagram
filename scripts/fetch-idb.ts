@@ -71,7 +71,13 @@ const LICENSE = 'Public Domain';
 const RATE_LIMIT_MS = 250;
 const MAX_RETRIES = 3;
 const MAX_YEAR = Number.parseInt(process.env.IDB_MAX_YEAR ?? '2024', 10);
-const IDB_CODES = new Set(['AM', 'AZ', 'BY', 'GE', 'KG', 'KZ', 'RU', 'TJ', 'TM', 'UA', 'UZ']);
+const IDB_CODES = new Set([
+  'AM', 'AZ', 'BY', 'GE', 'KG', 'KZ', 'RU', 'TJ', 'TM', 'UA', 'UZ',
+  'IL', 'AE', 'SA', 'OM', 'QA',
+  'JP', 'KR', 'MN', 'ID', 'TH', 'VN', 'MY', 'SG', 'PH',
+  'EG', 'ZA', 'NG', 'KE', 'ET', 'MA', 'DZ', 'TN', 'GH', 'BW',
+  'BR', 'AR', 'CL', 'CO', 'PE', 'UY',
+]);
 const IDB_COUNTRIES = COUNTRIES.filter((country) => IDB_CODES.has(country.code));
 
 function delay(ms: number): Promise<void> {
