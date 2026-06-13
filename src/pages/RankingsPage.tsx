@@ -8,11 +8,14 @@ import {
   type CountryDemographyProfile,
   type CountrySummaryEntry,
 } from '../services/countryDataLoader';
+import { formatPopulation } from '../utils';
 import { getLocalizedCountryName } from '../utils/localizedCountryName';
 import styles from './RankingsPage.module.css';
 
 type RankingMetricKey =
+  | 'population'
   | 'median-age'
+  | 'fertility-rate'
   | 'share-65-plus'
   | 'dependency-ratio'
   | 'working-age-share'
@@ -30,16 +33,22 @@ interface RankingsPageText {
   explore: string;
   loading: string;
   empty: string;
+  population: string;
   medianAge: string;
+  fertilityRate: string;
   share65Plus: string;
   dependencyRatio: string;
   workingAgeShare: string;
+  mostPopulousCountries: string;
   youngestPopulation: string;
+  highestFertilityRates: string;
   oldestPopulations: string;
   highest65Plus: string;
   highestDependency: string;
   highestWorkingAgeShare: string;
+  mostPopulousCountriesInEurope: string;
   youngestPopulations: string;
+  highestFertilityRatesInEurope: string;
   oldestPopulationsInEurope: string;
   highest65PlusInEurope: string;
   highestDependencyInEurope: string;
@@ -81,16 +90,22 @@ const FALLBACK_TEXT: RankingsPageText = {
   explore: 'Open country profile',
   loading: 'Loading rankings...',
   empty: 'Not enough data for this ranking yet',
+  population: 'Population',
   medianAge: 'Median age',
+  fertilityRate: 'Total fertility rate',
   share65Plus: 'Age 65+',
   dependencyRatio: 'Dependency ratio',
   workingAgeShare: 'Age 15-64',
+  mostPopulousCountries: 'Most populous countries',
   youngestPopulation: 'Youngest population',
+  highestFertilityRates: 'Highest fertility rates',
   oldestPopulations: 'Oldest populations',
   highest65Plus: 'Highest 65+ shares',
   highestDependency: 'Highest dependency ratios',
   highestWorkingAgeShare: 'Highest working-age shares',
+  mostPopulousCountriesInEurope: 'Most populous countries in Europe',
   youngestPopulations: 'Youngest populations',
+  highestFertilityRatesInEurope: 'Highest fertility rates in Europe',
   oldestPopulationsInEurope: 'Oldest populations in Europe',
   highest65PlusInEurope: 'Highest 65+ shares in Europe',
   highestDependencyInEurope: 'Highest dependency ratios in Europe',
@@ -117,8 +132,8 @@ function formatPercent(value: number) {
   return `${value.toFixed(1)}%`;
 }
 
-function formatDecimal(value: number) {
-  return value.toFixed(1);
+function formatDecimal(value: number, digits: number = 1) {
+  return value.toFixed(digits);
 }
 
 function getLatestValue(series: Array<{ year: number; value: number }> | undefined) {
@@ -140,6 +155,19 @@ export function RankingsPage() {
   };
 
   const definitions = useMemo<Record<RankingMetricKey, RankingDefinition>>(() => ({
+    population: {
+      key: 'population',
+      tabLabel: text.population,
+      getValue: (profile, summary) => {
+        if (summary?.metrics.totalPopulation !== null && summary?.metrics.totalPopulation !== undefined) {
+          return { value: summary.metrics.totalPopulation, year: summary.year };
+        }
+        const point = getLatestValue(profile?.indicators.population);
+        return point ? { value: point.value, year: point.year } : null;
+      },
+      format: formatPopulation,
+      direction: 'desc',
+    },
     'median-age': {
       key: 'median-age',
       tabLabel: text.medianAge,
@@ -148,6 +176,16 @@ export function RankingsPage() {
         return point ? { value: point.value, year: point.year } : null;
       },
       format: formatDecimal,
+      direction: 'desc',
+    },
+    'fertility-rate': {
+      key: 'fertility-rate',
+      tabLabel: text.fertilityRate,
+      getValue: (profile) => {
+        const point = getLatestValue(profile?.indicators.fertilityRate);
+        return point ? { value: point.value, year: point.year } : null;
+      },
+      format: (value) => formatDecimal(value, 2),
       direction: 'desc',
     },
     'share-65-plus': {
@@ -258,16 +296,20 @@ export function RankingsPage() {
     const scopeLabel = rankingScope === 'europe' ? text.europeOnly : text.allCountries;
     const baseTitle = (() => {
       switch (rankingKey) {
+        case 'population':
+          return rankingScope === 'europe' ? text.mostPopulousCountriesInEurope : text.mostPopulousCountries;
         case 'median-age':
-          return text.oldestPopulations;
+          return rankingScope === 'europe' ? text.oldestPopulationsInEurope : text.oldestPopulations;
+        case 'fertility-rate':
+          return rankingScope === 'europe' ? text.highestFertilityRatesInEurope : text.highestFertilityRates;
         case 'share-65-plus':
-          return text.highest65Plus;
+          return rankingScope === 'europe' ? text.highest65PlusInEurope : text.highest65Plus;
         case 'dependency-ratio':
-          return text.highestDependency;
+          return rankingScope === 'europe' ? text.highestDependencyInEurope : text.highestDependency;
         case 'working-age-share':
-          return text.highestWorkingAgeShare;
+          return rankingScope === 'europe' ? text.highestWorkingAgeShareInEurope : text.highestWorkingAgeShare;
         case 'youngest-population':
-          return text.youngestPopulations;
+          return rankingScope === 'europe' ? text.youngestPopulationsInEurope : text.youngestPopulations;
         default:
           return text.title;
       }

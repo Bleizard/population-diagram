@@ -16,10 +16,17 @@ import { ChartSettingsPanel, SettingsSection } from '../ChartSettingsPanel';
 import { FullscreenChart } from '../FullscreenChart';
 import { EmbedCodeModal } from '../EmbedCodeModal';
 import { GroupedChartModal } from '../GroupedChartModal';
+import { ProjectionScenarioModal } from '../ProjectionScenarioModal';
 import { generateSimpleEmbedCode } from '../../../utils/embedCodeGenerator';
+import {
+  buildProjectedTimeSeriesData,
+  buildProjectionBaseline,
+  type PopulationProjectionScenario,
+} from '../../../utils/demographicProjection';
 import { ORIGINAL_CHART_ID } from '../../../constants';
 import type { Theme } from '../../../hooks';
 import type { PopulationData, TimeSeriesPopulationData, DataFormat, AgeRangeConfig } from '../../../types';
+import type { CountryDemographyProfile } from '../../../services/countryDataLoader';
 import styles from './ChartWorkspace.module.css';
 
 interface ChartWorkspaceProps {
@@ -37,6 +44,8 @@ interface ChartWorkspaceProps {
   onClearData: () => void;
   /** Режим профиля страны */
   profileMode?: boolean;
+  /** Демографический профиль страны для сценариев прогноза */
+  demographyProfile?: CountryDemographyProfile | null;
 }
 
 export function ChartWorkspace({
@@ -47,12 +56,17 @@ export function ChartWorkspace({
   theme,
   onClearData,
   profileMode = false,
+  demographyProfile = null,
 }: ChartWorkspaceProps) {
   const { t } = useI18n();
+  const tAny = t as Record<string, unknown>;
   const [embedCode, setEmbedCode] = useState<string | null>(null);
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
   const [isGroupedChartModalOpen, setIsGroupedChartModalOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isProjectionModalOpen, setIsProjectionModalOpen] = useState(false);
+  const [projectionScenario, setProjectionScenario] = useState<PopulationProjectionScenario | null>(null);
+  const [projectedTimeSeriesData, setProjectedTimeSeriesData] = useState<TimeSeriesPopulationData | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   
   const {
@@ -78,31 +92,64 @@ export function ChartWorkspace({
     createGetChartCanvas,
   } = useChartSettings();
 
+  const actionLabels = {
+    futureScenario: (tAny.actions as Record<string, string> | undefined)?.futureScenario
+      ?? (profileMode ? 'Future scenario' : 'Projection'),
+    editFutureScenario: (tAny.actions as Record<string, string> | undefined)?.editFutureScenario
+      ?? 'Edit scenario',
+    resetProjection: (tAny.actions as Record<string, string> | undefined)?.resetProjection
+      ?? 'Return to observed data',
+    projectionBadge: (tAny.actions as Record<string, string> | undefined)?.projectionBadge
+      ?? 'Projection active',
+  };
+
+  const effectiveTimeSeriesData = projectedTimeSeriesData ?? timeSeriesData;
+
   // Сброс всех данных
   const handleClearAll = useCallback(() => {
     onClearData();
     resetAll();
   }, [onClearData, resetAll]);
 
+  useEffect(() => {
+    setProjectedTimeSeriesData(null);
+    setProjectionScenario(null);
+    setIsProjectionModalOpen(false);
+  }, [timeSeriesData?.geoCode, initialData?.title]);
+
   const profileGroupedChart = profileMode ? additionalCharts[additionalCharts.length - 1] ?? null : null;
   const profileActiveChartId = profileGroupedChart?.id ?? ORIGINAL_CHART_ID;
+  const profileSelectedYear = getSettings(ORIGINAL_CHART_ID).selectedYear
+    ?? initialSelectedYear
+    ?? timeSeriesData?.years[timeSeriesData.years.length - 1]
+    ?? new Date().getFullYear();
+
+  const projectionBaseline = useMemo(() => {
+    if (!profileMode || !demographyProfile) return null;
+
+    const baselineYear = projectionScenario?.startYear ?? profileSelectedYear;
+    const baselineAgeGroups = timeSeriesData?.dataByYear[baselineYear] ?? initialData.ageGroups;
+    return buildProjectionBaseline(demographyProfile, baselineAgeGroups, baselineYear);
+  }, [demographyProfile, initialData.ageGroups, profileMode, profileSelectedYear, projectionScenario?.startYear, timeSeriesData]);
+
+  const canRunProjection = profileMode && Boolean(demographyProfile && projectionBaseline && timeSeriesData);
   
   // Создание агрегированного графика
   const handleCreateGroupedChart = useCallback((groups: AgeRangeConfig[]) => {
     const sourceChartId = profileMode ? profileActiveChartId : ORIGINAL_CHART_ID;
     const sourceSettings = getSettings(sourceChartId);
     const sourceYear = sourceSettings.selectedYear ?? initialSelectedYear;
-    const currentData = timeSeriesData && sourceYear
+    const currentData = effectiveTimeSeriesData && sourceYear
       ? {
-          title: timeSeriesData.title,
+          title: effectiveTimeSeriesData.title,
           date: String(sourceYear),
-          source: timeSeriesData.source,
-          ageGroups: timeSeriesData.dataByYear[sourceYear] || initialData.ageGroups,
+          source: effectiveTimeSeriesData.source,
+          ageGroups: effectiveTimeSeriesData.dataByYear[sourceYear] || initialData.ageGroups,
         }
       : initialData;
 
     createGroupedChart(groups, currentData, sourceYear, { replaceExisting: profileMode });
-  }, [createGroupedChart, getSettings, initialData, initialSelectedYear, profileActiveChartId, profileMode, timeSeriesData]);
+  }, [createGroupedChart, effectiveTimeSeriesData, getSettings, initialData, initialSelectedYear, profileActiveChartId, profileMode]);
 
   const handleRestoreOriginal = useCallback(() => {
     additionalCharts.forEach((chart) => removeChart(chart.id));
@@ -115,6 +162,42 @@ export function ChartWorkspace({
       handleYearChange(profileActiveChartId, year);
     }
   }, [handleYearChange, profileActiveChartId]);
+
+  const handleApplyProjection = useCallback((nextScenario: PopulationProjectionScenario) => {
+    if (!projectionBaseline || !timeSeriesData) return;
+
+    const baseAgeGroups = timeSeriesData.dataByYear[nextScenario.startYear] ?? initialData.ageGroups;
+    const projected = buildProjectedTimeSeriesData(
+      timeSeriesData.title,
+      baseAgeGroups,
+      nextScenario,
+      projectionBaseline,
+    );
+
+    setProjectedTimeSeriesData({
+      ...projected,
+      geoCode: timeSeriesData.geoCode,
+      hasGenderData: timeSeriesData.hasGenderData,
+    });
+    setProjectionScenario(nextScenario);
+    setIsProjectionModalOpen(false);
+    handleProfileYearChange(nextScenario.endYear);
+  }, [handleProfileYearChange, initialData.ageGroups, projectionBaseline, timeSeriesData]);
+
+  const handleResetProjection = useCallback(() => {
+    const resetYear = projectionScenario?.startYear
+      ?? initialSelectedYear
+      ?? timeSeriesData?.years[timeSeriesData.years.length - 1]
+      ?? null;
+
+    setProjectedTimeSeriesData(null);
+    setProjectionScenario(null);
+    setIsProjectionModalOpen(false);
+
+    if (resetYear) {
+      handleProfileYearChange(resetYear);
+    }
+  }, [handleProfileYearChange, initialSelectedYear, projectionScenario?.startYear, timeSeriesData]);
 
   const handleFullscreenYearChange = useCallback((year: number) => {
     if (profileMode && fullscreenChartId === profileActiveChartId) {
@@ -132,10 +215,10 @@ export function ChartWorkspace({
     const settings = getSettings(chartId);
     const isOriginal = chartId === ORIGINAL_CHART_ID;
     const chartData = isOriginal
-      ? getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData)
+      ? getChartData(ORIGINAL_CHART_ID, initialData, effectiveTimeSeriesData)
       : (() => {
           const chart = additionalCharts.find(c => c.id === chartId);
-          return chart ? getAggregatedChartData(chart, timeSeriesData, initialData) : null;
+          return chart ? getAggregatedChartData(chart, effectiveTimeSeriesData, initialData) : null;
         })();
     
     if (!chartData) return;
@@ -147,17 +230,17 @@ export function ChartWorkspace({
     const code = generateSimpleEmbedCode(
       chartData,
       settings,
-      timeSeriesData,
+      effectiveTimeSeriesData,
       theme,
       baseUrl
     );
     
     setEmbedCode(code);
     setIsEmbedModalOpen(true);
-  }, [getSettings, getChartData, getAggregatedChartData, initialData, timeSeriesData, additionalCharts, theme]);
+  }, [additionalCharts, effectiveTimeSeriesData, getAggregatedChartData, getChartData, getSettings, initialData, theme]);
 
   // Данные оригинального графика
-  const originalChartData = getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData);
+  const originalChartData = getChartData(ORIGINAL_CHART_ID, initialData, effectiveTimeSeriesData);
   
   // Максимальный возраст для конфигуратора
   const maxAge = originalChartData 
@@ -166,11 +249,11 @@ export function ChartWorkspace({
 
   const profileActiveSettings = getSettings(profileActiveChartId);
   const profileActiveChartData = profileGroupedChart
-    ? getAggregatedChartData(profileGroupedChart, timeSeriesData, initialData)
+    ? getAggregatedChartData(profileGroupedChart, effectiveTimeSeriesData, initialData)
     : originalChartData;
   const profileActiveYear = profileActiveSettings.selectedYear ?? initialSelectedYear;
-  const profileSourceData = profileGroupedChart && timeSeriesData && profileActiveYear
-    ? { ...initialData, ageGroups: timeSeriesData.dataByYear[profileActiveYear] || initialData.ageGroups }
+  const profileSourceData = profileGroupedChart && effectiveTimeSeriesData && profileActiveYear
+    ? { ...initialData, ageGroups: effectiveTimeSeriesData.dataByYear[profileActiveYear] || initialData.ageGroups }
     : undefined;
 
   // Данные для панели настроек
@@ -178,13 +261,13 @@ export function ChartWorkspace({
     if (!settingsOpenFor) return null;
     
     if (settingsOpenFor === ORIGINAL_CHART_ID) {
-      return getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData);
+      return getChartData(ORIGINAL_CHART_ID, initialData, effectiveTimeSeriesData);
     }
     
     const chart = additionalCharts.find((c) => c.id === settingsOpenFor);
     if (!chart) return null;
-    return getAggregatedChartData(chart, timeSeriesData, initialData);
-  }, [settingsOpenFor, initialData, additionalCharts, getChartData, getAggregatedChartData, timeSeriesData]);
+    return getAggregatedChartData(chart, effectiveTimeSeriesData, initialData);
+  }, [settingsOpenFor, initialData, additionalCharts, effectiveTimeSeriesData, getChartData, getAggregatedChartData]);
 
   const currentSettings = settingsOpenFor ? getSettings(settingsOpenFor) : null;
 
@@ -196,14 +279,14 @@ export function ChartWorkspace({
     const chart = isOriginal ? null : additionalCharts.find(c => c.id === fullscreenChartId);
     const settings = getSettings(fullscreenChartId);
     const chartData = isOriginal 
-      ? getChartData(ORIGINAL_CHART_ID, initialData, timeSeriesData)
-      : chart ? getAggregatedChartData(chart, timeSeriesData, initialData) : null;
+      ? getChartData(ORIGINAL_CHART_ID, initialData, effectiveTimeSeriesData)
+      : chart ? getAggregatedChartData(chart, effectiveTimeSeriesData, initialData) : null;
     
     if (!chartData) return null;
     
     const currentYear = settings.selectedYear ?? initialSelectedYear;
-    const sourceDataForMedian = !isOriginal && timeSeriesData && currentYear
-      ? { ...initialData, ageGroups: timeSeriesData.dataByYear[currentYear] || initialData.ageGroups }
+    const sourceDataForMedian = !isOriginal && effectiveTimeSeriesData && currentYear
+      ? { ...initialData, ageGroups: effectiveTimeSeriesData.dataByYear[currentYear] || initialData.ageGroups }
       : undefined;
     
     return {
@@ -214,7 +297,7 @@ export function ChartWorkspace({
       title: isOriginal ? t.chart.originalData : '',
       groupConfig: chart?.groupConfig,
     };
-  }, [fullscreenChartId, initialData, additionalCharts, getSettings, getChartData, getAggregatedChartData, timeSeriesData, initialSelectedYear, t.chart.originalData]);
+  }, [fullscreenChartId, initialData, additionalCharts, effectiveTimeSeriesData, getSettings, getChartData, getAggregatedChartData, initialSelectedYear, t.chart.originalData]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -297,6 +380,11 @@ export function ChartWorkspace({
                   {profileGroupedChart && (
                     <span className={styles.profileModeBadge}>
                       {t.groupConfig.activeMode}
+                    </span>
+                  )}
+                  {projectionScenario && (
+                    <span className={`${styles.profileModeBadge} ${styles.projectionBadge}`}>
+                      {actionLabels.projectionBadge}: {projectionScenario.endYear}
                     </span>
                   )}
                 </div>
@@ -398,6 +486,60 @@ export function ChartWorkspace({
                           <path d="M3 3v6h6" />
                         </svg>
                         {t.settings.resetTitle}
+                      </button>
+                    )}
+                    {canRunProjection && (
+                      <button
+                        className={styles.profileMenuItem}
+                        onClick={() => {
+                          setIsProjectionModalOpen(true);
+                          setIsProfileMenuOpen(false);
+                        }}
+                        type="button"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 3v6" />
+                          <path d="m16.5 7.5-4.5 4.5-3-3L4 14" />
+                          <path d="M20 6v6h-6" />
+                          <path d="M5 21h14" />
+                        </svg>
+                        {projectionScenario ? actionLabels.editFutureScenario : actionLabels.futureScenario}
+                      </button>
+                    )}
+                    {projectionScenario && (
+                      <button
+                        className={styles.profileMenuItem}
+                        onClick={() => {
+                          handleResetProjection();
+                          setIsProfileMenuOpen(false);
+                        }}
+                        type="button"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 12a9 9 0 1 0 3-6.7" />
+                          <path d="M3 3v6h6" />
+                        </svg>
+                        {actionLabels.resetProjection}
                       </button>
                     )}
                     <button
@@ -503,7 +645,7 @@ export function ChartWorkspace({
               sourceDataForMedian={profileSourceData}
               settings={profileActiveSettings}
               theme={theme}
-              timeSeriesData={timeSeriesData}
+              timeSeriesData={effectiveTimeSeriesData}
               currentYear={profileActiveYear}
               title=""
               groupConfig={profileGroupedChart?.groupConfig}
@@ -532,7 +674,7 @@ export function ChartWorkspace({
                 data={originalChartData}
                 settings={settings}
                 theme={theme}
-                timeSeriesData={timeSeriesData}
+                timeSeriesData={effectiveTimeSeriesData}
                 currentYear={currentYear}
                 title={t.chart.originalData}
                 onExportSvg={() => exportToSvg(ORIGINAL_CHART_ID, initialData?.title)}
@@ -549,10 +691,10 @@ export function ChartWorkspace({
 
           {!profileMode && additionalCharts.map((chart) => {
             const settings = getSettings(chart.id);
-            const chartData = getAggregatedChartData(chart, timeSeriesData, initialData);
+            const chartData = getAggregatedChartData(chart, effectiveTimeSeriesData, initialData);
             const chartYear = settings.selectedYear ?? initialSelectedYear;
-            const sourceData = timeSeriesData && chartYear
-              ? { ...initialData, ageGroups: timeSeriesData.dataByYear[chartYear] || initialData.ageGroups }
+            const sourceData = effectiveTimeSeriesData && chartYear
+              ? { ...initialData, ageGroups: effectiveTimeSeriesData.dataByYear[chartYear] || initialData.ageGroups }
               : initialData;
             const currentYear = settings.selectedYear ?? initialSelectedYear;
             
@@ -565,7 +707,7 @@ export function ChartWorkspace({
                 sourceDataForMedian={sourceData ?? undefined}
                 settings={settings}
                 theme={theme}
-                timeSeriesData={timeSeriesData}
+                timeSeriesData={effectiveTimeSeriesData}
                 currentYear={currentYear}
                 title=""
                 groupConfig={chart.groupConfig}
@@ -673,7 +815,7 @@ export function ChartWorkspace({
           sourceDataForMedian={fullscreenData.sourceDataForMedian}
           settings={fullscreenData.settings}
           theme={theme}
-          timeSeriesData={timeSeriesData}
+          timeSeriesData={effectiveTimeSeriesData}
           currentYear={fullscreenData.currentYear}
           title={fullscreenData.title}
           groupConfig={fullscreenData.groupConfig}
@@ -700,6 +842,14 @@ export function ChartWorkspace({
         onClose={() => setIsGroupedChartModalOpen(false)}
         onCreateChart={handleCreateGroupedChart}
         maxAge={maxAge}
+      />
+
+      <ProjectionScenarioModal
+        isOpen={isProjectionModalOpen}
+        baseline={projectionBaseline}
+        initialScenario={projectionScenario}
+        onClose={() => setIsProjectionModalOpen(false)}
+        onApply={handleApplyProjection}
       />
     </>
   );

@@ -16,7 +16,7 @@ import {
 import type { Theme } from '../../../hooks';
 import styles from './CountryBrowser.module.css';
 
-type RegionFilter = 'All' | 'EU' | 'EFTA' | 'Candidate' | 'NorthAmerica' | 'Other';
+type RegionFilter = 'All' | 'Europe' | 'Asia' | 'Africa' | 'Oceania' | 'America';
 type BrowserMode = 'list' | 'map';
 
 interface CountryBrowserProps {
@@ -31,14 +31,45 @@ const CountryMapBrowser = lazy(() =>
   import('../CountryMapBrowser').then((module) => ({ default: module.CountryMapBrowser }))
 );
 
-// Pre-compute counts
+const EUROPE_CODES = new Set([
+  'EU', 'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU',
+  'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+  'IS', 'LI', 'NO', 'CH', 'AL', 'BA', 'ME', 'MK', 'MD', 'RS', 'TR', 'GE', 'UA', 'XK',
+  'UK', 'BY', 'RU',
+]);
+
+const ASIA_CODES = new Set([
+  'JP', 'AM', 'AZ', 'KZ', 'KG', 'TJ', 'TM', 'UZ', 'IL', 'AE', 'SA', 'OM', 'QA', 'KR',
+  'MN', 'ID', 'TH', 'VN', 'MY', 'SG', 'PH', 'CN', 'IN', 'PK', 'BD',
+]);
+
+const AFRICA_CODES = new Set([
+  'EG', 'ZA', 'NG', 'KE', 'ET', 'ZM', 'NE', 'TD', 'CI', 'CD', 'SN', 'NA', 'AO', 'MA',
+  'DZ', 'TN', 'GH', 'BW',
+]);
+
+const OCEANIA_CODES = new Set(['AU']);
+
+const AMERICA_CODES = new Set([
+  'US', 'CA', 'MX', 'BR', 'AR', 'BO', 'CL', 'CO', 'EC', 'PE', 'PY', 'UY', 'VE', 'GY', 'SR',
+]);
+
+function getBrowserRegion(country: CountryMeta): Exclude<RegionFilter, 'All'> {
+  if (EUROPE_CODES.has(country.code)) return 'Europe';
+  if (ASIA_CODES.has(country.code)) return 'Asia';
+  if (AFRICA_CODES.has(country.code)) return 'Africa';
+  if (OCEANIA_CODES.has(country.code)) return 'Oceania';
+  if (AMERICA_CODES.has(country.code)) return 'America';
+  return 'Europe';
+}
+
 const REGION_COUNTS: Record<RegionFilter, number> = {
   All: COUNTRIES.length,
-  EU: COUNTRIES.filter(c => c.region === 'EU').length,
-  EFTA: COUNTRIES.filter(c => c.region === 'EFTA').length,
-  Candidate: COUNTRIES.filter(c => c.region === 'Candidate').length,
-  NorthAmerica: COUNTRIES.filter(c => c.region === 'NorthAmerica').length,
-  Other: COUNTRIES.filter(c => c.region === 'Other').length,
+  Europe: COUNTRIES.filter((country) => getBrowserRegion(country) === 'Europe').length,
+  Asia: COUNTRIES.filter((country) => getBrowserRegion(country) === 'Asia').length,
+  Africa: COUNTRIES.filter((country) => getBrowserRegion(country) === 'Africa').length,
+  Oceania: COUNTRIES.filter((country) => getBrowserRegion(country) === 'Oceania').length,
+  America: COUNTRIES.filter((country) => getBrowserRegion(country) === 'America').length,
 };
 
 function getLatestValue(
@@ -165,7 +196,7 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
     return COUNTRIES.filter((c: CountryMeta) => {
-      if (regionFilter !== 'All' && c.region !== regionFilter) return false;
+      if (regionFilter !== 'All' && getBrowserRegion(c) !== regionFilter) return false;
       if (q) {
         const locName = localizedNames.get(c.code) ?? c.name;
         if (!c.name.toLowerCase().includes(q)
@@ -186,16 +217,14 @@ export function CountryBrowser({ isLoading, fullWidth, theme }: CountryBrowserPr
   );
 
   const tAny = t as Record<string, unknown>;
-  const euCandidatesLabel = (tAny.countryBrowser as Record<string, string>)?.euCandidates
-    ?? (t.countryBrowser as Record<string, string>).candidates;
 
   const regions: { key: RegionFilter; label: string }[] = [
     { key: 'All', label: `${t.countryBrowser.all} (${REGION_COUNTS.All})` },
-    { key: 'EU', label: `${t.countryBrowser.eu} (${REGION_COUNTS.EU})` },
-    { key: 'EFTA', label: `${t.countryBrowser.efta} (${REGION_COUNTS.EFTA})` },
-    { key: 'Candidate', label: `${euCandidatesLabel} (${REGION_COUNTS.Candidate})` },
-    { key: 'NorthAmerica', label: `${t.countryBrowser.northAmerica} (${REGION_COUNTS.NorthAmerica})` },
-    { key: 'Other', label: `${t.countryBrowser.other} (${REGION_COUNTS.Other})` },
+    { key: 'Europe', label: `${(tAny.countryBrowser as Record<string, string>)?.europe ?? 'Europe'} (${REGION_COUNTS.Europe})` },
+    { key: 'Asia', label: `${(tAny.countryBrowser as Record<string, string>)?.asia ?? 'Asia'} (${REGION_COUNTS.Asia})` },
+    { key: 'Africa', label: `${(tAny.countryBrowser as Record<string, string>)?.africa ?? 'Africa'} (${REGION_COUNTS.Africa})` },
+    { key: 'Oceania', label: `${(tAny.countryBrowser as Record<string, string>)?.oceania ?? 'Australia & Oceania'} (${REGION_COUNTS.Oceania})` },
+    { key: 'America', label: `${(tAny.countryBrowser as Record<string, string>)?.america ?? 'America'} (${REGION_COUNTS.America})` },
   ];
 
   const browserText = {

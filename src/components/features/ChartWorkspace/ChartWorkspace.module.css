@@ -50,6 +50,12 @@
   letter-spacing: 0.01em;
 }
 
+.projectionBadge {
+  border-color: color-mix(in srgb, #0f766e 28%, transparent);
+  background: color-mix(in srgb, #0f766e 12%, var(--color-bg-card));
+  color: #0f766e;
+}
+
 .profileSubtitle {
   margin: 6px 0 0;
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;

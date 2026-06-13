@@ -289,6 +289,7 @@ export function CountryPage({
             theme={theme}
             onClearData={onClearData}
             profileMode
+            demographyProfile={demographyProfile}
           />
         </Suspense>
       )}
