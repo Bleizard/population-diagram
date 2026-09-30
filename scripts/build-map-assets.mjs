@@ -13,7 +13,10 @@ const DESERTS_OUTPUT_PATH = new URL('../public/data/deserts_biome.optimized.geoj
 const WORLD_SIMPLIFY_TOLERANCE = 0.12;
 const DESERTS_SIMPLIFY_TOLERANCE = 0.2;
 const WORLD_ROUNDING_DECIMALS = 4;
-const DESERTS_ROUNDING_DECIMALS = 4;
+/** Deserts are background decoration: ~1 km precision is enough. */
+const DESERTS_ROUNDING_DECIMALS = 2;
+/** Desert patches whose outer ring bbox is below this (deg², ~600 km²) are invisible at map zooms. */
+const DESERTS_MIN_POLYGON_BBOX_AREA = 0.05;
 
 function roundCoordinate(value, decimals) {
   const factor = 10 ** decimals;
@@ -338,6 +341,20 @@ function simplifyFeature(feature, tolerance, decimals, includeLabelPoint) {
   };
 }
 
+/** Drops (Multi)Polygon parts whose outer ring bbox is smaller than `minArea`; null if nothing is left. */
+function dropSmallPolygons(geometry, minArea) {
+  if (geometry.type === 'Polygon') {
+    return ringBBoxArea(geometry.coordinates[0] ?? []) >= minArea ? geometry : null;
+  }
+
+  if (geometry.type === 'MultiPolygon') {
+    const polygons = geometry.coordinates.filter((polygon) => ringBBoxArea(polygon[0] ?? []) >= minArea);
+    return polygons.length > 0 ? { ...geometry, coordinates: polygons } : null;
+  }
+
+  return geometry;
+}
+
 function simplifyFeatureCollection(inputPath, outputPath, options) {
   const raw = readFileSync(inputPath, 'utf8');
   const geoJson = JSON.parse(raw);
@@ -346,9 +363,23 @@ function simplifyFeatureCollection(inputPath, outputPath, options) {
     throw new Error(`Expected FeatureCollection in ${inputPath.pathname}`);
   }
 
-  const features = geoJson.features.map((feature) => (
-    simplifyFeature(feature, options.tolerance, options.decimals, options.includeLabelPoint)
-  ));
+  const features = geoJson.features
+    .map((feature) => {
+      const geometry = options.minPolygonBBoxArea
+        ? dropSmallPolygons(feature.geometry, options.minPolygonBBoxArea)
+        : feature.geometry;
+      if (!geometry) return null;
+
+      return {
+        ...feature,
+        geometry,
+        properties: options.keepProperties === false ? {} : feature.properties,
+      };
+    })
+    .filter(Boolean)
+    .map((feature) => (
+      simplifyFeature(feature, options.tolerance, options.decimals, options.includeLabelPoint)
+    ));
 
   const simplified = {
     ...geoJson,
@@ -383,6 +414,9 @@ function main() {
     tolerance: DESERTS_SIMPLIFY_TOLERANCE,
     decimals: DESERTS_ROUNDING_DECIMALS,
     includeLabelPoint: false,
+    minPolygonBBoxArea: DESERTS_MIN_POLYGON_BBOX_AREA,
+    // Only geometry is rendered; ecoregion attributes were most of the file size.
+    keepProperties: false,
   });
 }
 
