@@ -1,19 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GeoMap, GeoJsonLayer, useGeoMap, useMapControls, type FeatureEvent, type MapStylePreset } from '@geovis/renderer';
+import type { StyleSpecification } from 'maplibre-gl';
+import { GeoMap, GeoJsonLayer, useMapControls, type FeatureEvent } from '@geovis/renderer';
 import '@geovis/renderer/style.css';
-import { Marker } from 'maplibre-gl';
 import type { CountryMeta } from '../../../data/countries';
 import type { Theme } from '../../../hooks';
 import { useI18n } from '../../../i18n';
 import { fetchCountrySummary, type CountrySummaryEntry } from '../../../services/countryDataLoader';
 import { formatPopulation } from '../../../utils';
 import {
+  approximateAreaKm2,
   createCountryMapGeoJson,
   getFeatureLabelPoint,
   getGeoJsonBounds,
   type CountryMapFeatureProperties,
 } from '../../../utils/countryMap';
+import { CountryBadgesLayer, type CountryBadge } from './CountryBadgesLayer';
+import { BADGE_FONT_FAMILY } from './countryBadgeImage';
+import { placeHoverCard } from './hoverCardPosition';
+import { loadNatureStyle } from './natureStyle';
 import styles from './CountryMapBrowser.module.css';
 
 interface CountryMapBrowserProps {
@@ -23,37 +28,37 @@ interface CountryMapBrowserProps {
   theme: Theme;
 }
 
-interface HoverState {
-  code: string;
-  x: number;
-  y: number;
-}
-
 const SUMMARY_TEXT_FALLBACK = {
   totalPopulation: 'Total population',
   dependencyRatio: 'Dependency ratio',
   sexRatio: 'Sex ratio',
   notAvailable: 'N/A',
 };
-const NATURE_WATER = '#5cb4e5';
-const NATURE_LAND = '#a3dea7';
-const NATURE_ROADS = '#adb6c7';
 const WORLD_MAP_SOURCES = ['data/world-countries.optimized.geojson', 'data/world-countries.geojson'];
-const DESERTS_MAP_SOURCES = ['data/deserts_biome.optimized.geojson', 'data/deserts_biome.geojson'];
+const DESERTS_MAP_PATH = 'data/deserts_biome.optimized.geojson';
+const FONT_LOAD_TIMEOUT_MS = 1500;
 
-async function fetchGeoJsonWithFallback(paths: string[]): Promise<GeoJSON.GeoJSON> {
-  const baseUrl = import.meta.env.BASE_URL;
+/**
+ * Absolute asset URL. GeoJSON sources given by URL are fetched inside the MapLibre worker,
+ * where relative URLs would resolve against the worker's blob: origin.
+ */
+function assetUrl(relativePath: string): string {
+  return new URL(relativePath, new URL(import.meta.env.BASE_URL, window.location.href)).href;
+}
+
+async function fetchGeoJsonWithFallback(paths: string[], signal?: AbortSignal): Promise<GeoJSON.GeoJSON> {
   let lastError: Error | null = null;
 
   for (const relativePath of paths) {
     try {
-      const response = await fetch(`${baseUrl}${relativePath}`);
+      const response = await fetch(assetUrl(relativePath), { signal });
       if (!response.ok) {
         throw new Error(`Failed to load ${relativePath}: ${response.status}`);
       }
 
       return await response.json();
     } catch (error) {
+      if (signal?.aborted) throw error;
       lastError = error instanceof Error ? error : new Error(String(error));
     }
   }
@@ -61,193 +66,12 @@ async function fetchGeoJsonWithFallback(paths: string[]): Promise<GeoJSON.GeoJSO
   throw lastError ?? new Error('Failed to load GeoJSON');
 }
 
-function shouldHideBaseLabelLayer(layer: { id?: string; type?: string; ['source-layer']?: string | undefined }): boolean {
-  if (layer.type !== 'symbol') return false;
-
-  const descriptor = `${layer.id ?? ''} ${layer['source-layer'] ?? ''}`.toLowerCase();
-  return /country|place|settlement|state|city|town|village|continent/.test(descriptor);
-}
-
-function BaseMapLabelController() {
-  const { map, isLoaded } = useGeoMap();
-
-  useEffect(() => {
-    if (!map || !isLoaded) return;
-
-    const hideLabels = () => {
-      const style = map.getStyle();
-      for (const layer of style.layers ?? []) {
-        if (!shouldHideBaseLabelLayer(layer)) continue;
-
-        try {
-          map.setLayoutProperty(layer.id, 'visibility', 'none');
-        } catch {
-          // Ignore style races while the base map is still updating.
-        }
-      }
-    };
-
-    hideLabels();
-    map.on('styledata', hideLabels);
-
-    return () => {
-      map.off('styledata', hideLabels);
-    };
-  }, [isLoaded, map]);
-
-  return null;
-}
-
-function NatureStyleController() {
-  const { map, isLoaded } = useGeoMap();
-  const desertsLoadedRef = useRef(false);
-
-  useEffect(() => {
-    if (!map || !isLoaded) return;
-
-    const applyNatureColors = () => {
-      const style = map.getStyle();
-      if (!style?.layers) return;
-
-      for (const layer of style.layers) {
-        const id = layer.id.toLowerCase();
-
-        if (id.includes('water') && layer.type === 'fill') {
-          try {
-            map.setPaintProperty(layer.id, 'fill-color', NATURE_WATER);
-          } catch {
-            // Ignore provider-specific layers that do not accept this paint property.
-          }
-        }
-
-        if (layer.id === 'background') {
-          try {
-            map.setPaintProperty(layer.id, 'background-color', NATURE_LAND);
-          } catch {
-            // Ignore style races while map style is initializing.
-          }
-        }
-
-        const isRoadLine =
-          layer.type === 'line' &&
-          (id.includes('highway') || id.includes('motorway') || id.includes('road'));
-
-        if (isRoadLine) {
-          try {
-            map.setPaintProperty(layer.id, 'line-color', NATURE_ROADS);
-          } catch {
-            // Some line layers may use a different paint schema.
-          }
-        }
-      }
-    };
-
-    if (map.isStyleLoaded()) {
-      applyNatureColors();
-    } else {
-      map.once('style.load', applyNatureColors);
-    }
-
-    map.on('styledata', applyNatureColors);
-    return () => {
-      map.off('styledata', applyNatureColors);
-    };
-  }, [isLoaded, map]);
-
-  useEffect(() => {
-    if (!map || !isLoaded) return;
-
-    const DESERTS_SOURCE = 'deserts-nature-source';
-    const DESERTS_LAYER = 'deserts-nature-layer';
-    let isCancelled = false;
-
-    const safelyRemoveDeserts = () => {
-      try {
-        if (map.getLayer(DESERTS_LAYER)) {
-          map.removeLayer(DESERTS_LAYER);
-        }
-      } catch {
-        // Ignore teardown races while the map is being disposed.
-      }
-
-      try {
-        if (map.getSource(DESERTS_SOURCE)) {
-          map.removeSource(DESERTS_SOURCE);
-        }
-      } catch {
-        // Ignore teardown races while the map is being disposed.
-      }
-
-      desertsLoadedRef.current = false;
-    };
-
-    const loadDeserts = async () => {
-      if (desertsLoadedRef.current) return;
-
-      try {
-        const data = await fetchGeoJsonWithFallback(DESERTS_MAP_SOURCES);
-        if (isCancelled) return;
-
-        if (!map.getSource(DESERTS_SOURCE)) {
-          map.addSource(DESERTS_SOURCE, {
-            type: 'geojson',
-            data,
-          });
-        }
-
-        if (!map.getLayer(DESERTS_LAYER)) {
-          const style = map.getStyle();
-          let beforeId: string | undefined;
-
-          if (style?.layers) {
-            for (const layer of style.layers) {
-              if (layer.id !== 'background') {
-                beforeId = layer.id;
-                break;
-              }
-            }
-          }
-
-          map.addLayer(
-            {
-              id: DESERTS_LAYER,
-              type: 'fill',
-              source: DESERTS_SOURCE,
-              paint: {
-                'fill-color': '#f5f1e3',
-                'fill-opacity': 1,
-              },
-            },
-            beforeId
-          );
-        }
-
-        desertsLoadedRef.current = true;
-      } catch (error) {
-        console.error('[Nature deserts] Failed to load:', error);
-      }
-    };
-
-    const handleStyleData = () => {
-      void loadDeserts();
-    };
-
-    if (map.isStyleLoaded()) {
-      void loadDeserts();
-    } else {
-      map.once('style.load', handleStyleData);
-    }
-
-    map.on('styledata', handleStyleData);
-
-    return () => {
-      isCancelled = true;
-      map.off('styledata', handleStyleData);
-      safelyRemoveDeserts();
-    };
-  }, [isLoaded, map]);
-
-  return null;
+/** Badges are rasterised once, so wait (briefly) for the web font before drawing them. */
+function loadBadgeFont(): Promise<unknown> {
+  return Promise.race([
+    document.fonts.load(`700 11px ${BADGE_FONT_FAMILY}`).catch(() => undefined),
+    new Promise((resolve) => setTimeout(resolve, FONT_LOAD_TIMEOUT_MS)),
+  ]);
 }
 
 function MapBoundsController({ data }: { data: GeoJSON.FeatureCollection<GeoJSON.Geometry, CountryMapFeatureProperties> | null }) {
@@ -267,99 +91,6 @@ function MapBoundsController({ data }: { data: GeoJSON.FeatureCollection<GeoJSON
   return null;
 }
 
-function CountryFlagMarkers({
-  data,
-  theme,
-}: {
-  data: GeoJSON.FeatureCollection<GeoJSON.Geometry, CountryMapFeatureProperties> | null;
-  theme: Theme;
-}) {
-  const { map, isLoaded } = useGeoMap();
-
-  useEffect(() => {
-    if (!map || !isLoaded || !data) return;
-
-    const markers: Marker[] = [];
-
-    for (const feature of data.features) {
-      const properties = feature.properties;
-      if (!properties?.flag) continue;
-
-      const point = getFeatureLabelPoint(feature);
-      if (!point) continue;
-
-      const element = document.createElement('div');
-      element.className = styles.flagMarker;
-      element.dataset.theme = theme;
-      element.textContent = properties.flag;
-
-      const marker = new Marker({
-        element,
-        anchor: 'center',
-      })
-        .setLngLat(point)
-        .addTo(map as unknown as Parameters<Marker['addTo']>[0]);
-
-      markers.push(marker);
-    }
-
-    return () => {
-      for (const marker of markers) {
-        marker.remove();
-      }
-    };
-  }, [data, isLoaded, map, theme]);
-
-  return null;
-}
-
-function CountryNameMarkers({
-  data,
-  theme,
-}: {
-  data: GeoJSON.FeatureCollection<GeoJSON.Geometry, CountryMapFeatureProperties> | null;
-  theme: Theme;
-}) {
-  const { map, isLoaded } = useGeoMap();
-
-  useEffect(() => {
-    if (!map || !isLoaded || !data) return;
-
-    const markers: Marker[] = [];
-
-    for (const feature of data.features) {
-      const properties = feature.properties;
-      if (!properties?.localizedName) continue;
-
-      const point = getFeatureLabelPoint(feature);
-      if (!point) continue;
-
-      const element = document.createElement('div');
-      element.className = styles.nameMarker;
-      element.dataset.theme = theme;
-      element.textContent = properties.localizedName;
-
-      const marker = new Marker({
-        element,
-        anchor: 'top',
-        offset: [0, 18],
-      })
-        .setLngLat(point)
-        .addTo(map as unknown as Parameters<Marker['addTo']>[0]);
-
-      markers.push(marker);
-    }
-
-    return () => {
-      for (const marker of markers) {
-        marker.remove();
-      }
-    };
-  }, [data, isLoaded, map, theme]);
-
-  return null;
-}
-
 export function CountryMapBrowser({
   countries,
   localizedNames,
@@ -369,40 +100,35 @@ export function CountryMapBrowser({
   const navigate = useNavigate();
   const { t } = useI18n();
   const mapFrameRef = useRef<HTMLDivElement | null>(null);
+  const hoverCardRef = useRef<HTMLDivElement | null>(null);
+  const [mapStyle, setMapStyle] = useState<StyleSpecification | null>(null);
   const [rawGeoJson, setRawGeoJson] = useState<GeoJSON.GeoJSON | null>(null);
-  const [isMapLoading, setIsMapLoading] = useState(true);
+  const [isBadgeFontReady, setIsBadgeFontReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [hoverState, setHoverState] = useState<HoverState | null>(null);
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const [countrySummaries, setCountrySummaries] = useState<Record<string, CountrySummaryEntry>>({});
 
   useEffect(() => {
-    let isCancelled = false;
+    const controller = new AbortController();
 
-    const loadMapData = async () => {
-      setIsMapLoading(true);
-      setMapError(null);
+    Promise.all([
+      loadNatureStyle(assetUrl(DESERTS_MAP_PATH), controller.signal),
+      fetchGeoJsonWithFallback(WORLD_MAP_SOURCES, controller.signal),
+    ])
+      .then(([style, json]) => {
+        setMapStyle(style);
+        setRawGeoJson(json);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setMapError(error instanceof Error ? error.message : 'Failed to load map data');
+      });
 
-      try {
-        const json = await fetchGeoJsonWithFallback(WORLD_MAP_SOURCES);
-        if (!isCancelled) {
-          setRawGeoJson(json);
-        }
-      } catch (error) {
-        if (!isCancelled) {
-          setMapError(error instanceof Error ? error.message : 'Failed to load map data');
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsMapLoading(false);
-        }
-      }
-    };
+    void loadBadgeFont().then(() => {
+      if (!controller.signal.aborted) setIsBadgeFontReady(true);
+    });
 
-    loadMapData();
-
-    return () => {
-      isCancelled = true;
-    };
+    return () => controller.abort();
   }, []);
 
   const mapGeoJson = useMemo(() => {
@@ -410,35 +136,38 @@ export function CountryMapBrowser({
     return createCountryMapGeoJson(rawGeoJson, countries, localizedNames);
   }, [countries, localizedNames, rawGeoJson]);
 
-  useEffect(() => {
-    let isCancelled = false;
+  const badges = useMemo<CountryBadge[]>(() => {
+    if (!mapGeoJson) return [];
 
-    Promise.allSettled(
-      countries.map(async (country) => ({
-        code: country.code,
-        summary: await fetchCountrySummary(country.code),
-      }))
-    ).then((results) => {
-      if (isCancelled) return;
+    return mapGeoJson.features.flatMap((feature) => {
+      const properties = feature.properties;
+      const point = getFeatureLabelPoint(feature);
+      if (!properties?.flag || !properties.localizedName || !point) return [];
 
-      setCountrySummaries((prev) => {
-        const next = { ...prev };
-
-        for (const result of results) {
-          if (result.status !== 'fulfilled') continue;
-          next[result.value.code] = result.value.summary;
-        }
-
-        return next;
-      });
+      return [{
+        code: properties.code,
+        flag: properties.flag,
+        name: properties.localizedName,
+        point,
+        priority: approximateAreaKm2(feature.geometry),
+      }];
     });
+  }, [mapGeoJson]);
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [countries]);
+  // Summaries are loaded on demand for the hovered country (and cached by the loader),
+  // instead of fetching full data of every country when the map opens.
+  useEffect(() => {
+    if (!hoveredCode || countrySummaries[hoveredCode]) return;
 
-  const hoveredCode = hoverState?.code ?? null;
+    fetchCountrySummary(hoveredCode)
+      .then((summary) => {
+        setCountrySummaries((prev) => ({ ...prev, [hoveredCode]: summary }));
+      })
+      .catch(() => {
+        // The card keeps showing placeholders.
+      });
+  }, [countrySummaries, hoveredCode]);
+
   const hoveredCountry = useMemo(() => {
     if (!hoveredCode) return null;
     return countries.find((country) => country.code === hoveredCode) ?? null;
@@ -455,32 +184,17 @@ export function CountryMapBrowser({
   }, [isLoading, navigate]);
 
   const handleFeatureHover = useCallback((event: FeatureEvent<CountryMapFeatureProperties> | null) => {
-    if (!event?.feature.properties?.code) {
-      setHoverState(null);
-      return;
+    const code = event?.feature.properties?.code ?? null;
+    // Same value → React bails out; the component re-renders only when the country changes.
+    setHoveredCode(code);
+
+    const frame = mapFrameRef.current;
+    const card = hoverCardRef.current;
+    if (event && code && frame && card) {
+      placeHoverCard(card, frame, event.originalEvent);
     }
-
-    const rect = mapFrameRef.current?.getBoundingClientRect();
-    if (!rect) {
-      setHoverState({ code: event.feature.properties.code, x: 16, y: 16 });
-      return;
-    }
-
-    const tooltipWidth = 280;
-    const tooltipHeight = 172;
-    const rawX = event.originalEvent.clientX - rect.left + 16;
-    const rawY = event.originalEvent.clientY - rect.top - tooltipHeight / 2;
-    const x = Math.min(Math.max(12, rawX), Math.max(12, rect.width - tooltipWidth - 12));
-    const y = Math.min(Math.max(12, rawY), Math.max(12, rect.height - tooltipHeight - 12));
-
-    setHoverState({
-      code: event.feature.properties.code,
-      x,
-      y,
-    });
   }, []);
 
-  const mapStyle: MapStylePreset = 'nature';
   const summaryText = t.summary ?? SUMMARY_TEXT_FALLBACK;
   const loadingMetricsText = 'Loading...';
   const hoveredMetrics = hoveredSummary ? [
@@ -490,12 +204,12 @@ export function CountryMapBrowser({
     { label: summaryText.sexRatio, value: hoveredSummary.metrics.sexRatio !== null ? `${hoveredSummary.metrics.sexRatio.toFixed(1)}` : summaryText.notAvailable },
   ] : null;
 
-  if (isMapLoading) {
-    return <div className={styles.loading}>{t.countryBrowser.mapLoading}</div>;
+  if (mapError) {
+    return <div className={styles.error}>{t.countryBrowser.mapUnavailable}</div>;
   }
 
-  if (mapError || !mapGeoJson) {
-    return <div className={styles.error}>{t.countryBrowser.mapUnavailable}</div>;
+  if (!mapStyle || !mapGeoJson) {
+    return <div className={styles.loading}>{t.countryBrowser.mapLoading}</div>;
   }
 
   if (mapGeoJson.features.length === 0) {
@@ -512,8 +226,6 @@ export function CountryMapBrowser({
             className={styles.mapViewport}
             controls
           >
-            {mapStyle === 'nature' && <NatureStyleController />}
-            <BaseMapLabelController />
             <MapBoundsController data={mapGeoJson} />
             <GeoJsonLayer<CountryMapFeatureProperties>
               id="country-browser-map"
@@ -527,42 +239,46 @@ export function CountryMapBrowser({
               onFeatureClick={handleFeatureClick}
               onFeatureHover={handleFeatureHover}
             />
-            <CountryFlagMarkers data={mapGeoJson} theme={theme} />
-            <CountryNameMarkers data={mapGeoJson} theme={theme} />
+            {/* Like the former DOM markers, every country keeps its badge even in dense Europe. */}
+            {isBadgeFontReady && <CountryBadgesLayer badges={badges} theme={theme} allowOverlap />}
           </GeoMap>
 
-          {hoverState && hoveredCountry && (
-            <div
-              className={styles.hoverCard}
-              style={{ left: `${hoverState.x}px`, top: `${hoverState.y}px` }}
-            >
-              <div className={styles.hoverCardHeader}>
-                <span className={styles.hoverCardFlag}>{hoveredCountry.flag}</span>
-                <div>
-                  <div className={styles.hoverCardTitle}>
-                    {localizedNames.get(hoveredCountry.code) ?? hoveredCountry.name}
+          <div
+            ref={hoverCardRef}
+            className={styles.hoverCard}
+            data-visible={hoveredCountry !== null}
+            aria-hidden="true"
+          >
+            {hoveredCountry && (
+              <>
+                <div className={styles.hoverCardHeader}>
+                  <span className={styles.hoverCardFlag}>{hoveredCountry.flag}</span>
+                  <div>
+                    <div className={styles.hoverCardTitle}>
+                      {localizedNames.get(hoveredCountry.code) ?? hoveredCountry.name}
+                    </div>
+                    {hoveredSummary?.year !== null && hoveredSummary?.year !== undefined && (
+                      <div className={styles.hoverCardSubtitle}>{hoveredSummary.year}</div>
+                    )}
                   </div>
-                  {hoveredSummary?.year !== null && hoveredSummary?.year !== undefined && (
-                    <div className={styles.hoverCardSubtitle}>{hoveredSummary.year}</div>
-                  )}
                 </div>
-              </div>
 
-              <div className={styles.hoverCardMetrics}>
-                {(hoveredMetrics ?? [
-                  { label: summaryText.totalPopulation, value: loadingMetricsText },
-                  { label: t.common.median, value: loadingMetricsText },
-                  { label: summaryText.dependencyRatio, value: loadingMetricsText },
-                  { label: summaryText.sexRatio, value: loadingMetricsText },
-                ]).map((metric) => (
-                  <div key={metric.label} className={styles.hoverMetric}>
-                    <div className={styles.hoverMetricLabel}>{metric.label}</div>
-                    <div className={styles.hoverMetricValue}>{metric.value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+                <div className={styles.hoverCardMetrics}>
+                  {(hoveredMetrics ?? [
+                    { label: summaryText.totalPopulation, value: loadingMetricsText },
+                    { label: t.common.median, value: loadingMetricsText },
+                    { label: summaryText.dependencyRatio, value: loadingMetricsText },
+                    { label: summaryText.sexRatio, value: loadingMetricsText },
+                  ]).map((metric) => (
+                    <div key={metric.label} className={styles.hoverMetric}>
+                      <div className={styles.hoverMetricLabel}>{metric.label}</div>
+                      <div className={styles.hoverMetricValue}>{metric.value}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <div className={styles.statusBar}>

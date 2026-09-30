@@ -172,6 +172,36 @@ function ringBBoxArea(ring: GeoJSON.Position[]): number {
   return (maxX - minX) * (maxY - minY);
 }
 
+const KM_PER_DEGREE = 111.32;
+
+/** Shoelace area of a ring in km², with a cos(latitude) correction — good enough for ranking. */
+function approximateRingAreaKm2(ring: GeoJSON.Position[]): number {
+  if (ring.length < 3) return 0;
+
+  let doubledArea = 0;
+  let latSum = 0;
+  for (let index = 0; index < ring.length; index += 1) {
+    const [x1, y1] = ring[index];
+    const [x2, y2] = ring[(index + 1) % ring.length];
+    doubledArea += x1 * y2 - x2 * y1;
+    latSum += y1;
+  }
+
+  const meanLatRadians = ((latSum / ring.length) * Math.PI) / 180;
+  return (Math.abs(doubledArea) / 2) * KM_PER_DEGREE * KM_PER_DEGREE * Math.cos(meanLatRadians);
+}
+
+/** Approximate area of the outer rings of a (Multi)Polygon, km². 0 for other geometries. */
+export function approximateAreaKm2(geometry: GeoJSON.Geometry): number {
+  if (geometry.type === 'Polygon') {
+    return approximateRingAreaKm2(geometry.coordinates[0] ?? []);
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return geometry.coordinates.reduce((sum, polygon) => sum + approximateRingAreaKm2(polygon[0] ?? []), 0);
+  }
+  return 0;
+}
+
 export function getFeatureLabelPoint(
   feature: GeoJSON.Feature<GeoJSON.Geometry, CountryMapFeatureProperties>
 ): [number, number] | null {

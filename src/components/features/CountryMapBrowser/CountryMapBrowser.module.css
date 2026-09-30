@@ -57,58 +57,12 @@
   transition: color var(--transition-normal);
 }
 
-.flagMarker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 6px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(15, 23, 42, 0.78);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.28);
-  font-size: 14px;
-  line-height: 1;
-  pointer-events: none;
-  user-select: none;
-  backdrop-filter: blur(6px);
-}
-
-.nameMarker {
-  max-width: 144px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
-  color: #172554;
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  backdrop-filter: blur(10px);
-}
-
-.flagMarker[data-theme="dark"] {
-  background: rgba(15, 23, 42, 0.84);
-}
-
-.nameMarker[data-theme="dark"] {
-  border-color: rgba(148, 163, 184, 0.22);
-  background: rgba(15, 23, 42, 0.84);
-  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.36);
-  color: #e2e8f0;
-}
-
+/* Positioned with `transform` from JS; no backdrop blur: blurring the WebGL canvas
+   under a card that follows the cursor was the main source of hover jank. */
 .hoverCard {
   position: absolute;
+  top: 0;
+  left: 0;
   z-index: 5;
   width: 280px;
   padding: 14px;
@@ -116,8 +70,12 @@
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.24);
-  backdrop-filter: blur(14px);
   pointer-events: none;
+  will-change: transform;
+}
+
+.hoverCard[data-visible="false"] {
+  visibility: hidden;
 }
 
 .hoverCardHeader {
